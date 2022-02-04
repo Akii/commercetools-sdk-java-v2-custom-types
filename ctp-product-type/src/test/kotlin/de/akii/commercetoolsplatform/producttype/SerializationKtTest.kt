@@ -1,22 +1,29 @@
-package de.akii.commercetoolsplatform.generator.producttype
+package de.akii.commercetoolsplatform.producttype
 
-import com.beust.klaxon.Klaxon
+import de.akii.commercetoolsplatform.common.Reference
+import de.akii.commercetoolsplatform.common.ReferenceTypeId
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
-import java.time.LocalDateTime
 import java.util.*
+import kotlinx.serialization.decodeFromString
 
-internal class ParserKtTest {
+internal class SerializationKtTest {
 
-    data class DateTimeTest(val dateTime: LocalDateTime)
-    data class LocalizedStringTest(val localizedString: LocalizedString)
-    data class ReferenceTypeIdTest(val referenceTypeId: ReferenceTypeId)
+    val json = Json {
+        ignoreUnknownKeys = true
+    }
+
+    @Serializable
     data class AttributeConstraintTest(val attributeConstraint: AttributeConstraint)
+
+    @Serializable
     data class TextInputHintTest(val textInputHint: TextInputHint)
 
     @Test
     fun canParseProductType() {
-        val result = parseProductType(
+        val result = json.decodeFromString<ProductType>(
             """
             {
                 "id": "e8de347b-38fa-401d-a996-aa118658a90f",
@@ -310,56 +317,8 @@ internal class ParserKtTest {
     }
 
     @Test
-    fun canParseDateTime() {
-        val result = Klaxon()
-            .converter(localDateTimeConverter)
-            .parse<DateTimeTest>(
-                """
-                {
-                  "dateTime": "2018-10-12T14:00:00.000Z"
-                }
-                """.trimIndent()
-            )
-
-        assert(result?.dateTime == LocalDateTime.of(2018, 10, 12, 14, 0, 0))
-    }
-
-    @Test
-    fun canParseLocalizedString() {
-        val result = Klaxon()
-            .converter(localizedStringConverter)
-            .parse<LocalizedStringTest>(
-                """
-                {
-                  "localizedString": {
-                    "en_US": "A localized label"
-                  }
-                }
-                """.trimIndent()
-            )
-
-        assert(result!!.localizedString[Locale("en_US")] == "A localized label")
-    }
-
-    @Test
-    fun canParseReferenceTypeId() {
-        val result = Klaxon()
-            .converter(referenceTypeIdConverter)
-            .parse<ReferenceTypeIdTest>(
-                """
-                {
-                  "referenceTypeId": "key-value-document"
-                }
-                """.trimIndent()
-            )
-
-        assert(result!!.referenceTypeId == ReferenceTypeId.KeyValueDocument)
-    }
-
-    @Test
     fun canParseAttributeConstraint() {
-        val result = Klaxon()
-            .parse<AttributeConstraintTest>(
+        val result = json.decodeFromString<AttributeConstraintTest>(
                 """
                 {
                   "attributeConstraint": "None"
@@ -367,13 +326,12 @@ internal class ParserKtTest {
                 """.trimIndent()
             )
 
-        assert(result!!.attributeConstraint == AttributeConstraint.None)
+        assert(result.attributeConstraint == AttributeConstraint.None)
     }
 
     @Test
     fun canParseTextInputHint() {
-        val result = Klaxon()
-            .parse<TextInputHintTest>(
+        val result = json.decodeFromString<TextInputHintTest>(
                 """
                 {
                   "textInputHint": "SingleLine"
@@ -381,13 +339,12 @@ internal class ParserKtTest {
                 """.trimIndent()
             )
 
-        assert(result!!.textInputHint == TextInputHint.SingleLine)
+        assert(result.textInputHint == TextInputHint.SingleLine)
     }
 
     @Test
     fun canParseBooleanType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "boolean"
@@ -400,8 +357,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseTextType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "text"
@@ -414,8 +370,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseLocalizableTextType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "ltext"
@@ -428,8 +383,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseEnumType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "enum",
@@ -448,8 +402,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseLocalizableEnumType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "lenum",
@@ -467,10 +420,8 @@ internal class ParserKtTest {
 
         val localizedEnumValue = LocalizedEnumValue(
             "key",
-            LocalizedString(
-                mapOf(
-                    Locale("en_US") to "A localized label"
-                )
+            mapOf(
+                Locale("en_US") to "A localized label"
             )
         )
 
@@ -482,8 +433,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseNumberType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "number"
@@ -496,8 +446,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseMoneyType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "money"
@@ -510,8 +459,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseDateType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "date"
@@ -524,8 +472,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseTimeType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "time"
@@ -538,8 +485,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseDateTimeType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "datetime"
@@ -552,8 +498,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseReferenceType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "reference",
@@ -567,8 +512,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseSetType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "set",
@@ -584,8 +528,7 @@ internal class ParserKtTest {
 
     @Test
     fun canParseNestedType() {
-        val result = parser()
-            .parse<AttributeType>(
+        val result = json.decodeFromString<AttributeType>(
                 """
                 {
                   "name": "nested",

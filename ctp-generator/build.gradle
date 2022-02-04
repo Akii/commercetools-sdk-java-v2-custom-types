@@ -1,3 +1,6 @@
 dependencies {
-    implementation 'com.squareup:kotlinpoet:1.10.2'
+    implementation(project(":ctp-common"))
+    implementation(project(":ctp-product-type"))
+    implementation "com.squareup:kotlinpoet:1.10.2"
+    implementation "org.jetbrains.kotlin:kotlin-script-runtime:1.6.10"
 }

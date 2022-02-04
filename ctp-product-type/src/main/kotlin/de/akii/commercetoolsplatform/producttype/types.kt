@@ -1,21 +1,30 @@
-package de.akii.commercetoolsplatform.generator.producttype
+@file:OptIn(ExperimentalSerializationApi::class)
 
+package de.akii.commercetoolsplatform.producttype
+
+import de.akii.commercetoolsplatform.common.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import java.time.LocalDateTime
-import java.util.*
 
+@Serializable
 data class ProductType(
     val id: String,
     val key: String? = null,
     val version: Int,
+    @Serializable(CTPLocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    val createdBy: CreatedBy?,
+    val createdBy: CreatedBy? = null,
+    @Serializable(CTPLocalDateTimeSerializer::class)
     val lastModifiedAt: LocalDateTime,
-    val lastModifiedBy: LastModifiedBy?,
+    val lastModifiedBy: LastModifiedBy? = null,
     val name: String,
     val description: String,
     val attributes: List<AttributeDefinition>
 )
 
+@Serializable
 data class AttributeDefinition(
     val type: AttributeType,
     val name: String,
@@ -27,26 +36,55 @@ data class AttributeDefinition(
     val isSearchable: Boolean
 )
 
+@Serializable(AttributeTypeSerializer::class)
 sealed class AttributeType
+
+@Serializable
 object BooleanType : AttributeType()
+
+@Serializable
 object TextType : AttributeType()
+
+@Serializable
 object LocalizableTextType : AttributeType()
+
+@Serializable
 data class EnumType(val values: List<PlainEnumValue>) : AttributeType()
+
+@Serializable
 data class LocalizableEnumType(val values: List<LocalizedEnumValue>) : AttributeType()
+
+@Serializable
 object NumberType : AttributeType()
+
+@Serializable
 object MoneyType : AttributeType()
+
+@Serializable
 object DateType : AttributeType()
+
+@Serializable
 object TimeType : AttributeType()
+
+@Serializable
 object DateTimeType : AttributeType()
+
+@Serializable
 data class ReferenceType(val referenceTypeId: ReferenceTypeId) : AttributeType()
+
+@Serializable
 data class SetType(val elementType: AttributeType) : AttributeType()
+
+@Serializable
 data class NestedType(val typeReference: Reference) : AttributeType()
 
+@Serializable
 enum class TextInputHint {
     SingleLine,
     MultiLine
 }
 
+@Serializable
 enum class AttributeConstraint {
     None,
     Unique,
@@ -54,60 +92,14 @@ enum class AttributeConstraint {
     SameForAll
 }
 
-enum class ReferenceTypeId {
-    Cart,
-    CartDiscount,
-    Category,
-    Channel,
-    Customer,
-    CustomerGroup,
-    DiscountCode,
-    KeyValueDocument,
-    Payment,
-    Product,
-    ProductDiscount,
-    ProductPrice,
-    ProductSelection,
-    ProductType,
-    Order,
-    OrderEdit,
-    ShippingMethod,
-    ShippingList,
-    State,
-    Store,
-    TaxCategory,
-    Type,
-    Review,
-    Zone
-}
-
+@Serializable
 data class PlainEnumValue(
     val key: String,
     val label: String
 )
 
+@Serializable
 data class LocalizedEnumValue(
     val key: String,
     val label: LocalizedString
 )
-
-data class CreatedBy(
-    val clientId: String? = null,
-    val externalUserId: String? = null,
-    val customer: Reference? = null,
-    val anonymousId: String? = null
-)
-
-data class LastModifiedBy(
-    val clientId: String? = null,
-    val externalUserId: String? = null,
-    val customer: Reference? = null,
-    val anonymousId: String? = null
-)
-
-data class Reference(
-    val typeId: ReferenceTypeId,
-    val id: String
-)
-
-data class LocalizedString(private val labels: Map<Locale, String>) : Map<Locale, String> by labels
