@@ -7,12 +7,10 @@ pluginManagement {
     }
 }
 
-rootProject.name = "ctp-product-type-generator"
+rootProject.name = "ctp-type-generator"
 
-include(":ctp-common")
-include(":ctp-product-type")
+include(":ctp-types")
 include(":ctp-generator")
 
-project(":ctp-common").projectDir = file("ctp-common")
-project(":ctp-product-type").projectDir = file("ctp-product-type")
+project(":ctp-types").projectDir = file("ctp-types")
 project(":ctp-generator").projectDir = file("ctp-generator")
