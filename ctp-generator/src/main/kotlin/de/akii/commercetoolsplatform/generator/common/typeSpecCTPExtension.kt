@@ -5,7 +5,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlin.reflect.KClass
 
 const val MUTABLE_LIST_INITIALIZER = "kotlin.collections.mutableListOf()"
-const val LOCALIZED_STRING_INITIALIZER = "com.commercetools.api.models.common.LocalizedStringImpl()"
 const val ZONED_DATE_TIME_INITIALIZER = "java.time.ZonedDateTime.now()"
 
 fun initializerFor(kclass: KClass<*>): String =
@@ -126,7 +125,6 @@ private fun propertyNameToFunctionName(prefix: String, attributeName: String): S
 private fun kclassToClassName(type: KClass<*>): ClassName =
     when (type) {
         MutableList::class -> ClassName("kotlin.collections", "MutableList")
-        Long::class -> ClassName("kotlin", "Long")
         else -> type.asTypeName()
     }
 

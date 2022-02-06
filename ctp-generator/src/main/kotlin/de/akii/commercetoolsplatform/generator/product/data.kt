@@ -2,6 +2,7 @@ package de.akii.commercetoolsplatform.generator.product
 
 import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.common.LocalizedString
+import com.commercetools.api.models.common.LocalizedStringImpl
 import com.commercetools.api.models.product.*
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetoolsplatform.generator.common.*
@@ -14,7 +15,7 @@ fun generateProductData(
     .classBuilder(productDataClassName.className)
     .addSuperinterface(ProductData::class)
     .addAnnotation(Generated::class)
-    .addCTPProperty("name", LocalizedString::class, initializer = LOCALIZED_STRING_INITIALIZER)
+    .addCTPProperty("name", LocalizedString::class, initializer = initializerFor(LocalizedStringImpl::class))
     .addCTPProperty("categories", MutableList::class, CategoryReference::class, initializer = MUTABLE_LIST_INITIALIZER)
     .addCTPProperty("categoryOrderHints", CategoryOrderHints::class, initializer = initializerFor(CategoryOrderHintsImpl::class))
     .addCTPProperty("description", LocalizedString::class, true)

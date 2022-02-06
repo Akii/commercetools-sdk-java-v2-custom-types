@@ -6,7 +6,7 @@ import de.akii.commercetoolsplatform.types.producttype.*
 
 data class Configuration(val packageName: String)
 
-fun generateCodeForProductTypes(productTypes: List<ProductType>, config: Configuration): List<FileSpec> {
+fun generateFilesProductTypes(productTypes: List<ProductType>, config: Configuration): List<FileSpec> {
     val productSerializerClassName = ClassName("${config.packageName}.serializer", "ProductSerializer")
 
     val productSerializer = generateProductSerializer(productSerializerClassName, productTypes, config)
