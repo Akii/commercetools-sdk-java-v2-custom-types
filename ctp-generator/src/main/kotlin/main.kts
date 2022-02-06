@@ -1,4 +1,5 @@
 import de.akii.commercetoolsplatform.generator.*
+import de.akii.commercetoolsplatform.generator.product.generateProductFile
 import de.akii.commercetoolsplatform.types.producttype.ProductType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
@@ -290,10 +291,33 @@ val productType = json.decodeFromString<ProductType>(
                         "isSearchable": false,
                         "inputHint": "SingleLine",
                         "displayGroup": "Other"
+                    },
+                    {
+                        "name": "nested-prop",
+                        "label": {
+                            "de-DE": "Nested product type",
+                            "en-US": ""
+                        },
+                        "inputTip": {
+                            "de-DE": "",
+                            "en-US": ""
+                        },
+                        "isRequired": true,
+                        "type": {
+                            "name": "nested",
+                            "typeReference": {
+                                "id": "test",
+                                "typeId": "product-type"
+                            }
+                        },
+                        "attributeConstraint": "None",
+                        "isSearchable": false,
+                        "inputHint": "SingleLine",
+                        "displayGroup": "Other"
                     }
                 ]
             }
             """.trimIndent()
 )
 
-print(generateCodeForProductTypes(listOf(productType), Configuration("foo.bar")))
+print(generateProductFile(productType, Configuration("foo.bar")))

@@ -34,60 +34,8 @@ enum class ReferenceTypeId(val ctpName: String) {
 }
 
 @Serializable
-data class CreatedBy(
-    val clientId: String? = null,
-    val externalUserId: String? = null,
-    val customer: Reference? = null,
-    val anonymousId: String? = null,
-    val isPlatformClient: Boolean = false,
-    val user: Reference? = null
-)
-
-@Serializable
-data class LastModifiedBy(
-    val clientId: String? = null,
-    val externalUserId: String? = null,
-    val customer: Reference? = null,
-    val anonymousId: String? = null,
-    val isPlatformClient: Boolean = false,
-    val user: Reference? = null
-)
-
-@Serializable
 data class Reference(
     val typeId: ReferenceTypeId,
     val id: String,
     val obj: JsonObject? = null
 )
-
-@Serializable
-data class EnumValue(
-    val key: String,
-    val label: String
-)
-
-@Serializable
-data class LocalizedEnumValue(
-    val key: String,
-    val label: LocalizedString
-)
-
-@Serializable
-sealed class Money
-
-@Serializable
-data class CentPrecisionMoney(
-    val currencyCode: String,
-    val centAmount: Int,
-    val fractionDigits: Int
-) : Money()
-
-@Serializable
-data class HighPrecisionMoney(
-    val currencyCode: String,
-    val centAmount: Int,
-    val preciseAmount: Int,
-    val fractionDigits: Int
-) : Money()
-
-typealias LocalizedString = Map<@Serializable(LocaleSerializer::class) Locale, String>

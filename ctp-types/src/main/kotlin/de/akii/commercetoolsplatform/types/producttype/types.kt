@@ -2,19 +2,12 @@ package de.akii.commercetoolsplatform.types.producttype
 
 import de.akii.commercetoolsplatform.types.common.*
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
 
 @Serializable
 data class ProductType(
     val id: String,
     val key: String? = null,
     val version: Int,
-    @Serializable(CTPLocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
-    val createdBy: CreatedBy? = null,
-    @Serializable(CTPLocalDateTimeSerializer::class)
-    val lastModifiedAt: LocalDateTime,
-    val lastModifiedBy: LastModifiedBy? = null,
     val name: String,
     val description: String,
     val attributes: List<AttributeDefinition>
@@ -24,12 +17,8 @@ data class ProductType(
 data class AttributeDefinition(
     val type: AttributeType,
     val name: String,
-    val label: LocalizedString,
     val isRequired: Boolean,
-    val attributeConstraint: AttributeConstraint,
-    val inputTip: LocalizedString,
-    val inputHint: TextInputHint,
-    val isSearchable: Boolean
+    val attributeConstraint: AttributeConstraint
 )
 
 @Serializable(AttributeTypeSerializer::class)
@@ -45,10 +34,10 @@ object TextType : AttributeType()
 object LocalizableTextType : AttributeType()
 
 @Serializable
-data class EnumType(val values: List<EnumValue>) : AttributeType()
+object EnumType : AttributeType()
 
 @Serializable
-data class LocalizableEnumType(val values: List<LocalizedEnumValue>) : AttributeType()
+object  LocalizableEnumType : AttributeType()
 
 @Serializable
 object NumberType : AttributeType()
@@ -73,12 +62,6 @@ data class SetType(val elementType: AttributeType) : AttributeType()
 
 @Serializable
 data class NestedType(val typeReference: Reference) : AttributeType()
-
-@Serializable
-enum class TextInputHint {
-    SingleLine,
-    MultiLine
-}
 
 @Serializable
 enum class AttributeConstraint {

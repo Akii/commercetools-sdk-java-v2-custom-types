@@ -29,10 +29,6 @@ subprojects {
         testImplementation(kotlin("test"))
     }
 
-    kotlin.sourceSets.all {
-        languageSettings.optIn("kotlin.RequiresOptIn")
-    }
-
     tasks.test {
         useJUnitPlatform()
     }

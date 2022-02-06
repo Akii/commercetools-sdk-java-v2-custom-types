@@ -1,14 +1,10 @@
 package de.akii.commercetoolsplatform.types.producttype
 
-import de.akii.commercetoolsplatform.types.common.EnumValue
-import de.akii.commercetoolsplatform.types.common.LocalizedEnumValue
 import de.akii.commercetoolsplatform.types.common.Reference
 import de.akii.commercetoolsplatform.types.common.ReferenceTypeId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
-import java.util.*
 import kotlinx.serialization.decodeFromString
 
 internal class SerializationKtTest {
@@ -19,9 +15,6 @@ internal class SerializationKtTest {
 
     @Serializable
     data class AttributeConstraintTest(val attributeConstraint: AttributeConstraint)
-
-    @Serializable
-    data class TextInputHintTest(val textInputHint: TextInputHint)
 
     @Test
     fun canParseProductType() {
@@ -332,19 +325,6 @@ internal class SerializationKtTest {
     }
 
     @Test
-    fun canParseTextInputHint() {
-        val result = json.decodeFromString<TextInputHintTest>(
-                """
-                {
-                  "textInputHint": "SingleLine"
-                }
-                """.trimIndent()
-            )
-
-        assert(result.textInputHint == TextInputHint.SingleLine)
-    }
-
-    @Test
     fun canParseBooleanType() {
         val result = json.decodeFromString<AttributeType>(
                 """
@@ -396,10 +376,7 @@ internal class SerializationKtTest {
                 """.trimIndent()
             )
 
-        when (result) {
-            is EnumType -> assert(result.values == listOf(EnumValue("key", "label")))
-            else -> fail("Failed to parse enum type")
-        }
+        assert(result == EnumType)
     }
 
     @Test
@@ -420,17 +397,7 @@ internal class SerializationKtTest {
                 """.trimIndent()
             )
 
-        val localizedEnumValue = LocalizedEnumValue(
-            "key",
-            mapOf(
-                Locale("en_US") to "A localized label"
-            )
-        )
-
-        when (result) {
-            is LocalizableEnumType -> assert(result.values == listOf(localizedEnumValue))
-            else -> fail("Failed to parse enum type")
-        }
+        assert(result == LocalizableEnumType)
     }
 
     @Test

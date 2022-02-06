@@ -1,115 +1,78 @@
-package de.akii.commercetoolsplatform.generator
+package de.akii.commercetoolsplatform.generator.product
 
-import com.squareup.kotlinpoet.ClassName
+import com.commercetools.api.models.common.CreatedBy
+import com.commercetools.api.models.common.LastModifiedBy
+import com.commercetools.api.models.product.Product
+import com.commercetools.api.models.product.ProductCatalogData
+import com.commercetools.api.models.product_type.ProductTypeReference
+import com.commercetools.api.models.product_type.ProductTypeReferenceImpl
+import com.commercetools.api.models.review.ReviewRatingStatistics
+import com.commercetools.api.models.state.StateReference
+import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
-import de.akii.commercetoolsplatform.types.common.CreatedBy
-import de.akii.commercetoolsplatform.types.common.LastModifiedBy
-import de.akii.commercetoolsplatform.types.common.Reference
+import de.akii.commercetoolsplatform.generator.*
+import de.akii.commercetoolsplatform.generator.common.*
 import de.akii.commercetoolsplatform.types.producttype.ProductType
-import kotlinx.serialization.Serializable
+import java.time.ZonedDateTime
 import javax.annotation.processing.Generated
 
-fun generateCodeForProduct(
+fun generateProductFile(
     productType: ProductType,
-    productClassName: ClassName,
-    productSerializerClassName: ClassName,
     config: Configuration
 ): FileSpec {
-    val productName = productTypeNameToClassName(productType.name)
-    val packageName = "${config.packageName}.${productName.lowercase()}"
-    val productTypeClassName = ClassName(packageName, productName)
+    val productClassName = ProductClassName(productType.name, config)
+    val productCatalogDataClassName = ProductCatalogDataClassName(productType.name, config)
+    val productDataClassName = ProductDataClassName(productType.name, config)
+    val productVariantClassName = ProductVariantClassName(productType.name, config)
+    val productVariantAttributesClassName = ProductVariantAttributesClassName(productType.name, config)
 
-    val (attributeClassName, attributeTypeSpec) = generateCodeForProductVariantAttributes(
-        productName,
-        packageName,
-        productType.attributes
+    val attributeTypeSpec = generateProductVariantAttributes(
+        productVariantAttributesClassName,
+        productType.attributes,
+        config
     )
-    val (variantClassName, variantTypeSpec) = generateCodeForProductVariant(
-        productName,
-        packageName,
-        attributeClassName
+
+    val variantTypeSpec = generateProductVariant(
+        ProductVariantClassName(productType.name, config),
+        productVariantAttributesClassName
     )
-    val (productDataClassName, productDataTypeSpec) = generateCodeForProductData(
-        productName,
-        packageName,
-        variantClassName
+    val productDataTypeSpec = generateProductData(
+        productDataClassName,
+        productVariantClassName
     )
-    val (masterDataClassName, masterDataTypeSpec) = generateCodeForMasterData(
-        productName,
-        packageName,
+    val masterDataTypeSpec = generateProductCatalogData(
+        productCatalogDataClassName,
         productDataClassName
     )
 
     val product = TypeSpec
-        .classBuilder(productTypeClassName)
-        .superclass(productClassName)
-        .addModifiers(KModifier.DATA)
+        .classBuilder(productClassName.className)
+        .addSuperinterface(Product::class)
         .addAnnotation(Generated::class)
-        .addAnnotation(serializableBy(productSerializerClassName))
-        .addProperty("id", String::class)
-        .addProperty("version", Int::class)
-        .addProperty("lastMessageSequenceNumber", Int::class)
-        .addProperty(dateTimeProperty("createdAt"))
-        .addProperty("createdBy", CreatedBy::class)
-        .addProperty(dateTimeProperty("lastModifiedAt"))
-        .addProperty("lastModifiedBy", LastModifiedBy::class)
-        .addProperty("productType", Reference::class)
-        .addProperty("masterData", masterDataClassName)
+        .addCTPProperty("id", String::class, initializer = "\"\"")
+        .addCTPProperty("key", String::class, true)
+        .addCTPProperty("version", Long::class, initializer = "0")
+        .addCTPProperty("createdAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
+        .addCTPProperty("createdBy", CreatedBy::class, true)
+        .addCTPProperty("lastModifiedAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
+        .addCTPProperty("lastModifiedBy", LastModifiedBy::class, true)
+        .addCTPProperty("productType", ProductTypeReference::class, initializer = initializerFor(ProductTypeReferenceImpl::class))
+        .addCTPProperty("masterData", productCatalogDataClassName.className, castedFrom = ProductCatalogData::class, initializer = initializerFor(productCatalogDataClassName.className))
+        .addCTPProperty("taxCategory", TaxCategoryReference::class, true)
+        .addCTPProperty("state", StateReference::class, true)
+        .addCTPProperty("reviewRatingStatistics", ReviewRatingStatistics::class,true)
         .build()
 
     return FileSpec
-        .builder(packageName, productName)
+        .builder(
+            productClassName.className.packageName,
+            productClassName.className.canonicalName
+        )
         .addType(product)
         .addType(masterDataTypeSpec)
         .addType(productDataTypeSpec)
         .addType(variantTypeSpec)
         .addType(attributeTypeSpec)
         .build()
-}
-
-fun generateCodeForMasterData(
-    productName: String,
-    packageName: String,
-    productDataClassName: ClassName
-): Pair<ClassName, TypeSpec> {
-    val className = ClassName(packageName, "${productName}MasterData")
-    val type = TypeSpec
-        .classBuilder(className)
-        .addAnnotation(Generated::class)
-        .addAnnotation(serializableBy(Serializable::class))
-        .addProperty("current", productDataClassName)
-        .addProperty("staged", productDataClassName)
-        .addProperty("published", Boolean::class)
-        .addProperty("hasStagedChanges", Boolean::class)
-        .build()
-
-    return className to type
-}
-
-fun generateCodeForProductData(
-    productName: String,
-    packageName: String,
-    variantClassName: ClassName
-): Pair<ClassName, TypeSpec> {
-    val className = ClassName(packageName, "${productName}ProductData")
-    val type = TypeSpec
-        .classBuilder(className)
-        .addAnnotation(Generated::class)
-        .addAnnotation(serializableBy(Serializable::class))
-        .addProperty("name", localizedStringType)
-        .addProperty("categories", listTypeName(Reference::class))
-        .addProperty("categoryOrderHints", mapTypeName(String::class, String::class))
-        .addProperty("description", localizedStringType.copy(nullable = true))
-        .addProperty("slug", localizedStringType)
-        .addProperty("metaTitle", localizedStringType.copy(nullable = true))
-        .addProperty("metaDescription", localizedStringType.copy(nullable = true))
-        .addProperty("metaKeywords", localizedStringType.copy(nullable = true))
-        .addProperty("masterVariant", variantClassName)
-        .addProperty("variants", listTypeName(variantClassName))
-        .addProperty("searchKeywords", mapTypeName(String::class, Any::class))
-        .build()
-
-    return className to type
 }
