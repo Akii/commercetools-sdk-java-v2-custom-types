@@ -82,6 +82,7 @@ private fun propertySetter(name: String, type: TypeName, nullable: Boolean, cast
             .addParameter(name, kclassToClassName(castedFrom).copy(nullable))
             .addStatement("this.${name} = $name as $type")
             .addModifiers(KModifier.OVERRIDE)
+            .addAnnotation(suppressUncheckedCalls)
             .build()
 
 private fun propertyListSetter(name: String, type: ClassName, parameterizedBy: TypeName, nullable: Boolean, castedFrom: KClass<*>?): FunSpec =
@@ -91,7 +92,6 @@ private fun propertyListSetter(name: String, type: ClassName, parameterizedBy: T
             .addParameter(name, type.parameterizedBy(parameterizedBy).copy(nullable))
             .addStatement("this.${name} = $name")
             .addModifiers(KModifier.OVERRIDE)
-            .addAnnotation(suppressUncheckedCalls)
             .build()
     else
         FunSpec

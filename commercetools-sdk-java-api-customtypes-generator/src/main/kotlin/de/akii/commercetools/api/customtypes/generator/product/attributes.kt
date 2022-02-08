@@ -21,10 +21,11 @@ fun generateProductVariantAttributes(
     config: Configuration
 ): TypeSpec {
     val generatedAttributes = attributes.map { generateAttribute(it, config) }
+    val modifiers = if (attributes.isEmpty()) emptyList() else listOf(KModifier.DATA)
 
     return TypeSpec
         .classBuilder(productVariantAttributesClassName.className)
-        .addModifiers(KModifier.DATA)
+        .addModifiers(modifiers)
         .addAnnotation(Generated::class)
         .primaryConstructor(
             FunSpec.constructorBuilder()
