@@ -37,10 +37,12 @@ fun generateProductFile(
         ProductVariantClassName(productType.name, config),
         productVariantAttributesClassName
     )
+
     val productDataTypeSpec = generateProductData(
         productDataClassName,
         productVariantClassName
     )
+
     val masterDataTypeSpec = generateProductCatalogData(
         productCatalogDataClassName,
         productDataClassName
@@ -50,24 +52,24 @@ fun generateProductFile(
         .classBuilder(productClassName.className)
         .addSuperinterface(Product::class)
         .addAnnotation(Generated::class)
-        .addCTPProperty("id", String::class, initializer = "\"\"")
-        .addCTPProperty("key", String::class, true)
-        .addCTPProperty("version", Long::class, initializer = "0")
-        .addCTPProperty("createdAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
-        .addCTPProperty("createdBy", CreatedBy::class, true)
-        .addCTPProperty("lastModifiedAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
-        .addCTPProperty("lastModifiedBy", LastModifiedBy::class, true)
-        .addCTPProperty("productType", ProductTypeReference::class, initializer = initializerFor(ProductTypeReferenceImpl::class))
-        .addCTPProperty("masterData", productCatalogDataClassName.className, castedFrom = ProductCatalogData::class, initializer = initializerFor(productCatalogDataClassName.className))
-        .addCTPProperty("taxCategory", TaxCategoryReference::class, true)
-        .addCTPProperty("state", StateReference::class, true)
-        .addCTPProperty("reviewRatingStatistics", ReviewRatingStatistics::class,true)
+        .addCTProperty("id", String::class, initializer = "\"\"")
+        .addCTProperty("key", String::class, true)
+        .addCTProperty("version", Long::class, initializer = "0")
+        .addCTProperty("createdAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
+        .addCTProperty("createdBy", CreatedBy::class, true)
+        .addCTProperty("lastModifiedAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
+        .addCTProperty("lastModifiedBy", LastModifiedBy::class, true)
+        .addCTProperty("productType", ProductTypeReference::class, initializer = initializerFor(ProductTypeReferenceImpl::class))
+        .addCTProperty("masterData", productCatalogDataClassName.className, castedFrom = ProductCatalogData::class, initializer = initializerFor(productCatalogDataClassName.className))
+        .addCTProperty("taxCategory", TaxCategoryReference::class, true)
+        .addCTProperty("state", StateReference::class, true)
+        .addCTProperty("reviewRatingStatistics", ReviewRatingStatistics::class,true)
         .build()
 
     return FileSpec
         .builder(
             productClassName.className.packageName,
-            productClassName.className.canonicalName
+            productClassName.className.simpleName
         )
         .addType(product)
         .addType(masterDataTypeSpec)

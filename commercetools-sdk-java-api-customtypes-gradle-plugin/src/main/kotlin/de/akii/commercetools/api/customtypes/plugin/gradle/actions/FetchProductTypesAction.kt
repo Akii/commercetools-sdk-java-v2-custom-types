@@ -13,7 +13,7 @@ import org.gradle.workers.WorkAction
 abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters> {
 
     override fun execute() {
-        val ctpApi = ApiRootBuilder.of()
+        val ctApi = ApiRootBuilder.of()
             .defaultClient(
                 ClientCredentials.of()
                     .withClientId(parameters.clientId.get())
@@ -25,7 +25,7 @@ abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters>
 
         val productTypes: List<ProductType> = QueryUtils
             .queryAll(
-                ctpApi.productTypes().get(),
+                ctApi.productTypes().get(),
                 java.util.function.Function.identity()
             )
             .toCompletableFuture()

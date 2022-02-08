@@ -11,7 +11,7 @@ import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.MUTABLE_LIST_INITIALIZER
 import de.akii.commercetools.api.customtypes.generator.common.ProductVariantAttributesClassName
 import de.akii.commercetools.api.customtypes.generator.common.ProductVariantClassName
-import de.akii.commercetools.api.customtypes.generator.common.addCTPProperty
+import de.akii.commercetools.api.customtypes.generator.common.addCTProperty
 import io.vrap.rmf.base.client.utils.Generated
 
 fun generateProductVariant(
@@ -21,18 +21,18 @@ fun generateProductVariant(
     .classBuilder(productVariantClassName.className)
     .addSuperinterface(ProductVariant::class)
     .addAnnotation(Generated::class)
-    .addCTPProperty("id", Long::class, initializer = "0L")
-    .addCTPProperty("sku", String::class, true)
-    .addCTPProperty("key", String::class, true)
-    .addCTPProperty("prices", MutableList::class, Price::class, initializer = MUTABLE_LIST_INITIALIZER)
-    .addCTPProperty("attributes", MutableList::class, Attribute::class, initializer = MUTABLE_LIST_INITIALIZER)
-    .addCTPProperty("price", Price::class, true)
-    .addCTPProperty("images", MutableList::class, Image::class, initializer = MUTABLE_LIST_INITIALIZER)
-    .addCTPProperty("assets", MutableList::class, Asset::class, initializer = MUTABLE_LIST_INITIALIZER)
-    .addCTPProperty("availability", ProductVariantAvailability::class, true)
-    .addCTPProperty("isMatchingVariant", Boolean::class, true)
-    .addCTPProperty("scopedPrice", ScopedPrice::class, true)
-    .addCTPProperty("scopedPriceDiscounted", Boolean::class, true)
+    .addCTProperty("id", Long::class, initializer = "0L")
+    .addCTProperty("sku", String::class, true)
+    .addCTProperty("key", String::class, true)
+    .addCTProperty("prices", MutableList::class, Price::class, initializer = MUTABLE_LIST_INITIALIZER)
+    .addCTProperty("attributes", MutableList::class, Attribute::class, initializer = MUTABLE_LIST_INITIALIZER)
+    .addCTProperty("price", Price::class, true)
+    .addCTProperty("images", MutableList::class, Image::class, initializer = MUTABLE_LIST_INITIALIZER)
+    .addCTProperty("assets", MutableList::class, Asset::class, initializer = MUTABLE_LIST_INITIALIZER)
+    .addCTProperty("availability", ProductVariantAvailability::class, true)
+    .addCTProperty("isMatchingVariant", Boolean::class, true)
+    .addCTProperty("scopedPrice", ScopedPrice::class, true)
+    .addCTProperty("scopedPriceDiscounted", Boolean::class, true)
     .addProperty(typedAttributesProperty(productVariantAttributesClassName))
     .addFunction(typedAttributesGetter(productVariantAttributesClassName))
     .build()

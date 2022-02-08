@@ -71,7 +71,7 @@ enum class AttributeConstraint {
 }
 
 @Serializable(ReferenceTypeIdSerializer::class)
-enum class ReferenceTypeId(val ctpName: String) {
+enum class ReferenceTypeId(val ctName: String) {
     Cart("cart"),
     CartDiscount("cart-discount"),
     Category("category"),

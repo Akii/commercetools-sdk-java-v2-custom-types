@@ -4,28 +4,28 @@ import com.squareup.kotlinpoet.ClassName
 import de.akii.commercetools.api.customtypes.generator.Configuration
 import java.util.*
 
-sealed class CTPClassName(private val packageName: String, val ctpClassName: String) {
+sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName
-        get() = ClassName(packageName, ctpClassName)
+        get() = ClassName(packageName, ctClassName)
 }
 
 class ProductClassName(productTypeName: String, config: Configuration) :
-    CTPClassName(typeNameToPackageName(productTypeName, config), "${typeNameToClassName(productTypeName)}Product")
+    CTClassName(typeNameToPackageName(productTypeName, config), "${typeNameToClassName(productTypeName)}Product")
 
-class ProductCatalogDataClassName(productTypeName: String, config: Configuration) : CTPClassName(
+class ProductCatalogDataClassName(productTypeName: String, config: Configuration) : CTClassName(
     typeNameToPackageName(productTypeName, config),
     "${typeNameToClassName(productTypeName)}ProductCatalogData"
 )
 
 class ProductDataClassName(productTypeName: String, config: Configuration) :
-    CTPClassName(typeNameToPackageName(productTypeName, config), "${typeNameToClassName(productTypeName)}ProductData")
+    CTClassName(typeNameToPackageName(productTypeName, config), "${typeNameToClassName(productTypeName)}ProductData")
 
-class ProductVariantClassName(productTypeName: String, config: Configuration) : CTPClassName(
+class ProductVariantClassName(productTypeName: String, config: Configuration) : CTClassName(
     typeNameToPackageName(productTypeName, config),
     "${typeNameToClassName(productTypeName)}ProductVariant"
 )
 
-class ProductVariantAttributesClassName(productTypeName: String, config: Configuration) : CTPClassName(
+class ProductVariantAttributesClassName(productTypeName: String, config: Configuration) : CTClassName(
     typeNameToPackageName(productTypeName, config),
     "${typeNameToClassName(productTypeName)}ProductVariantAttributes"
 )

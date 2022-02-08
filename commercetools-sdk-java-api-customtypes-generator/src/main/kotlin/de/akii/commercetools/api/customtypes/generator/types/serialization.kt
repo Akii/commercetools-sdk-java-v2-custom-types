@@ -35,12 +35,12 @@ object ReferenceTypeIdSerializer : KSerializer<ReferenceTypeId> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ReferenceTypeId", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: ReferenceTypeId) =
-        encoder.encodeString(value.ctpName)
+        encoder.encodeString(value.ctName)
 
     override fun deserialize(decoder: Decoder): ReferenceTypeId {
         val referenceTypeId = decoder.decodeString()
 
         return ReferenceTypeId
-            .values().first { it.ctpName == referenceTypeId }
+            .values().first { it.ctName == referenceTypeId }
     }
 }

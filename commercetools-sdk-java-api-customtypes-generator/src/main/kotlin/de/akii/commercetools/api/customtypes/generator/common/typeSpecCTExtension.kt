@@ -13,10 +13,10 @@ fun initializerFor(kclass: KClass<*>): String =
 fun initializerFor(className: ClassName): String =
     "${className.canonicalName}()"
 
-fun TypeSpec.Builder.addCTPProperty(name: String, type: KClass<*>, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder =
-    this.addCTPProperty(name, kclassToClassName(type), nullable, initializer, castedFrom)
+fun TypeSpec.Builder.addCTProperty(name: String, type: KClass<*>, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder =
+    this.addCTProperty(name, kclassToClassName(type), nullable, initializer, castedFrom)
 
-fun TypeSpec.Builder.addCTPProperty(name: String, type: TypeName, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder {
+fun TypeSpec.Builder.addCTProperty(name: String, type: TypeName, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder {
     val property = property(name, type, nullable, initializer)
     val getter = propertyGetter(name, type, nullable)
     val setter = propertySetter(name, type, nullable, castedFrom)
@@ -27,10 +27,10 @@ fun TypeSpec.Builder.addCTPProperty(name: String, type: TypeName, nullable: Bool
         .addFunction(setter)
 }
 
-fun TypeSpec.Builder.addCTPProperty(name: String, type: KClass<*>, parameterizedBy: KClass<*>, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder =
-    this.addCTPProperty(name, type, kclassToClassName(parameterizedBy), nullable, initializer, castedFrom)
+fun TypeSpec.Builder.addCTProperty(name: String, type: KClass<*>, parameterizedBy: KClass<*>, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder =
+    this.addCTProperty(name, type, kclassToClassName(parameterizedBy), nullable, initializer, castedFrom)
 
-fun TypeSpec.Builder.addCTPProperty(name: String, type: KClass<*>, parameterizedBy: TypeName, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder {
+fun TypeSpec.Builder.addCTProperty(name: String, type: KClass<*>, parameterizedBy: TypeName, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder {
     val parameterizedType = kclassToClassName(type).parameterizedBy(parameterizedBy)
     val builder = this
         .addProperty(property(name, parameterizedType, nullable, initializer))
