@@ -6,7 +6,7 @@ import com.commercetools.api.models.common.LocalizedStringImpl
 import com.commercetools.api.models.product.*
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
-import javax.annotation.processing.Generated
+import io.vrap.rmf.base.client.utils.Generated
 
 fun generateProductData(
     productDataClassName: ProductDataClassName,

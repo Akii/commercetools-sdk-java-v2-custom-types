@@ -12,7 +12,7 @@ import de.akii.commercetools.api.customtypes.generator.common.MUTABLE_LIST_INITI
 import de.akii.commercetools.api.customtypes.generator.common.ProductVariantAttributesClassName
 import de.akii.commercetools.api.customtypes.generator.common.ProductVariantClassName
 import de.akii.commercetools.api.customtypes.generator.common.addCTPProperty
-import javax.annotation.processing.Generated
+import io.vrap.rmf.base.client.utils.Generated
 
 fun generateProductVariant(
     productVariantClassName: ProductVariantClassName,

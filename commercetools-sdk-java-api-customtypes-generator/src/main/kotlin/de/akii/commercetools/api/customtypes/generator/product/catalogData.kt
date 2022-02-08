@@ -7,7 +7,7 @@ import de.akii.commercetools.api.customtypes.generator.common.ProductCatalogData
 import de.akii.commercetools.api.customtypes.generator.common.ProductDataClassName
 import de.akii.commercetools.api.customtypes.generator.common.addCTPProperty
 import de.akii.commercetools.api.customtypes.generator.common.initializerFor
-import javax.annotation.processing.Generated
+import io.vrap.rmf.base.client.utils.Generated
 
 fun generateProductCatalogData(
     productCatalogDataClassName: ProductCatalogDataClassName,

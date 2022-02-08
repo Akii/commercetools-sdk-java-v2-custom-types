@@ -2,6 +2,7 @@ package de.akii.commercetools.api.customtypes.generator.product
 
 import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.TypedMoney
+import com.commercetools.api.models.common.Reference
 import com.commercetools.api.models.product_type.AttributeLocalizedEnumValue
 import com.commercetools.api.models.product_type.AttributePlainEnumValue
 import com.squareup.kotlinpoet.*
@@ -9,6 +10,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.ProductVariantAttributesClassName
 import de.akii.commercetools.api.customtypes.generator.types.*
+import io.vrap.rmf.base.client.utils.Generated
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -23,6 +25,7 @@ fun generateProductVariantAttributes(
     return TypeSpec
         .classBuilder(productVariantAttributesClassName.className)
         .addModifiers(KModifier.DATA)
+        .addAnnotation(Generated::class)
         .primaryConstructor(
             FunSpec.constructorBuilder()
                 .addParameters(generatedAttributes.map { it.first })
