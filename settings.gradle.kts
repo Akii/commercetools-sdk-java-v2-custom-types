@@ -1,20 +1,18 @@
 pluginManagement {
     val kotlinVersion: String by settings
+    val pluginPublishPluginVersion: String by settings
 
     plugins {
         kotlin("jvm") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
+        id("com.gradle.plugin-publish") version pluginPublishPluginVersion
     }
 }
 
-rootProject.name = "ctp-type-generator"
+rootProject.name = "commercetools-sdk-java-v2-custom-types"
 
-include(":ctp-types")
-include(":ctp-generator")
-include(":ctp-generator-gradle-plugin")
-include(":ctp-test")
+include(":commercetools-sdk-java-api-customtypes-generator")
+include(":commercetools-sdk-java-api-customtypes-gradle-plugin")
 
-project(":ctp-types").projectDir = file("ctp-types")
-project(":ctp-generator").projectDir = file("ctp-generator")
-project(":ctp-generator-gradle-plugin").projectDir = file("ctp-generator-gradle-plugin")
-project(":ctp-test").projectDir = file("ctp-test")
+project(":commercetools-sdk-java-api-customtypes-generator").projectDir = file("commercetools-sdk-java-api-customtypes-generator")
+project(":commercetools-sdk-java-api-customtypes-gradle-plugin").projectDir = file("commercetools-sdk-java-api-customtypes-gradle-plugin")
