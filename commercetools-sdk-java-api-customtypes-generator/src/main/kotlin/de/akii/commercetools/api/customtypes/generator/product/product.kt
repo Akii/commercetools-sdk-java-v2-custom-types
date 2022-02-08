@@ -9,6 +9,7 @@ import com.commercetools.api.models.product_type.ProductTypeReferenceImpl
 import com.commercetools.api.models.review.ReviewRatingStatistics
 import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
@@ -20,7 +21,7 @@ import io.vrap.rmf.base.client.utils.Generated
 fun generateProductFile(
     productType: ProductType,
     config: Configuration
-): FileSpec {
+): List<FileSpec> {
     val productClassName = ProductClassName(productType.name, config)
     val productCatalogDataClassName = ProductCatalogDataClassName(productType.name, config)
     val productDataClassName = ProductDataClassName(productType.name, config)
@@ -66,15 +67,17 @@ fun generateProductFile(
         .addCTProperty("reviewRatingStatistics", ReviewRatingStatistics::class,true)
         .build()
 
-    return FileSpec
-        .builder(
-            productClassName.className.packageName,
-            productClassName.className.simpleName
-        )
-        .addType(product)
-        .addType(masterDataTypeSpec)
-        .addType(productDataTypeSpec)
-        .addType(variantTypeSpec)
-        .addType(attributeTypeSpec)
-        .build()
+    return listOf(
+        makeFile(productClassName.className, product),
+        makeFile(productCatalogDataClassName.className, masterDataTypeSpec),
+        makeFile(productDataClassName.className, productDataTypeSpec),
+        makeFile(productVariantClassName.className, variantTypeSpec),
+        makeFile(productVariantAttributesClassName.className, attributeTypeSpec)
+    )
 }
+
+private fun makeFile(className: ClassName, type: TypeSpec): FileSpec =
+    FileSpec
+        .builder(className.packageName, className.simpleName)
+        .addType(type)
+        .build()

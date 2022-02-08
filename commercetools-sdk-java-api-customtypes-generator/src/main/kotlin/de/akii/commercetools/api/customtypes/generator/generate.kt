@@ -14,7 +14,7 @@ fun generateProductTypeFiles(productTypes: List<ProductType>, config: Configurat
         .builder(config.packageName, "Product")
         .build()
 
-    return listOf(file, productSerializer) + productTypes.map {
+    return listOf(file, productSerializer) + productTypes.flatMap {
         generateProductFile(it, config)
     }
 }
