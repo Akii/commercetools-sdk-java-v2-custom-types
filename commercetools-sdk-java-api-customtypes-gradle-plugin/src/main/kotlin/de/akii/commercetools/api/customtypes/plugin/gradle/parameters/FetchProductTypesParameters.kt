@@ -4,7 +4,7 @@ import org.gradle.api.provider.Property
 import org.gradle.workers.WorkParameters
 import java.io.File
 
-interface RetrieveProductTypesParameters : WorkParameters {
+interface FetchProductTypesParameters : WorkParameters {
     val clientId: Property<String>
     val clientSecret: Property<String>
     val serviceRegion: Property<String>

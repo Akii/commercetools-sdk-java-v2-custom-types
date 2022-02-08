@@ -6,10 +6,13 @@ plugins {
 }
 
 val commercetoolsSdkApiVersion: String by project
+val kotlinPoetVersion: String by project
 
 dependencies {
     compileOnly(kotlin("gradle-plugin-api"))
+
     api(project(":commercetools-sdk-java-api-customtypes-generator"))
+    compileOnly("com.squareup:kotlinpoet:$kotlinPoetVersion")
     api("com.commercetools.sdk:commercetools-sdk-java-api:$commercetoolsSdkApiVersion")
 }
 
@@ -17,7 +20,7 @@ gradlePlugin {
     plugins {
         register("customTypesGeneratorPlugin") {
             id = "de.akii.commercetools.api.customtypes"
-            implementationClass = "de.akii.commercetools.api.customtypes.plugin.gradle.CTPGeneratorGradlePlugin"
+            implementationClass = "de.akii.commercetools.api.customtypes.plugin.gradle.CustomTypesGeneratorGradlePlugin"
         }
     }
 }

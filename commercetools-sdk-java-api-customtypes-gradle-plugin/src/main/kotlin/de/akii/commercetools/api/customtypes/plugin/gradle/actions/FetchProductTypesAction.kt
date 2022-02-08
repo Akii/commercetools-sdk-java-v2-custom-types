@@ -6,11 +6,11 @@ import com.commercetools.api.defaultconfig.ServiceRegion
 import com.commercetools.api.models.product_type.ProductType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.RetrieveProductTypesParameters
+import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.FetchProductTypesParameters
 import io.vrap.rmf.base.client.oauth2.ClientCredentials
 import org.gradle.workers.WorkAction
 
-abstract class FetchProductTypesAction : WorkAction<RetrieveProductTypesParameters> {
+abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters> {
 
     override fun execute() {
         val ctpApi = ApiRootBuilder.of()
