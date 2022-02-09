@@ -1,27 +1,30 @@
 package de.akii.commercetools.api.customtypes.generator
 
 import com.squareup.kotlinpoet.*
+import de.akii.commercetools.api.customtypes.generator.common.CustomProductClassName
+import de.akii.commercetools.api.customtypes.generator.product.customProductDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.generateProductFile
 import de.akii.commercetools.api.customtypes.generator.types.ProductType
 
 data class Configuration(val packageName: String)
 
-fun generateProductTypeFiles(productTypes: List<ProductType>, config: Configuration): List<FileSpec> {
-    val productSerializerClassName = ClassName("${config.packageName}.serializer", "ProductSerializer")
-
-    val productSerializer = generateProductSerializer(productSerializerClassName, productTypes, config)
-    val file = FileSpec
-        .builder(config.packageName, "Product")
+fun productFiles(productTypes: List<ProductType>, config: Configuration): List<FileSpec> {
+    val productFile = FileSpec
+        .builder("${config.packageName}.product", "product")
+        .addType(customProductDeserializer(productTypes, config))
         .build()
 
-    return listOf(file, productSerializer) + productTypes.flatMap {
+    val apiModuleFile = FileSpec
+        .builder(config.packageName, "apiModule")
+        .addType(apiModule(config))
+        .build()
+
+    return listOf(productFile) + productTypes.flatMap {
         generateProductFile(it, config)
     }
 }
 
-fun generateProductSerializer(
-    productSerializerClassName: ClassName,
-    productTypes: List<ProductType>,
-    config: Configuration
-): FileSpec =
-    FileSpec.builder(config.packageName, "serializer").build()
+fun apiModule(config: Configuration): TypeSpec =
+    TypeSpec
+        .interfaceBuilder(CustomProductClassName(config).className)
+        .build()

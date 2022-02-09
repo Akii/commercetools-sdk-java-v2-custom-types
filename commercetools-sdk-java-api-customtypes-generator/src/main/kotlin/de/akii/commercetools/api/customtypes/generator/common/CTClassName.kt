@@ -9,35 +9,35 @@ sealed class CTClassName(private val packageName: String, private val ctClassNam
         get() = ClassName(packageName, ctClassName)
 }
 
+class ProductDeserializerClassName(config: Configuration) :
+    CTClassName("${config.packageName}.product", "ProductDeserializer")
+
+class CustomProductClassName(config: Configuration) :
+    CTClassName("${config.packageName}.product", "CustomProduct")
+
 class ProductClassName(productTypeName: String, config: Configuration) :
-    CTClassName(typeNameToPackageName(productTypeName, config), "${typeNameToClassName(productTypeName)}Product")
+    CTClassName(typeNameToPackageName(productTypeName, "product", config), "${typeNameToClassName(productTypeName)}Product")
 
 class ProductCatalogDataClassName(productTypeName: String, config: Configuration) : CTClassName(
-    typeNameToPackageName(productTypeName, config),
-    "${typeNameToClassName(productTypeName)}ProductCatalogData"
+    typeNameToPackageName(productTypeName, "product", config), "${typeNameToClassName(productTypeName)}ProductCatalogData"
 )
 
 class ProductDataClassName(productTypeName: String, config: Configuration) :
-    CTClassName(typeNameToPackageName(productTypeName, config), "${typeNameToClassName(productTypeName)}ProductData")
+    CTClassName(typeNameToPackageName(productTypeName, "product", config), "${typeNameToClassName(productTypeName)}ProductData")
 
 class ProductVariantClassName(productTypeName: String, config: Configuration) : CTClassName(
-    typeNameToPackageName(productTypeName, config),
-    "${typeNameToClassName(productTypeName)}ProductVariant"
+    typeNameToPackageName(productTypeName, "product", config), "${typeNameToClassName(productTypeName)}ProductVariant"
 )
 
 class ProductVariantAttributesClassName(productTypeName: String, config: Configuration) : CTClassName(
-    typeNameToPackageName(productTypeName, config),
-    "${typeNameToClassName(productTypeName)}ProductVariantAttributes"
+    typeNameToPackageName(productTypeName, "product", config), "${typeNameToClassName(productTypeName)}ProductVariantAttributes"
 )
 
-fun typeNameToPackageName(typeName: String, config: Configuration) =
-    "${config.packageName}.${typeNameToClassName(typeName).lowercase()}"
+fun typeNameToPackageName(typeName: String, subPackage: String, config: Configuration) =
+    "${config.packageName}.${subPackage}.${typeNameToClassName(typeName).lowercase()}"
 
-fun typeNameToClassName(typeName: String) =
-    typeName
-        .split('-', '_', ' ')
-        .joinToString("") { part ->
-            part.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-            }
+fun typeNameToClassName(typeName: String) = typeName.split('-', '_', ' ').joinToString("") { part ->
+        part.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
         }
+    }

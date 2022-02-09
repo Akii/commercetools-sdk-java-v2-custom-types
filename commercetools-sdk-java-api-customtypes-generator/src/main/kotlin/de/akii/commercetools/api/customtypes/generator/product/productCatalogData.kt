@@ -9,7 +9,7 @@ import de.akii.commercetools.api.customtypes.generator.common.addCTProperty
 import de.akii.commercetools.api.customtypes.generator.common.initializerFor
 import io.vrap.rmf.base.client.utils.Generated
 
-fun generateProductCatalogData(
+fun productCatalogData(
     productCatalogDataClassName: ProductCatalogDataClassName,
     productDataClassName: ProductDataClassName
 ): TypeSpec = TypeSpec

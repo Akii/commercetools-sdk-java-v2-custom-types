@@ -8,7 +8,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 
-fun generateProductData(
+fun productData(
     productDataClassName: ProductDataClassName,
     productVariantClassName: ProductVariantClassName,
 ): TypeSpec = TypeSpec

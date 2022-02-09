@@ -1,7 +1,7 @@
 package de.akii.commercetools.api.customtypes.plugin.gradle.actions
 
 import de.akii.commercetools.api.customtypes.generator.Configuration
-import de.akii.commercetools.api.customtypes.generator.generateProductTypeFiles
+import de.akii.commercetools.api.customtypes.generator.productFiles
 import de.akii.commercetools.api.customtypes.generator.types.ProductType
 import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.GenerateCustomTypesParameters
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -23,7 +23,7 @@ abstract class GenerateCustomTypesAction : WorkAction<GenerateCustomTypesParamet
             parameters.productTypesFile.get().inputStream()
         )
 
-        val files = generateProductTypeFiles(productTypes, Configuration(parameters.packageName.get()))
+        val files = productFiles(productTypes, Configuration(parameters.packageName.get()))
 
         files.forEach {
             it.writeTo(parameters.targetDirectory.get())

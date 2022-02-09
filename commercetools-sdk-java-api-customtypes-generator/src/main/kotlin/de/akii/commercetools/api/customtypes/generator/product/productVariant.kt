@@ -14,7 +14,7 @@ import de.akii.commercetools.api.customtypes.generator.common.ProductVariantClas
 import de.akii.commercetools.api.customtypes.generator.common.addCTProperty
 import io.vrap.rmf.base.client.utils.Generated
 
-fun generateProductVariant(
+fun productVariant(
     productVariantClassName: ProductVariantClassName,
     productVariantAttributesClassName: ProductVariantAttributesClassName
 ): TypeSpec = TypeSpec

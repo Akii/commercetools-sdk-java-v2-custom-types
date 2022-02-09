@@ -15,12 +15,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-fun generateProductVariantAttributes(
+fun productVariantAttributes(
     productVariantAttributesClassName: ProductVariantAttributesClassName,
     attributes: List<AttributeDefinition>,
     config: Configuration
 ): TypeSpec {
-    val generatedAttributes = attributes.map { generateAttribute(it, config) }
+    val generatedAttributes = attributes.map { attribute(it, config) }
     val modifiers = if (attributes.isEmpty()) emptyList() else listOf(KModifier.DATA)
 
     return TypeSpec
@@ -36,9 +36,9 @@ fun generateProductVariantAttributes(
         .build()
 }
 
-private fun generateAttribute(attributeDefinition: AttributeDefinition, config: Configuration): Pair<ParameterSpec, PropertySpec> {
+private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): Pair<ParameterSpec, PropertySpec> {
     val attributeName = attributeNameToPropertyName(attributeDefinition.name)
-    val attributeType = getTypeNameForAttributeType(attributeDefinition.type, config)
+    val attributeType = typeNameForAttributeType(attributeDefinition.type, config)
         .copy(nullable = !attributeDefinition.isRequired)
 
     val parameter = ParameterSpec.builder(attributeName, attributeType)
@@ -55,7 +55,7 @@ private fun generateAttribute(attributeDefinition: AttributeDefinition, config: 
     return parameter.build() to property
 }
 
-private fun getTypeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
+private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
     when (attributeType) {
         is BooleanType -> Boolean::class.asTypeName()
         is TextType -> String::class.asTypeName()
@@ -68,7 +68,7 @@ private fun getTypeNameForAttributeType(attributeType: AttributeType, config: Co
         is TimeType -> LocalTime::class.asTypeName()
         is DateTimeType -> ZonedDateTime::class.asTypeName()
         is ReferenceType -> Reference::class.asTypeName()
-        is SetType -> SET.parameterizedBy(getTypeNameForAttributeType(attributeType.elementType, config))
+        is SetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
         is NestedType -> ProductVariantAttributesClassName(attributeType.typeReference.id, config).className
     }
 

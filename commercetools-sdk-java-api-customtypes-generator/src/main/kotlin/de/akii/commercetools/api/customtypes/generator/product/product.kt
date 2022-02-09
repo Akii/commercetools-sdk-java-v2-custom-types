@@ -28,23 +28,23 @@ fun generateProductFile(
     val productVariantClassName = ProductVariantClassName(productType.name, config)
     val productVariantAttributesClassName = ProductVariantAttributesClassName(productType.name, config)
 
-    val attributeTypeSpec = generateProductVariantAttributes(
+    val attributeTypeSpec = productVariantAttributes(
         productVariantAttributesClassName,
         productType.attributes,
         config
     )
 
-    val variantTypeSpec = generateProductVariant(
+    val variantTypeSpec = productVariant(
         ProductVariantClassName(productType.name, config),
         productVariantAttributesClassName
     )
 
-    val productDataTypeSpec = generateProductData(
+    val productDataTypeSpec = productData(
         productDataClassName,
         productVariantClassName
     )
 
-    val masterDataTypeSpec = generateProductCatalogData(
+    val masterDataTypeSpec = productCatalogData(
         productCatalogDataClassName,
         productDataClassName
     )
@@ -52,6 +52,7 @@ fun generateProductFile(
     val product = TypeSpec
         .classBuilder(productClassName.className)
         .addSuperinterface(Product::class)
+        .addSuperinterface(CustomProductClassName(config).className)
         .addAnnotation(Generated::class)
         .addCTProperty("id", String::class, initializer = "\"\"")
         .addCTProperty("key", String::class, true)
