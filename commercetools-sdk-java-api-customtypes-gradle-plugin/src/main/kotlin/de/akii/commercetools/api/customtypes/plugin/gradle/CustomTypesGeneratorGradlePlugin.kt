@@ -6,6 +6,8 @@ import de.akii.commercetools.api.customtypes.plugin.gradle.tasks.GENERATE_CUSTOM
 import de.akii.commercetools.api.customtypes.plugin.gradle.tasks.GenerateCustomTypesTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.SourceSetContainer
 
 private const val PLUGIN_EXTENSION_NAME = "commercetoolsCustomTypesGenerator"
 
@@ -50,6 +52,7 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
         val generateCustomTypesTask = project.tasks.named(GENERATE_CUSTOM_TYPES_TASK_NAME, GenerateCustomTypesTask::class.java).get()
         generateCustomTypesTask.packageName.convention(project.provider { extension.packageName })
         generateCustomTypesTask.productTypesFile.set(extension.productTypesFile)
+        configureDefaultProjectSourceSet(project, generateCustomTypesTask.outputDirectory)
 
         if (extension.clientId != null) {
             val fetchProductTypesTask = project.tasks.named(FETCH_PRODUCT_TYPES_TASK_NAME, FetchProductTypesTask::class.java).get()
@@ -73,5 +76,10 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
             val configuration = project.configurations.getAt(GENERATE_CUSTOM_TYPES_TASK_NAME)
             fetchTask.pluginClasspath.setFrom(configuration)
         }
+    }
+
+    private fun configureDefaultProjectSourceSet(project: Project, outputDirectory: DirectoryProperty, targetSourceSet: String = "main") {
+        val sourceSetContainer = project.findProperty("sourceSets") as? SourceSetContainer
+        sourceSetContainer?.findByName(targetSourceSet)?.java?.srcDir(outputDirectory)
     }
 }
