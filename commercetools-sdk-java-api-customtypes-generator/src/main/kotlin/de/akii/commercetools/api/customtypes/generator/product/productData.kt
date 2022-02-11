@@ -6,6 +6,7 @@ import com.commercetools.api.models.product.CategoryOrderHints
 import com.commercetools.api.models.product.ProductData
 import com.commercetools.api.models.product.ProductVariant
 import com.commercetools.api.models.product.SearchKeywords
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
@@ -15,6 +16,7 @@ fun productData(
     productVariantClassName: ProductVariantClassName,
 ): TypeSpec = TypeSpec
     .classBuilder(productDataClassName.className)
+    .addModifiers(KModifier.DATA)
     .addSuperinterface(ProductData::class)
     .addAnnotation(Generated::class)
     .addAnnotation(deserializeAs(productDataClassName.className))

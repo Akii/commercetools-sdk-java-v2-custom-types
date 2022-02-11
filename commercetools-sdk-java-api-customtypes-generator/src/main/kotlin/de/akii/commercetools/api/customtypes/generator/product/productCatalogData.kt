@@ -2,6 +2,7 @@ package de.akii.commercetools.api.customtypes.generator.product
 
 import com.commercetools.api.models.product.ProductCatalogData
 import com.commercetools.api.models.product.ProductData
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
@@ -11,6 +12,7 @@ fun productCatalogData(
     productDataClassName: ProductDataClassName
 ): TypeSpec = TypeSpec
     .classBuilder(productCatalogDataClassName.className)
+    .addModifiers(KModifier.DATA)
     .addSuperinterface(ProductCatalogData::class)
     .addAnnotation(Generated::class)
     .addAnnotation(deserializeAs(productCatalogDataClassName.className))

@@ -1,9 +1,11 @@
 package de.akii.commercetools.api.customtypes.generator
 
 import com.commercetools.api.models.product.Product
+import com.commercetools.api.models.product.ProductImpl
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.CustomProductDeserializerClassName
+import de.akii.commercetools.api.customtypes.generator.common.deserializeAs
 import de.akii.commercetools.api.customtypes.generator.common.deserializeUsing
 import de.akii.commercetools.api.customtypes.generator.product.customProductDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.generateProductFile
@@ -20,6 +22,7 @@ fun productFiles(productTypes: List<ProductType>, config: Configuration): List<F
     val apiModuleFile = FileSpec
         .builder(config.packageName, "apiModules")
         .addType(customProductInterface(config))
+        .addType(fallbackProductInterface(config))
         .addType(customProductApiModule(config))
         .build()
 
@@ -32,6 +35,12 @@ fun customProductInterface(config: Configuration): TypeSpec =
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "CustomProduct"))
         .addAnnotation(deserializeUsing(CustomProductDeserializerClassName(config).className))
+        .build()
+
+fun fallbackProductInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(ClassName(config.packageName, "FallbackProduct"))
+        .addAnnotation(deserializeAs(ProductImpl::class.asClassName()))
         .build()
 
 fun customProductApiModule(config: Configuration): TypeSpec =
@@ -48,6 +57,11 @@ fun customProductApiModule(config: Configuration): TypeSpec =
                 "setMixInAnnotation(%1L::class.java, %2L::class.java)\n",
                 Product::class.asTypeName().canonicalName,
                 "CustomProduct"
+            )
+            add(
+                "setMixInAnnotation(%1L::class.java, %2L::class.java)\n",
+                ProductImpl::class.asTypeName().canonicalName,
+                "FallbackProduct"
             )
         })
         .build()

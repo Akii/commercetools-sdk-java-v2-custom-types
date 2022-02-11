@@ -22,6 +22,12 @@ fun productVariantAttributes(
 ): TypeSpec {
     return TypeSpec
         .classBuilder(productVariantAttributesClassName.className)
+        .addModifiers(
+            if (attributes.isEmpty())
+                emptyList()
+            else
+                listOf(KModifier.DATA)
+        )
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
         .addCTProperties(attributes.map { attribute(it, config) })
@@ -32,7 +38,7 @@ private fun attribute(attributeDefinition: AttributeDefinition, config: Configur
     SimpleCTProperty(
         attributeNameToPropertyName(attributeDefinition.name),
         typeNameForAttributeType(attributeDefinition.type, config),
-        nullable = !attributeDefinition.isRequired,
+        nullable = true,
         modifiers = emptyList()
     )
 

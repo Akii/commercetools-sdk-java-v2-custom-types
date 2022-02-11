@@ -11,6 +11,7 @@ fun productVariant(
     productVariantAttributesClassName: ProductVariantAttributesClassName
 ): TypeSpec = TypeSpec
     .classBuilder(productVariantClassName.className)
+    .addModifiers(KModifier.DATA)
     .addSuperinterface(ProductVariant::class)
     .addAnnotation(Generated::class)
     .addAnnotation(deserializeAs(productVariantClassName.className))

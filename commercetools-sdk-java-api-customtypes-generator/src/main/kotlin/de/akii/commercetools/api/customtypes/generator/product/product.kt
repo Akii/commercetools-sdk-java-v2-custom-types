@@ -48,6 +48,7 @@ fun generateProductFile(
 
     val product = TypeSpec
         .classBuilder(productClassName.className)
+        .addModifiers(KModifier.DATA)
         .addSuperinterface(Product::class)
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(productClassName.className))
