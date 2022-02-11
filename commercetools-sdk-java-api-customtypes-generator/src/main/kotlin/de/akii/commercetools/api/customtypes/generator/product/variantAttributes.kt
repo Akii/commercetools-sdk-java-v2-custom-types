@@ -8,7 +8,7 @@ import com.commercetools.api.models.product_type.AttributePlainEnumValue
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.Configuration
-import de.akii.commercetools.api.customtypes.generator.common.ProductVariantAttributesClassName
+import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.types.*
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.LocalDate
@@ -20,40 +20,21 @@ fun productVariantAttributes(
     attributes: List<AttributeDefinition>,
     config: Configuration
 ): TypeSpec {
-    val generatedAttributes = attributes.map { attribute(it, config) }
-    val modifiers = if (attributes.isEmpty()) emptyList() else listOf(KModifier.DATA)
-
     return TypeSpec
         .classBuilder(productVariantAttributesClassName.className)
-        .addModifiers(modifiers)
         .addAnnotation(Generated::class)
-        .primaryConstructor(
-            FunSpec.constructorBuilder()
-                .addParameters(generatedAttributes.map { it.first })
-                .build()
-        )
-        .addProperties(generatedAttributes.map { it.second })
+        .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
+        .addCTProperties(attributes.map { attribute(it, config) })
         .build()
 }
 
-private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): Pair<ParameterSpec, PropertySpec> {
-    val attributeName = attributeNameToPropertyName(attributeDefinition.name)
-    val attributeType = typeNameForAttributeType(attributeDefinition.type, config)
-        .copy(nullable = !attributeDefinition.isRequired)
-
-    val parameter = ParameterSpec.builder(attributeName, attributeType)
-
-    if (!attributeDefinition.isRequired) {
-        parameter.defaultValue("null")
-    }
-
-    val property = PropertySpec
-        .builder(attributeName, attributeType)
-        .initializer(attributeName)
-        .build()
-
-    return parameter.build() to property
-}
+private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): CTProperty =
+    SimpleCTProperty(
+        attributeNameToPropertyName(attributeDefinition.name),
+        typeNameForAttributeType(attributeDefinition.type, config),
+        nullable = !attributeDefinition.isRequired,
+        modifiers = emptyList()
+    )
 
 private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
     when (attributeType) {
@@ -72,7 +53,7 @@ private fun typeNameForAttributeType(attributeType: AttributeType, config: Confi
         is NestedType -> ProductVariantAttributesClassName(attributeType.typeReference.id, config).className
     }
 
-fun attributeNameToPropertyName(attributeName: String): String {
+private fun attributeNameToPropertyName(attributeName: String): String {
     return attributeName
         .split('-', '_', ' ')
         .joinToString("") { part ->

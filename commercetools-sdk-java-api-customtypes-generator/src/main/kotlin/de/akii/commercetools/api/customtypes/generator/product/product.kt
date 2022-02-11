@@ -5,18 +5,15 @@ import com.commercetools.api.models.common.LastModifiedBy
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductCatalogData
 import com.commercetools.api.models.product_type.ProductTypeReference
-import com.commercetools.api.models.product_type.ProductTypeReferenceImpl
 import com.commercetools.api.models.review.ReviewRatingStatistics
 import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.TypeSpec
-import de.akii.commercetools.api.customtypes.generator.common.*
+import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.Configuration
+import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.types.ProductType
-import java.time.ZonedDateTime
 import io.vrap.rmf.base.client.utils.Generated
+import java.time.ZonedDateTime
 
 fun generateProductFile(
     productType: ProductType,
@@ -35,7 +32,7 @@ fun generateProductFile(
     )
 
     val variantTypeSpec = productVariant(
-        ProductVariantClassName(productType.name, config),
+        productVariantClassName,
         productVariantAttributesClassName
     )
 
@@ -52,20 +49,22 @@ fun generateProductFile(
     val product = TypeSpec
         .classBuilder(productClassName.className)
         .addSuperinterface(Product::class)
-        .addSuperinterface(CustomProductClassName(config).className)
         .addAnnotation(Generated::class)
-        .addCTProperty("id", String::class, initializer = "\"\"")
-        .addCTProperty("key", String::class, true)
-        .addCTProperty("version", Long::class, initializer = "0")
-        .addCTProperty("createdAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
-        .addCTProperty("createdBy", CreatedBy::class, true)
-        .addCTProperty("lastModifiedAt", ZonedDateTime::class, initializer = ZONED_DATE_TIME_INITIALIZER)
-        .addCTProperty("lastModifiedBy", LastModifiedBy::class, true)
-        .addCTProperty("productType", ProductTypeReference::class, initializer = initializerFor(ProductTypeReferenceImpl::class))
-        .addCTProperty("masterData", productCatalogDataClassName.className, castedFrom = ProductCatalogData::class, initializer = initializerFor(productCatalogDataClassName.className))
-        .addCTProperty("taxCategory", TaxCategoryReference::class, true)
-        .addCTProperty("state", StateReference::class, true)
-        .addCTProperty("reviewRatingStatistics", ReviewRatingStatistics::class,true)
+        .addAnnotation(deserializeAs(productClassName.className))
+        .addCTProperties(
+            SimpleCTProperty("id", String::class),
+            SimpleCTProperty("key", String::class, nullable = true),
+            SimpleCTProperty("version", Long::class),
+            SimpleCTProperty("createdAt", ZonedDateTime::class),
+            SimpleCTProperty("createdBy", CreatedBy::class),
+            SimpleCTProperty("lastModifiedAt", ZonedDateTime::class),
+            SimpleCTProperty("lastModifiedBy", LastModifiedBy::class),
+            SimpleCTProperty("productType", ProductTypeReference::class),
+            SimpleCTProperty("masterData", productCatalogDataClassName.className, castedFrom = ProductCatalogData::class),
+            SimpleCTProperty("taxCategory", TaxCategoryReference::class, nullable = true),
+            SimpleCTProperty("state", StateReference::class, nullable = true),
+            SimpleCTProperty("reviewRatingStatistics", ReviewRatingStatistics::class, nullable = true),
+        )
         .build()
 
     return listOf(

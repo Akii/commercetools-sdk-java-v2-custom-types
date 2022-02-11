@@ -1,121 +1,188 @@
 package de.akii.commercetools.api.customtypes.generator.common
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlin.reflect.KClass
 
-const val MUTABLE_LIST_INITIALIZER = "kotlin.collections.mutableListOf()"
-const val ZONED_DATE_TIME_INITIALIZER = "java.time.ZonedDateTime.now()"
+sealed class CTProperty
+data class SimpleCTProperty(
+    val name: String,
+    val type: TypeName,
+    val castedFrom: KClass<*>? = null,
+    val nullable: Boolean = false,
+    val modifiers: List<KModifier> = listOf(KModifier.OVERRIDE)
+) : CTProperty() {
+    constructor(
+        name: String,
+        type: KClass<*>,
+        castedFrom: KClass<*>? = null,
+        nullable: Boolean = false,
+        modifiers: List<KModifier> = listOf(KModifier.OVERRIDE)
+    ) : this(name, type.asTypeName(), castedFrom, nullable, modifiers)
+}
 
-fun initializerFor(kclass: KClass<*>): String =
-    initializerFor(kclass.asTypeName())
+data class ListCTProperty(
+    val name: String,
+    val type: ClassName,
+    val parameterizedBy: TypeName,
+    val castedFrom: KClass<*>? = null,
+    val nullable: Boolean = false,
+    val modifiers: List<KModifier> = listOf(KModifier.OVERRIDE)
+) : CTProperty() {
+    constructor(
+        name: String,
+        type: KClass<*>,
+        parameterizedBy: TypeName,
+        castedFrom: KClass<*>? = null,
+        nullable: Boolean = false,
+        modifiers: List<KModifier> = listOf(KModifier.OVERRIDE)
+    ) : this(name, type.asTypeName(), parameterizedBy, castedFrom, nullable, modifiers)
 
-fun initializerFor(className: ClassName): String =
-    "${className.canonicalName}()"
+    constructor(
+        name: String,
+        type: KClass<*>,
+        parameterizedBy: KClass<*>,
+        castedFrom: KClass<*>? = null,
+        nullable: Boolean = false,
+        modifiers: List<KModifier> = listOf(KModifier.OVERRIDE)
+    ) : this(name, type.asTypeName(), parameterizedBy.asTypeName(), castedFrom, nullable, modifiers)
+}
 
-fun TypeSpec.Builder.addCTProperty(name: String, type: KClass<*>, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder =
-    this.addCTProperty(name, kclassToClassName(type), nullable, initializer, castedFrom)
+fun TypeSpec.Builder.addCTProperties(vararg properties: CTProperty): TypeSpec.Builder =
+    this.addCTProperties(properties.asList())
 
-fun TypeSpec.Builder.addCTProperty(name: String, type: TypeName, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder {
-    val property = property(name, type, nullable, initializer)
-    val getter = propertyGetter(name, type, nullable)
-    val setter = propertySetter(name, type, nullable, castedFrom)
+fun TypeSpec.Builder.addCTProperties(properties: List<CTProperty>): TypeSpec.Builder {
+    val attributes = properties.map {
+        when (it) {
+            is SimpleCTProperty -> attribute(it.name, it.type.copy(it.nullable))
+            is ListCTProperty -> attribute(it.name, it.type.parameterizedBy(it.parameterizedBy).copy(it.nullable))
+        }
+    }
+
+    this.primaryConstructor(
+        FunSpec
+            .constructorBuilder()
+            .addAnnotation(jsonCreator)
+            .addParameters(attributes.map { it.first })
+            .build()
+    )
+
+    this.addProperties(
+        attributes.map { it.second }
+    )
+
+    properties.forEach {
+        when (it) {
+            is SimpleCTProperty -> {
+                this.addFunction(propertyGetter(it.name, it.type, it.nullable, it.modifiers))
+                this.addFunction(propertySetter(it.name, it.type, it.nullable, it.castedFrom, it.modifiers))
+            }
+            is ListCTProperty -> {
+                val parameterizedType = it.type.parameterizedBy(it.parameterizedBy)
+
+                this.addFunction(propertyGetter(it.name, parameterizedType, it.nullable, it.modifiers))
+                this.addFunction(propertyListSetter(it.name, it.type, it.parameterizedBy, it.nullable, it.castedFrom, it.modifiers))
+                this.addFunction(propertyVarargSetter(it.name, it.parameterizedBy, it.castedFrom, it.modifiers))
+            }
+        }
+    }
 
     return this
-        .addProperty(property)
-        .addFunction(getter)
-        .addFunction(setter)
 }
 
-fun TypeSpec.Builder.addCTProperty(name: String, type: KClass<*>, parameterizedBy: KClass<*>, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder =
-    this.addCTProperty(name, type, kclassToClassName(parameterizedBy), nullable, initializer, castedFrom)
+private fun attribute(name: String, type: TypeName): Pair<ParameterSpec, PropertySpec> {
+    val parameter = ParameterSpec
+        .builder(name, type)
+        .addModifiers(KModifier.PRIVATE)
+        .addAnnotation(jsonProperty(name))
+        .build()
 
-fun TypeSpec.Builder.addCTProperty(name: String, type: KClass<*>, parameterizedBy: TypeName, nullable: Boolean = false, initializer: String? = null, castedFrom: KClass<*>? = null): TypeSpec.Builder {
-    val parameterizedType = kclassToClassName(type).parameterizedBy(parameterizedBy)
-    val builder = this
-        .addProperty(property(name, parameterizedType, nullable, initializer))
-        .addFunction(propertyGetter(name, parameterizedType, nullable))
-
-    // sketchy but doesn't require reflection
-    if (type == List::class || type == MutableList::class) {
-        builder.addFunction(propertyListSetter(name, kclassToClassName(type), parameterizedBy, nullable, castedFrom))
-        builder.addFunction(propertyVarargSetter(name, parameterizedBy, castedFrom))
-    }
-
-    return builder
-}
-
-private fun property(name: String, type: TypeName, nullable: Boolean = false, initializer: String? = null): PropertySpec {
     val property = PropertySpec
-        .builder(name, type.copy(nullable))
+        .builder(name, type)
         .addModifiers(KModifier.PRIVATE)
         .mutable(true)
+        .initializer(name)
+        .build()
 
-    if (initializer != null) {
-        property.initializer(initializer)
-    } else if (nullable) {
-        property.initializer("null")
-    }
-
-    return property.build()
+    return parameter to property
 }
 
-private fun propertyGetter(name: String, type: TypeName, nullable: Boolean): FunSpec =
+private fun propertyGetter(name: String, type: TypeName, nullable: Boolean, modifiers: List<KModifier>): FunSpec =
     FunSpec
         .builder(propertyNameToFunctionName("get", name))
         .returns(type.copy(nullable))
         .addStatement("return this.${name}")
-        .addModifiers(KModifier.OVERRIDE)
+        .addModifiers(modifiers)
         .build()
 
-private fun propertySetter(name: String, type: TypeName, nullable: Boolean, castedFrom: KClass<*>?): FunSpec =
+private fun propertySetter(
+    name: String,
+    type: TypeName,
+    nullable: Boolean,
+    castedFrom: KClass<*>?,
+    modifiers: List<KModifier>
+): FunSpec =
     if (castedFrom == null)
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type.copy(nullable))
             .addStatement("this.${name} = $name")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(modifiers)
             .build()
     else
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, kclassToClassName(castedFrom).copy(nullable))
             .addStatement("this.${name} = $name as $type")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(modifiers)
             .addAnnotation(suppressUncheckedCalls)
             .build()
 
-private fun propertyListSetter(name: String, type: ClassName, parameterizedBy: TypeName, nullable: Boolean, castedFrom: KClass<*>?): FunSpec =
+private fun propertyListSetter(
+    name: String,
+    type: ClassName,
+    parameterizedBy: TypeName,
+    nullable: Boolean,
+    castedFrom: KClass<*>?, modifiers: List<KModifier>
+): FunSpec =
     if (castedFrom == null)
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type.parameterizedBy(parameterizedBy).copy(nullable))
             .addStatement("this.${name} = $name")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(modifiers)
             .build()
     else
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type.parameterizedBy(kclassToClassName(castedFrom)).copy(nullable))
             .addStatement("this.${name} = $name as ${type.parameterizedBy(parameterizedBy).copy(nullable)}")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(modifiers)
             .addAnnotation(suppressUncheckedCalls)
             .build()
 
-private fun propertyVarargSetter(name: String, type: TypeName, castedFrom: KClass<*>?): FunSpec =
+private fun propertyVarargSetter(
+    name: String,
+    type: TypeName,
+    castedFrom: KClass<*>?,
+    modifiers: List<KModifier>
+): FunSpec =
     if (castedFrom == null)
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type, KModifier.VARARG)
             .addStatement("this.${name} = ${name}.asList().toMutableList()")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(modifiers)
             .build()
     else
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, kclassToClassName(castedFrom), KModifier.VARARG)
             .addStatement("this.${name} = ${name}.asList().toMutableList() as kotlin.collections.MutableList<$type>")
-            .addModifiers(KModifier.OVERRIDE)
+            .addModifiers(modifiers)
             .addAnnotation(suppressUncheckedCalls)
             .build()
 
@@ -127,6 +194,29 @@ private fun kclassToClassName(type: KClass<*>): ClassName =
         MutableList::class -> ClassName("kotlin.collections", "MutableList")
         else -> type.asTypeName()
     }
+
+fun deserializeAs(asClassName: ClassName): AnnotationSpec =
+    AnnotationSpec
+        .builder(JsonDeserialize::class)
+        .addMember("`as` = ${asClassName.canonicalName}::class")
+        .build()
+
+fun deserializeUsing(asClassName: ClassName): AnnotationSpec =
+    AnnotationSpec
+        .builder(JsonDeserialize::class)
+        .addMember("using = ${asClassName.canonicalName}::class")
+        .build()
+
+private val jsonCreator =
+    AnnotationSpec
+        .builder(JsonCreator::class)
+        .build()
+
+private fun jsonProperty(name: String): AnnotationSpec =
+    AnnotationSpec
+        .builder(JsonProperty::class)
+        .addMember("\"${name}\"")
+        .build()
 
 private val suppressUncheckedCalls =
     AnnotationSpec

@@ -2,8 +2,10 @@ package de.akii.commercetools.api.customtypes.generator.product
 
 import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.common.LocalizedString
-import com.commercetools.api.models.common.LocalizedStringImpl
-import com.commercetools.api.models.product.*
+import com.commercetools.api.models.product.CategoryOrderHints
+import com.commercetools.api.models.product.ProductData
+import com.commercetools.api.models.product.ProductVariant
+import com.commercetools.api.models.product.SearchKeywords
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
@@ -15,15 +17,18 @@ fun productData(
     .classBuilder(productDataClassName.className)
     .addSuperinterface(ProductData::class)
     .addAnnotation(Generated::class)
-    .addCTProperty("name", LocalizedString::class, initializer = initializerFor(LocalizedStringImpl::class))
-    .addCTProperty("categories", MutableList::class, CategoryReference::class, initializer = MUTABLE_LIST_INITIALIZER)
-    .addCTProperty("categoryOrderHints", CategoryOrderHints::class, initializer = initializerFor(CategoryOrderHintsImpl::class))
-    .addCTProperty("description", LocalizedString::class, true)
-    .addCTProperty("slug", LocalizedString::class, true)
-    .addCTProperty("metaTitle", LocalizedString::class, true)
-    .addCTProperty("metaDescription", LocalizedString::class, true)
-    .addCTProperty("metaKeywords", LocalizedString::class, true)
-    .addCTProperty("masterVariant", productVariantClassName.className, castedFrom = ProductVariant::class, initializer = initializerFor(productVariantClassName.className))
-    .addCTProperty("variants", MutableList::class, productVariantClassName.className, castedFrom = ProductVariant::class, initializer = MUTABLE_LIST_INITIALIZER)
-    .addCTProperty("searchKeywords", SearchKeywords::class, initializer = initializerFor(SearchKeywordsImpl::class))
+    .addAnnotation(deserializeAs(productDataClassName.className))
+    .addCTProperties(
+        SimpleCTProperty("name", LocalizedString::class),
+        ListCTProperty("categories", MutableList::class, CategoryReference::class, nullable = true),
+        SimpleCTProperty("categoryOrderHints", CategoryOrderHints::class),
+        SimpleCTProperty("description", LocalizedString::class, nullable = true),
+        SimpleCTProperty("slug", LocalizedString::class, nullable = true),
+        SimpleCTProperty("metaTitle", LocalizedString::class, nullable = true),
+        SimpleCTProperty("metaDescription", LocalizedString::class, nullable = true),
+        SimpleCTProperty("metaKeywords", LocalizedString::class, nullable = true),
+        SimpleCTProperty("masterVariant", productVariantClassName.className, castedFrom = ProductVariant::class),
+        ListCTProperty("variants", MutableList::class, productVariantClassName.className, castedFrom = ProductVariant::class),
+        SimpleCTProperty("searchKeywords", SearchKeywords::class)
+    )
     .build()
