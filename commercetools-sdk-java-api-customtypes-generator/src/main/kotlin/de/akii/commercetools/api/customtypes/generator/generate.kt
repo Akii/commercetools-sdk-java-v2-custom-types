@@ -2,6 +2,7 @@ package de.akii.commercetools.api.customtypes.generator
 
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
+import com.commercetools.api.models.product_type.ProductType
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
@@ -9,7 +10,6 @@ import de.akii.commercetools.api.customtypes.generator.product.deserialization.c
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesDelegatingDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesModifier
 import de.akii.commercetools.api.customtypes.generator.product.generateProductFile
-import de.akii.commercetools.api.customtypes.generator.types.ProductType
 
 data class Configuration(
     val packageName: String,

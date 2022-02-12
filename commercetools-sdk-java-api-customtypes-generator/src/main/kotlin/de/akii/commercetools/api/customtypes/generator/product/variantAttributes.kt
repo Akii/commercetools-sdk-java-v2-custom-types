@@ -4,13 +4,11 @@ import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.TypedMoney
 import com.commercetools.api.models.common.Reference
 import com.commercetools.api.models.product.Attribute
-import com.commercetools.api.models.product_type.AttributeLocalizedEnumValue
-import com.commercetools.api.models.product_type.AttributePlainEnumValue
+import com.commercetools.api.models.product_type.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.types.*
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.LocalDate
 import java.time.LocalTime
@@ -47,19 +45,20 @@ private fun attribute(attributeDefinition: AttributeDefinition, config: Configur
 
 private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
     when (attributeType) {
-        is BooleanType -> Boolean::class.asTypeName()
-        is TextType -> String::class.asTypeName()
-        is LocalizableTextType -> LocalizedString::class.asTypeName()
-        is EnumType -> AttributePlainEnumValue::class.asTypeName()
-        is LocalizableEnumType -> AttributeLocalizedEnumValue::class.asTypeName()
-        is NumberType -> Int::class.asTypeName()
-        is MoneyType -> TypedMoney::class.asTypeName()
-        is DateType -> LocalDate::class.asTypeName()
-        is TimeType -> LocalTime::class.asTypeName()
-        is DateTimeType -> ZonedDateTime::class.asTypeName()
-        is ReferenceType -> Reference::class.asTypeName()
-        is SetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
-        is NestedType -> findProductVariantAttributesTypeByProductTypeId(attributeType.typeReference.id, config)
+        is AttributeBooleanType -> Boolean::class.asTypeName()
+        is AttributeTextType -> String::class.asTypeName()
+        is AttributeLocalizableTextType -> LocalizedString::class.asTypeName()
+        is AttributeEnumType -> AttributePlainEnumValue::class.asTypeName()
+        is AttributeLocalizedEnumValue -> AttributeLocalizedEnumValue::class.asTypeName()
+        is AttributeNumberType -> Int::class.asTypeName()
+        is AttributeMoneyType -> TypedMoney::class.asTypeName()
+        is AttributeDateType -> LocalDate::class.asTypeName()
+        is AttributeTimeType -> LocalTime::class.asTypeName()
+        is AttributeDateTimeType -> ZonedDateTime::class.asTypeName()
+        is AttributeReferenceType -> Reference::class.asTypeName()
+        is AttributeSetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
+        is AttributeNestedType -> findProductVariantAttributesTypeByProductTypeId(attributeType.typeReference.id, config)
+        else -> Any::class.asTypeName()
     }
 
 private fun attributeNameToPropertyName(attributeName: String): String {

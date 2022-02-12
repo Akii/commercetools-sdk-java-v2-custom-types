@@ -64,20 +64,22 @@ import io.vrap.rmf.base.client.oauth2.ClientCredentials
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import your.types.go.here.CustomProductApiModule
 
-val objectMapper = JsonUtils
-    .createObjectMapper()
-    .registerModule(CustomProductApiModule())
+val objectMapper =
+    JsonUtils
+        .createObjectMapper()
+        .registerModule(CustomProductApiModule())
 
-val ctApi = ApiRootBuilder.of()
-    .defaultClient(
-        ClientCredentials.of()
-            .withClientId("<client-id>")
-            .withClientSecret("<client-secret>")
-            .build(),
-        ServiceRegion.GCP_EUROPE_WEST1
-    )
-    .withSerializer(ResponseSerializer.of(objectMapper))
-    .build("<project-name>")
+val ctApi =
+    ApiRootBuilder.of()
+        .defaultClient(
+            ClientCredentials.of()
+                .withClientId("<client-id>")
+                .withClientSecret("<client-secret>")
+                .build(),
+            ServiceRegion.GCP_EUROPE_WEST1
+        )
+        .withSerializer(ResponseSerializer.of(objectMapper))
+        .build("<project-name>")
 ```
 
 For alternative ways of configuring the SDK, please consult the [commercetools documentation](https://commercetools.github.io/commercetools-sdk-java-v2/javadoc/com/commercetools/docs/meta/Serialization.html) on client customization.

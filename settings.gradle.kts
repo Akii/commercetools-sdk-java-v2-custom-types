@@ -4,7 +4,6 @@ pluginManagement {
 
     plugins {
         kotlin("jvm") version kotlinVersion
-        kotlin("plugin.serialization") version kotlinVersion
         id("com.gradle.plugin-publish") version pluginPublishPluginVersion
     }
 }

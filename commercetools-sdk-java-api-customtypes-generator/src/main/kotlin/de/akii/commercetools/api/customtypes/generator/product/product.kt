@@ -4,6 +4,7 @@ import com.commercetools.api.models.common.CreatedBy
 import com.commercetools.api.models.common.LastModifiedBy
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductCatalogData
+import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.product_type.ProductTypeReference
 import com.commercetools.api.models.review.ReviewRatingStatistics
 import com.commercetools.api.models.state.StateReference
@@ -11,7 +12,6 @@ import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.types.ProductType
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.ZonedDateTime
 

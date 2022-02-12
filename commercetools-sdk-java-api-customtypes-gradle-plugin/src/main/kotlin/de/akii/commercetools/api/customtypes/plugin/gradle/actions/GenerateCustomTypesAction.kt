@@ -1,27 +1,19 @@
 package de.akii.commercetools.api.customtypes.plugin.gradle.actions
 
+import com.commercetools.api.models.product_type.ProductType
+import com.fasterxml.jackson.core.type.TypeReference
 import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.productFiles
-import de.akii.commercetools.api.customtypes.generator.types.ProductType
 import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.GenerateCustomTypesParameters
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.gradle.workers.WorkAction
 
-@OptIn(ExperimentalSerializationApi::class)
 abstract class GenerateCustomTypesAction : WorkAction<GenerateCustomTypesParameters> {
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
-
     override fun execute() {
-        val productTypes = json.decodeFromStream(
-            ListSerializer(ProductType.serializer()),
-            parameters.productTypesFile.get().inputStream()
-        )
+        val productTypes = JsonUtils
+            .createObjectMapper()
+            .readValue(parameters.productTypesFile.get(), object : TypeReference<List<ProductType>>() {})
 
         val files = productFiles(Configuration(parameters.packageName.get(), productTypes))
 
