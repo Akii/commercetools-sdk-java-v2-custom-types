@@ -24,9 +24,11 @@ fun generateProductFile(
     val productDataClassName = ProductDataClassName(productType.name, config)
     val productVariantClassName = ProductVariantClassName(productType.name, config)
     val productVariantAttributesClassName = ProductVariantAttributesClassName(productType.name, config)
+    val customProductVariantAttributesClassName = CustomProductVariantAttributesClassName(config)
 
     val attributeTypeSpec = productVariantAttributes(
         productVariantAttributesClassName,
+        customProductVariantAttributesClassName,
         productType.attributes,
         config
     )

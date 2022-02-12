@@ -23,7 +23,7 @@ abstract class GenerateCustomTypesAction : WorkAction<GenerateCustomTypesParamet
             parameters.productTypesFile.get().inputStream()
         )
 
-        val files = productFiles(productTypes, Configuration(parameters.packageName.get()))
+        val files = productFiles(Configuration(parameters.packageName.get(), productTypes))
 
         files.forEach {
             it.writeTo(parameters.targetDirectory.get())

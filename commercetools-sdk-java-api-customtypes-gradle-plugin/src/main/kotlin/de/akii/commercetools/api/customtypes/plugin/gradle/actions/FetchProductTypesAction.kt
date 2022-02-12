@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.FetchProductTypesParameters
 import io.vrap.rmf.base.client.oauth2.ClientCredentials
+import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.gradle.workers.WorkAction
 
 abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters> {
@@ -32,8 +33,8 @@ abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters>
             .get()
             .flatten()
 
-        ObjectMapper()
-            .registerModule(JavaTimeModule())
+        JsonUtils
+            .createObjectMapper()
             .writeValue(parameters.productTypesFile.get(), productTypes)
     }
 

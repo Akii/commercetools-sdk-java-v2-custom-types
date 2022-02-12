@@ -4,19 +4,24 @@ import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
-import de.akii.commercetools.api.customtypes.generator.common.CustomProductDeserializerClassName
-import de.akii.commercetools.api.customtypes.generator.common.deserializeAs
-import de.akii.commercetools.api.customtypes.generator.common.deserializeUsing
-import de.akii.commercetools.api.customtypes.generator.product.customProductDeserializer
+import de.akii.commercetools.api.customtypes.generator.common.*
+import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductDeserializer
+import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesDelegatingDeserializer
+import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesModifier
 import de.akii.commercetools.api.customtypes.generator.product.generateProductFile
 import de.akii.commercetools.api.customtypes.generator.types.ProductType
 
-data class Configuration(val packageName: String)
+data class Configuration(
+    val packageName: String,
+    val productTypes: List<ProductType>)
 
-fun productFiles(productTypes: List<ProductType>, config: Configuration): List<FileSpec> {
+fun productFiles(config: Configuration): List<FileSpec> {
     val productDeserializerFile = FileSpec
         .builder("${config.packageName}.product", "deserializer")
-        .addType(customProductDeserializer(productTypes, config))
+        .addType(customProductVariantAttributesInterface(config))
+        .addType(customProductDeserializer(config))
+        .addType(customProductVariantAttributesModifier(config))
+        .addType(customProductVariantAttributesDelegatingDeserializer(config))
         .build()
 
     val apiModuleFile = FileSpec
@@ -26,7 +31,7 @@ fun productFiles(productTypes: List<ProductType>, config: Configuration): List<F
         .addType(customProductApiModule(config))
         .build()
 
-    return listOf(productDeserializerFile, apiModuleFile) + productTypes.flatMap {
+    return listOf(productDeserializerFile, apiModuleFile) + config.productTypes.flatMap {
         generateProductFile(it, config)
     }
 }
@@ -41,6 +46,11 @@ fun fallbackProductInterface(config: Configuration) =
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "FallbackProduct"))
         .addAnnotation(deserializeAs(ProductImpl::class.asClassName()))
+        .build()
+
+fun customProductVariantAttributesInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(CustomProductVariantAttributesClassName(config).className)
         .build()
 
 fun customProductApiModule(config: Configuration): TypeSpec =
@@ -62,6 +72,10 @@ fun customProductApiModule(config: Configuration): TypeSpec =
                 "setMixInAnnotation(%1L::class.java, %2L::class.java)\n",
                 ProductImpl::class.asTypeName().canonicalName,
                 "FallbackProduct"
+            )
+            add(
+                "setDeserializerModifier(%1L())\n",
+                CustomProductVariantAttributesModifierClassName(config).className.canonicalName,
             )
         })
         .build()

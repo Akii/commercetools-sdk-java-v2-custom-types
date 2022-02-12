@@ -3,6 +3,7 @@ package de.akii.commercetools.api.customtypes.generator.product
 import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.TypedMoney
 import com.commercetools.api.models.common.Reference
+import com.commercetools.api.models.product.Attribute
 import com.commercetools.api.models.product_type.AttributeLocalizedEnumValue
 import com.commercetools.api.models.product_type.AttributePlainEnumValue
 import com.squareup.kotlinpoet.*
@@ -17,6 +18,7 @@ import java.time.ZonedDateTime
 
 fun productVariantAttributes(
     productVariantAttributesClassName: ProductVariantAttributesClassName,
+    customProductVariantAttributesClassName: CustomProductVariantAttributesClassName,
     attributes: List<AttributeDefinition>,
     config: Configuration
 ): TypeSpec {
@@ -28,6 +30,7 @@ fun productVariantAttributes(
             else
                 listOf(KModifier.DATA)
         )
+        .addSuperinterface(customProductVariantAttributesClassName.className)
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
         .addCTProperties(attributes.map { attribute(it, config) })
@@ -56,7 +59,7 @@ private fun typeNameForAttributeType(attributeType: AttributeType, config: Confi
         is DateTimeType -> ZonedDateTime::class.asTypeName()
         is ReferenceType -> Reference::class.asTypeName()
         is SetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
-        is NestedType -> ProductVariantAttributesClassName(attributeType.typeReference.id, config).className
+        is NestedType -> findProductVariantAttributesTypeByProductTypeId(attributeType.typeReference.id, config)
     }
 
 private fun attributeNameToPropertyName(attributeName: String): String {
@@ -67,3 +70,9 @@ private fun attributeNameToPropertyName(attributeName: String): String {
         }
         .replaceFirstChar { it.lowercase() }
 }
+
+private fun findProductVariantAttributesTypeByProductTypeId(productTypeId: String, config: Configuration): TypeName =
+    when (val productType = config.productTypes.find { it.id == productTypeId }) {
+        is ProductType -> ProductVariantAttributesClassName(productType.name, config).className
+        else -> MUTABLE_LIST.parameterizedBy(Attribute::class.asTypeName())
+    }

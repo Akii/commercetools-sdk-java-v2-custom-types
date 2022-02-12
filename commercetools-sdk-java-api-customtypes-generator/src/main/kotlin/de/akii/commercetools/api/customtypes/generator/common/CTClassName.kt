@@ -12,6 +12,15 @@ sealed class CTClassName(private val packageName: String, private val ctClassNam
 class CustomProductDeserializerClassName(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductDeserializer")
 
+class CustomProductVariantAttributesModifierClassName(config: Configuration) :
+    CTClassName("${config.packageName}.product", "CustomProductVariantAttributesModifier")
+
+class CustomProductVariantAttributesDelegatingDeserializerClassName(config: Configuration) :
+    CTClassName("${config.packageName}.product", "CustomProductVariantAttributesDelegatingDeserializer")
+
+class CustomProductVariantAttributesClassName(config: Configuration) :
+    CTClassName("${config.packageName}.product", "CustomProductVariantAttributes")
+
 class ProductClassName(productTypeName: String, config: Configuration) :
     CTClassName(
         typeNameToPackageName(productTypeName, "product", config),

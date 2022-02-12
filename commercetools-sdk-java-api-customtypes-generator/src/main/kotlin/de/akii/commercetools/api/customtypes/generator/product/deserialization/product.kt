@@ -1,31 +1,25 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator.product.deserialization
 
 import com.commercetools.api.models.product.Product
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.ObjectCodec
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.types.ProductType
 
-fun customProductDeserializer(productTypes: List<ProductType>, config: Configuration): TypeSpec =
+fun customProductDeserializer(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(CustomProductDeserializerClassName(config).className)
         .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(Product::class.asTypeName()))
-        .addFunction(deserializeCustomProduct(productTypes, config))
+        .addFunction(deserialize(config))
         .addFunction(makeParser)
         .addFunction(transformJson)
         .addFunction(transformProductDataJson)
-        .addFunction(transformProductVariantJson)
-        .addFunction(attributeNameToPropertyName)
         .build()
 
-private fun deserializeCustomProduct(productTypes: List<ProductType>, config: Configuration): FunSpec =
+private fun deserialize(config: Configuration): FunSpec =
     FunSpec
         .builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
@@ -39,14 +33,14 @@ private fun deserializeCustomProduct(productTypes: List<ProductType>, config: Co
             return when (productTypeId) {
 
         """.trimIndent())
-        .addCode(productTypeIdStatements(productTypes, config) + "\n")
+        .addCode(productTypeIdStatements(config) + "\n")
         .addStatement("  else -> ctxt?.readValue(makeParser(node, codec), com.commercetools.api.models.product.ProductImpl::class.java)")
         .addStatement("}")
         .returns(Product::class.asTypeName().copy(nullable = true))
         .build()
 
-private fun productTypeIdStatements(productTypes: List<ProductType>, config: Configuration): String =
-    productTypes
+private fun productTypeIdStatements(config: Configuration): String =
+    config.productTypes
         .joinToString("\n") {
             "|  \"${it.id}\" -> ctxt?.readValue(transformJson(node, codec), ${
                 ProductClassName(
@@ -56,20 +50,6 @@ private fun productTypeIdStatements(productTypes: List<ProductType>, config: Con
             }::class.java)"
         }
         .trimMargin()
-
-private val makeParser =
-    FunSpec
-        .builder("makeParser")
-        .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
-        .addParameter("codec", ObjectCodec::class.asTypeName().copy(nullable = true))
-        .addCode("""
-            val p = json?.traverse()
-            p?.setCodec(codec)
-            p?.nextToken()
-            return p
-        """.trimIndent())
-        .returns(JsonParser::class.asTypeName().copy(nullable = true))
-        .build()
 
 private val transformJson =
     FunSpec
@@ -97,44 +77,9 @@ private val transformProductDataJson =
     
             variants.forEach {
                 when (it) {
-                    is ObjectNode -> transformProductVariantJson(it)
+                    is com.fasterxml.jackson.databind.node.ObjectNode ->
+                        it.set<JsonNode>("typedAttributes", it.path("attributes"))
                 }
             }
         """.trimIndent())
-        .build()
-
-private val transformProductVariantJson =
-    FunSpec
-        .builder("transformProductVariantJson")
-        .addModifiers(KModifier.PRIVATE)
-        .addParameter("json", ObjectNode::class)
-        .addCode("""
-            val typedAttributes = json.putObject("typedAttributes")
-            
-            json.path("attributes").forEach {
-                val attributeName = it.get("name").asText()
-                val attributeValue = it.get("value")
-                
-                typedAttributes.set<JsonNode>(
-                    attributeNameToPropertyName(attributeName),
-                    attributeValue
-                )
-            }
-        """.trimIndent())
-        .build()
-
-private val attributeNameToPropertyName =
-    FunSpec
-        .builder("attributeNameToPropertyName")
-        .addModifiers(KModifier.PRIVATE)
-        .addParameter("attributeName", String::class)
-        .addCode("""
-            return attributeName
-                .split('-', '_', ' ')
-                .joinToString("") { part ->
-                    part.replaceFirstChar { it.uppercase() }
-                }
-                .replaceFirstChar { it.lowercase() }
-        """.trimIndent())
-        .returns(String::class)
         .build()
