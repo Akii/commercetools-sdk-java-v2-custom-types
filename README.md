@@ -3,6 +3,104 @@
 This library extends the official commercetools Java SDK by generating custom types defined in your commercetools project.
 Currently, type-safe product types are supported. The goal is to support type-safe reference expansion, custom fields and even custom objects.
 
+## Why?
+
+Accessing product attributes and custom fields with the provided tools like `AttributeAccessor` is not type-safe.
+It has no IDE support and makes your code harder to refactor. This library aims to provide types for all your custom commercetools types.
+
+Given a product-type like this:
+
+```json
+{
+  "id": "e8de347b-38fa-401d-a996-aa118658a90f",
+  "name": "test",
+  "attributes": [
+    {
+      "name": "a-boolean",
+      "type": {
+        "name": "boolean"
+      }
+    },
+    {
+      "name": "an-enum",
+      "type": {
+        "name": "enum",
+        "values": []
+      }
+    },
+    {
+      "name": "ref-set",
+      "type": {
+        "name": "set",
+        "elementType": {
+          "name": "reference",
+          "referenceTypeId": "product"
+        }
+      }
+    },
+    {
+      "name": "nested-second-type",
+      "type": {
+        "name": "nested",
+        "typeReference": {
+          "typeId": "product-type",
+          "id": "30313b5a-8573-4d3e-bfbf-566238168505"
+        }
+      }
+    }
+  ]
+}
+```
+
+the library will generate the following classes (simplified):
+
+```kotlin
+data class TestProduct : Product
+data class TestProductCatalogData : ProductCatalogData
+data class TestProductData : ProductData
+data class TestProductVariant : ProductVariant
+
+data class TestProductVariantAttributes (
+    var aBoolean: Boolean?,
+    var anEnum: AttributePlainEnumValue?,
+    var refSet: Set<Reference>?,
+    var nestedSecondType: SecondTypeProductVariantAttributes?
+)
+```
+
+Instead of dealing with attributes like this:
+
+```kotlin
+fun fetchProduct(productId: String): Product
+
+val productVariant =
+    fetchProduct("some-id")
+        .masterData
+        .current
+        .masterVariant
+
+print(AttributeAccessor.asBoolean(productVariant.attributes[0]))
+```
+
+you can now easily use typed attributes:
+
+```kotlin
+fun fetchProduct(productId: String): Product
+
+val productVariant =
+    fetchProduct("some-id")
+        .masterData
+        .current
+        .masterVariant
+
+when (productVariant) {
+    is TestProductVariant -> print(productVariant.typedAttributes.aBoolean)
+    else -> TODO()
+}
+```
+
+Since the library generates classes conforming to all API interfaces, you can start using it without the need to refactor all your existing code.
+
 ## Modules
 
 * [generator](/commercetools-sdk-java-api-customtypes-generator) - Code for generating type-safe custom types defined in commercetools projects
@@ -84,10 +182,6 @@ val ctApi =
 
 For alternative ways of configuring the SDK, please consult the [commercetools documentation](https://commercetools.github.io/commercetools-sdk-java-v2/javadoc/com/commercetools/docs/meta/Serialization.html) on client customization.
 This library introduces no breaking changes to the API.
-
-## Type-safe product attributes
-
-TODO(Document behaviour)
 
 ## Contributing
 
