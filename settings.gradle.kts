@@ -1,10 +1,14 @@
 pluginManagement {
     val kotlinVersion: String by settings
+    val dokkaVersion: String by settings
     val pluginPublishPluginVersion: String by settings
+    val nexusPublishPluginVersion: String by settings
 
     plugins {
         kotlin("jvm") version kotlinVersion
+        id("org.jetbrains.dokka") version dokkaVersion
         id("com.gradle.plugin-publish") version pluginPublishPluginVersion
+        id("io.github.gradle-nexus.publish-plugin") version nexusPublishPluginVersion
     }
 }
 

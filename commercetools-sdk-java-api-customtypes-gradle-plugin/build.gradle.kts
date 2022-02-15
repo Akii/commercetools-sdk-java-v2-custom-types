@@ -20,7 +20,6 @@ gradlePlugin {
     plugins {
         register("customTypesGeneratorPlugin") {
             id = "de.akii.commercetools.api.customtypes"
-            description = "Gradle Plugin that generates type-safe models for product-types and other custom types defined in commercetools projects"
             implementationClass = "de.akii.commercetools.api.customtypes.plugin.gradle.CustomTypesGeneratorGradlePlugin"
         }
     }
@@ -33,7 +32,7 @@ pluginBundle {
     (plugins) {
         "customTypesGeneratorPlugin" {
             displayName = "commercetools API custom types generator Gradle Plugin"
-            description = description
+            description = "Gradle Plugin that generates type-safe models for product-types and other custom types defined in commercetools projects"
             tags = listOf("commercetools", "kotlin", "custom-types", "code-generator", "product-types")
         }
     }
@@ -67,12 +66,19 @@ tasks {
             )
         }
     }
-
     compileKotlin {
         dependsOn(generateDefaultVersion)
     }
-
-    sourcesJar {
-        dependsOn(generateDefaultVersion)
+    publishing {
+        publications {
+            afterEvaluate {
+                named<MavenPublication>("customTypesGeneratorPluginPluginMarkerMaven") {
+                    pom {
+                        name.set(artifactId)
+                        description.set("Plugin descriptor for commercetools custom types generator Gradle plugin")
+                    }
+                }
+            }
+        }
     }
 }
