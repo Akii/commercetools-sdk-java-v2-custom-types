@@ -1,4 +1,4 @@
-description = "Gradle Plugin that generates custom types defined in commercetools projects"
+description = "Gradle Plugin that generates type-safe models for product-types and other custom types defined in commercetools projects"
 
 plugins {
     `java-gradle-plugin`
@@ -20,6 +20,7 @@ gradlePlugin {
     plugins {
         register("customTypesGeneratorPlugin") {
             id = "de.akii.commercetools.api.customtypes"
+            description = "Gradle Plugin that generates type-safe models for product-types and other custom types defined in commercetools projects"
             implementationClass = "de.akii.commercetools.api.customtypes.plugin.gradle.CustomTypesGeneratorGradlePlugin"
         }
     }
