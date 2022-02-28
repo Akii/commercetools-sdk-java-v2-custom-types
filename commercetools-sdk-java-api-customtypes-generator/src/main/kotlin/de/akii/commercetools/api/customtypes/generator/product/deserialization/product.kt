@@ -1,12 +1,12 @@
 package de.akii.commercetools.api.customtypes.generator.product.deserialization
 
 import com.commercetools.api.models.product.Product
+import com.commercetools.api.models.product.ProductImpl
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.databind.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.*
 
 fun customProductDeserializer(config: Configuration): TypeSpec =
@@ -30,26 +30,31 @@ private fun deserialize(config: Configuration): FunSpec =
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
             val productTypeId: String? = node?.path("productType")?.path("id")?.asText()
 
-            return when (productTypeId) {
-
         """.trimIndent())
-        .addCode(productTypeIdStatements(config) + "\n")
-        .addStatement("  else -> ctxt?.readValue(makeParser(node, codec), com.commercetools.api.models.product.ProductImpl::class.java)")
-        .addStatement("}")
+        .addCode(generateOroductTypeToIdMap(config))
         .returns(Product::class.asTypeName().copy(nullable = true))
         .build()
 
-private fun productTypeIdStatements(config: Configuration): String =
-    config.productTypes
-        .joinToString("\n") {
-            "|  \"${it.id}\" -> ctxt?.readValue(transformJson(node, codec), ${
-                ProductClassName(
-                    it.name,
-                    config
-                ).className.canonicalName
-            }::class.java)"
-        }
-        .trimMargin()
+private fun generateOroductTypeToIdMap(config: Configuration): CodeBlock {
+    val whenExpression = CodeBlock
+        .builder()
+        .add("return when (productTypeId) {\n")
+        .add("⇥")
+
+    config.productTypes.forEach {
+        whenExpression.add(
+            "%1S -> ctxt?.readValue(transformJson(node, codec), %2T::class.java)\n",
+            it.id,
+            ProductClassName(it, config).className
+        )
+    }
+
+    return whenExpression
+        .add("else -> ctxt?.readValue(makeParser(node, codec), %T::class.java)\n", ProductImpl::class)
+        .add("⇤")
+        .add("}")
+        .build()
+}
 
 private val transformJson =
     FunSpec

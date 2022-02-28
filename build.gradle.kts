@@ -105,8 +105,11 @@ subprojects {
                 }
                 create<MavenPublication>("mavenJava") {
                     from(jarComponent)
-                    artifact(sourcesJar.get())
-                    artifact(javadocJar.get())
+
+                    if (rootProject.extra["isReleaseVersion"] as Boolean) {
+                        artifact(sourcesJar.get())
+                        artifact(javadocJar.get())
+                    }
                 }
             }
         }

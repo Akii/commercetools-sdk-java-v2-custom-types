@@ -21,19 +21,3 @@ val makeParser =
         """.trimIndent())
         .returns(JsonParser::class.asTypeName().copy(nullable = true))
         .build()
-
-val attributeNameToPropertyName =
-    FunSpec
-        .builder("attributeNameToPropertyName")
-        .addModifiers(KModifier.PRIVATE)
-        .addParameter("attributeName", String::class)
-        .addCode("""
-            return attributeName
-                .split('-', '_', ' ')
-                .joinToString("") { part ->
-                    part.replaceFirstChar { it.uppercase() }
-                }
-                .replaceFirstChar { it.lowercase() }
-        """.trimIndent())
-        .returns(String::class)
-        .build()

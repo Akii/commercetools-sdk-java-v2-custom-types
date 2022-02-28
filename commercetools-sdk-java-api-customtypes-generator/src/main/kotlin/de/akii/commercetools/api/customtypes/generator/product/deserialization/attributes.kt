@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.*
 
 private val jsonDeserializerType =
@@ -39,7 +38,7 @@ fun customProductVariantAttributesDelegatingDeserializer(config: Configuration):
         .addFunction(deserialize)
         .addFunction(makeParser)
         .addFunction(transformProductVariantAttributesJson)
-        .addFunction(attributeNameToPropertyName)
+        .addFunction(attributeNameToPropertyName(config))
         .build()
 
 private val modifyDeserializer =
@@ -107,3 +106,34 @@ private val transformProductVariantAttributesJson =
         """.trimIndent())
         .returns(JsonNode::class)
         .build()
+
+private fun attributeNameToPropertyName(config: Configuration) =
+    FunSpec
+        .builder("attributeNameToPropertyName")
+        .addModifiers(KModifier.PRIVATE)
+        .addParameter("attributeName", String::class)
+        .addCode(generateAttributeNameToPropertyNameMap(config))
+        .returns(String::class)
+        .build()
+
+fun generateAttributeNameToPropertyNameMap(config: Configuration): CodeBlock {
+    val whenExpression = CodeBlock
+        .builder()
+        .add("return when(attributeName) {\n")
+        .add("⇥")
+
+    config
+        .productTypes
+        .flatMap { it.attributes }
+        .map { it.name to config.attributeNameToPropertyName(it.name) }
+        .toSet()
+        .forEach {
+            whenExpression.add("%1S -> %2S\n", it.first, it.second)
+        }
+
+    return whenExpression
+        .add("else -> attributeName\n")
+        .add("⇤")
+        .add("}")
+        .build()
+}

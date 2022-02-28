@@ -1,8 +1,7 @@
 package de.akii.commercetools.api.customtypes.generator.common
 
+import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.ClassName
-import de.akii.commercetools.api.customtypes.generator.Configuration
-import java.util.*
 
 sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName
@@ -21,37 +20,27 @@ class CustomProductVariantAttributesDelegatingDeserializerClassName(config: Conf
 class CustomProductVariantAttributesClassName(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductVariantAttributes")
 
-class ProductClassName(productTypeName: String, config: Configuration) :
-    CTClassName(
-        typeNameToPackageName(productTypeName, "product", config),
-        "${typeNameToClassName(productTypeName)}Product"
-    )
-
-class ProductCatalogDataClassName(productTypeName: String, config: Configuration) : CTClassName(
-    typeNameToPackageName(productTypeName, "product", config),
-    "${typeNameToClassName(productTypeName)}ProductCatalogData"
+class ProductClassName(productType: ProductType, config: Configuration) : CTClassName(
+    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
+    "${config.productTypeNameToClassNamePrefix(productType.name)}Product"
 )
 
-class ProductDataClassName(productTypeName: String, config: Configuration) :
-    CTClassName(
-        typeNameToPackageName(productTypeName, "product", config),
-        "${typeNameToClassName(productTypeName)}ProductData"
-    )
-
-class ProductVariantClassName(productTypeName: String, config: Configuration) : CTClassName(
-    typeNameToPackageName(productTypeName, "product", config), "${typeNameToClassName(productTypeName)}ProductVariant"
+class ProductCatalogDataClassName(productType: ProductType, config: Configuration) : CTClassName(
+    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
+    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductCatalogData"
 )
 
-class ProductVariantAttributesClassName(productTypeName: String, config: Configuration) : CTClassName(
-    typeNameToPackageName(productTypeName, "product", config),
-    "${typeNameToClassName(productTypeName)}ProductVariantAttributes"
+class ProductDataClassName(productType: ProductType, config: Configuration) : CTClassName(
+    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
+    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductData"
 )
 
-fun typeNameToPackageName(typeName: String, subPackage: String, config: Configuration) =
-    "${config.packageName}.${subPackage}.${typeNameToClassName(typeName).lowercase()}"
+class ProductVariantClassName(productType: ProductType, config: Configuration) : CTClassName(
+    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
+    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductVariant"
+)
 
-fun typeNameToClassName(typeName: String) = typeName.split('-', '_', ' ').joinToString("") { part ->
-    part.replaceFirstChar {
-        if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-    }
-}
+class ProductVariantAttributesClassName(productType: ProductType, config: Configuration) : CTClassName(
+    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
+    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductVariantAttributes"
+)

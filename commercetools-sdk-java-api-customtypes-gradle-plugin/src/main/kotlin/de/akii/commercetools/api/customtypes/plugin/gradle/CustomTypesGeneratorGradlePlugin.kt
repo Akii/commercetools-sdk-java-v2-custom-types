@@ -49,13 +49,18 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
     }
 
     private fun processExtensionConfiguration(project: Project, extension: CustomTypesGeneratorExtension) {
-        val generateCustomTypesTask = project.tasks.named(GENERATE_CUSTOM_TYPES_TASK_NAME, GenerateCustomTypesTask::class.java).get()
+        val generateCustomTypesTask =
+            project.tasks.named(GENERATE_CUSTOM_TYPES_TASK_NAME, GenerateCustomTypesTask::class.java).get()
         generateCustomTypesTask.packageName.convention(project.provider { extension.packageName })
+        generateCustomTypesTask.productTypeNameToSubPackageName.convention(project.provider { extension.productTypeNameToSubPackageName })
+        generateCustomTypesTask.productTypeNameToClassNamePrefix.convention(project.provider { extension.productTypeNameToClassNamePrefix })
+        generateCustomTypesTask.attributeNameToPropertyName.convention(project.provider { extension.attributeNameToPropertyName })
         generateCustomTypesTask.productTypesFile.set(extension.productTypesFile)
         configureDefaultProjectSourceSet(project, generateCustomTypesTask.outputDirectory)
 
         if (extension.clientId != null) {
-            val fetchProductTypesTask = project.tasks.named(FETCH_PRODUCT_TYPES_TASK_NAME, FetchProductTypesTask::class.java).get()
+            val fetchProductTypesTask =
+                project.tasks.named(FETCH_PRODUCT_TYPES_TASK_NAME, FetchProductTypesTask::class.java).get()
             fetchProductTypesTask.clientId.convention(project.provider { extension.clientId })
             fetchProductTypesTask.clientSecret.convention(project.provider { extension.clientSecret })
             fetchProductTypesTask.serviceRegion.convention(project.provider { extension.serviceRegion })

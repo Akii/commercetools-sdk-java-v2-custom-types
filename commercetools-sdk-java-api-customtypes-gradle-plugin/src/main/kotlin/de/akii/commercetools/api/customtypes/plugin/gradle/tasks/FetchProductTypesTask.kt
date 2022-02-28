@@ -39,6 +39,7 @@ abstract class FetchProductTypesTask : DefaultTask() {
     val projectName: Property<String> = project.objects.property(String::class.java)
 
     @OutputFile
+    @Option(option = "outputFile", description = "Output File Name")
     val outputFile: RegularFileProperty = project.objects.fileProperty()
 
     @Inject

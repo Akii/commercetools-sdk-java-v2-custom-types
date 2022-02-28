@@ -114,7 +114,7 @@ private fun propertyGetter(name: String, type: TypeName, nullable: Boolean, modi
     FunSpec
         .builder(propertyNameToFunctionName("get", name))
         .returns(type.copy(nullable))
-        .addStatement("return this.${name}")
+        .addStatement("return this.%N", name)
         .addModifiers(modifiers)
         .build()
 
@@ -129,7 +129,7 @@ private fun propertySetter(
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type.copy(nullable))
-            .addStatement("this.${name} = $name")
+            .addStatement("this.%1N = %2N", name, name)
             .addModifiers(modifiers)
             .build()
     else
@@ -152,14 +152,14 @@ private fun propertyListSetter(
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type.parameterizedBy(parameterizedBy).copy(nullable))
-            .addStatement("this.${name} = $name")
+            .addStatement("this.%1N = %2N", name, name)
             .addModifiers(modifiers)
             .build()
     else
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type.parameterizedBy(kclassToClassName(castedFrom)).copy(nullable))
-            .addStatement("this.${name} = $name as ${type.parameterizedBy(parameterizedBy).copy(nullable)}")
+            .addStatement("this.%1N = %2N as %3T", name, name, type.parameterizedBy(parameterizedBy).copy(nullable))
             .addModifiers(modifiers)
             .addAnnotation(suppressUncheckedCalls)
             .build()
@@ -174,14 +174,14 @@ private fun propertyVarargSetter(
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, type, KModifier.VARARG)
-            .addStatement("this.${name} = ${name}.asList().toMutableList()")
+            .addStatement("this.%1N = %2N.asList().toMutableList()", name, name)
             .addModifiers(modifiers)
             .build()
     else
         FunSpec
             .builder(propertyNameToFunctionName("set", name))
             .addParameter(name, kclassToClassName(castedFrom), KModifier.VARARG)
-            .addStatement("this.${name} = ${name}.asList().toMutableList() as kotlin.collections.MutableList<$type>")
+            .addStatement("this.%1N = %2N.asList().toMutableList() as kotlin.collections.MutableList<$type>", name, name)
             .addModifiers(modifiers)
             .addAnnotation(suppressUncheckedCalls)
             .build()
@@ -198,13 +198,13 @@ private fun kclassToClassName(type: KClass<*>): ClassName =
 fun deserializeAs(asClassName: ClassName): AnnotationSpec =
     AnnotationSpec
         .builder(JsonDeserialize::class)
-        .addMember("`as` = ${asClassName.canonicalName}::class")
+        .addMember(CodeBlock.of("`as` = %T::class", asClassName))
         .build()
 
 fun deserializeUsing(asClassName: ClassName): AnnotationSpec =
     AnnotationSpec
         .builder(JsonDeserialize::class)
-        .addMember("using = ${asClassName.canonicalName}::class")
+        .addMember(CodeBlock.of("using = %T::class", asClassName))
         .build()
 
 private val jsonCreator =
@@ -215,11 +215,11 @@ private val jsonCreator =
 private fun jsonProperty(name: String): AnnotationSpec =
     AnnotationSpec
         .builder(JsonProperty::class)
-        .addMember("\"${name}\"")
+        .addMember("%S", name)
         .build()
 
 private val suppressUncheckedCalls =
     AnnotationSpec
         .builder(Suppress::class)
-        .addMember("\"UNCHECKED_CAST\"")
+        .addMember("%S", "UNCHECKED_CAST")
         .build()

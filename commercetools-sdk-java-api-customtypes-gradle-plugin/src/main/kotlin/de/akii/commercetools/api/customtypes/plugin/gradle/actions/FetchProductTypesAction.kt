@@ -4,8 +4,6 @@ import com.commercetools.api.client.QueryUtils
 import com.commercetools.api.defaultconfig.ApiRootBuilder
 import com.commercetools.api.defaultconfig.ServiceRegion
 import com.commercetools.api.models.product_type.ProductType
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.FetchProductTypesParameters
 import io.vrap.rmf.base.client.oauth2.ClientCredentials
 import io.vrap.rmf.base.client.utils.json.JsonUtils

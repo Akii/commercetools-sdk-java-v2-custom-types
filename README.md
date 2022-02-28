@@ -63,7 +63,7 @@ data class TestProductVariant : ProductVariant
 data class TestProductVariantAttributes (
     var aBoolean: Boolean?,
     var anEnum: AttributePlainEnumValue?,
-    var refSet: Set<Reference>?,
+    var refSet: Set<ProductReference>?,
     var nestedSecondType: SecondTypeProductVariantAttributes?
 )
 ```
@@ -79,7 +79,8 @@ val productVariant =
         .current
         .masterVariant
 
-print(AttributeAccessor.asBoolean(productVariant.attributes[0]))
+// as of v8 beta 1
+print(productVariant.withProductVariant(AttributesAccessor::of).asBoolean("a-boolean"))
 ```
 
 you can now easily use typed attributes:

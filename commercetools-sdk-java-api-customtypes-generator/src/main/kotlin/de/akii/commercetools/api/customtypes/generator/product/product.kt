@@ -10,7 +10,6 @@ import com.commercetools.api.models.review.ReviewRatingStatistics
 import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
-import de.akii.commercetools.api.customtypes.generator.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.ZonedDateTime
@@ -19,11 +18,11 @@ fun generateProductFile(
     productType: ProductType,
     config: Configuration
 ): List<FileSpec> {
-    val productClassName = ProductClassName(productType.name, config)
-    val productCatalogDataClassName = ProductCatalogDataClassName(productType.name, config)
-    val productDataClassName = ProductDataClassName(productType.name, config)
-    val productVariantClassName = ProductVariantClassName(productType.name, config)
-    val productVariantAttributesClassName = ProductVariantAttributesClassName(productType.name, config)
+    val productClassName = ProductClassName(productType, config)
+    val productCatalogDataClassName = ProductCatalogDataClassName(productType, config)
+    val productDataClassName = ProductDataClassName(productType, config)
+    val productVariantClassName = ProductVariantClassName(productType, config)
+    val productVariantAttributesClassName = ProductVariantAttributesClassName(productType, config)
     val customProductVariantAttributesClassName = CustomProductVariantAttributesClassName(config)
 
     val attributeTypeSpec = productVariantAttributes(

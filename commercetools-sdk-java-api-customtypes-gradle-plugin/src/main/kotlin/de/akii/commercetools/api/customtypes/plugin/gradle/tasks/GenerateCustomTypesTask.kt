@@ -1,6 +1,10 @@
 package de.akii.commercetools.api.customtypes.plugin.gradle.tasks
 
-import de.akii.commercetools.api.customtypes.plugin.gradle.actions.GenerateCustomTypesAction
+import com.commercetools.api.models.product_type.ProductType
+import com.fasterxml.jackson.core.type.TypeReference
+import de.akii.commercetools.api.customtypes.generator.common.Configuration
+import de.akii.commercetools.api.customtypes.generator.productFiles
+import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -8,30 +12,35 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
-import org.gradle.workers.ClassLoaderWorkerSpec
-import org.gradle.workers.WorkQueue
-import org.gradle.workers.WorkerExecutor
-import javax.inject.Inject
 
 internal const val GENERATE_CUSTOM_TYPES_TASK_NAME: String = "generateCustomTypes"
 
+@Suppress("UNCHECKED_CAST")
 abstract class GenerateCustomTypesTask : DefaultTask() {
 
     @get:Classpath
     val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
     @InputFile
+    @Option(option = "productTypesFile", description = "JSON file containing product types")
     val productTypesFile: RegularFileProperty = project.objects.fileProperty()
 
     @Input
     @Option(option = "packageName", description = "target package name to use for generated classes")
     val packageName: Property<String> = project.objects.property(String::class.java)
 
-    @OutputDirectory
-    val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
+    @Input
+    val productTypeNameToSubPackageName: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
 
-    @Inject
-    abstract fun getWorkerExecutor(): WorkerExecutor
+    @Input
+    val productTypeNameToClassNamePrefix: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
+
+    @Input
+    val attributeNameToPropertyName: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
+
+    @OutputDirectory
+    @Option(option = "outputDirectory", description = "target package name to use for generated classes")
+    val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     init {
         group = "commercetools"
@@ -47,16 +56,22 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             throw RuntimeException("Failed to generate generated source directory: $targetDirectory")
         }
 
-        val workQueue: WorkQueue = getWorkerExecutor().classLoaderIsolation { workerSpec: ClassLoaderWorkerSpec ->
-            workerSpec.classpath.from(pluginClasspath)
-        }
+        val productTypes = JsonUtils
+            .createObjectMapper()
+            .readValue(productTypesFile.get().asFile, object : TypeReference<List<ProductType>>() {})
 
-        workQueue.submit(GenerateCustomTypesAction::class.java) { parameters ->
-            parameters.productTypesFile.set(productTypesFile.get().asFile)
-            parameters.packageName.set(packageName.get())
-            parameters.targetDirectory.set(targetDirectory)
-        }
+        val config = Configuration(
+            packageName.get(),
+            productTypes,
+            productTypeNameToSubPackageName = { productTypeNameToSubPackageName.get()(it) },
+            productTypeNameToClassNamePrefix = { productTypeNameToClassNamePrefix.get()(it) },
+            attributeNameToPropertyName = { attributeNameToPropertyName.get()(it) },
+        )
 
-        workQueue.await()
+        val files = productFiles(config)
+
+        files.forEach {
+            it.writeTo(targetDirectory)
+        }
     }
 }

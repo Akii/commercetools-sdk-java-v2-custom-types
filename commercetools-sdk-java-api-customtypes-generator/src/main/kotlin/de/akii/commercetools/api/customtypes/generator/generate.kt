@@ -2,7 +2,6 @@ package de.akii.commercetools.api.customtypes.generator
 
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
-import com.commercetools.api.models.product_type.ProductType
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
@@ -10,10 +9,6 @@ import de.akii.commercetools.api.customtypes.generator.product.deserialization.c
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesDelegatingDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesModifier
 import de.akii.commercetools.api.customtypes.generator.product.generateProductFile
-
-data class Configuration(
-    val packageName: String,
-    val productTypes: List<ProductType>)
 
 fun productFiles(config: Configuration): List<FileSpec> {
     val productDeserializerFile = FileSpec
@@ -59,23 +54,23 @@ fun customProductApiModule(config: Configuration): TypeSpec =
         .superclass(SimpleModule::class)
         .addInitializerBlock(buildCodeBlock {
             add(
-                "addDeserializer(%1L::class.java, %2L())\n",
-                Product::class.asTypeName().canonicalName,
-                CustomProductDeserializerClassName(config).className.canonicalName,
+                "addDeserializer(%1T::class.java, %2T())\n",
+                Product::class.asClassName(),
+                CustomProductDeserializerClassName(config).className,
             )
             add(
-                "setMixInAnnotation(%1L::class.java, %2L::class.java)\n",
-                Product::class.asTypeName().canonicalName,
+                "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
+                Product::class.asClassName(),
                 "CustomProduct"
             )
             add(
-                "setMixInAnnotation(%1L::class.java, %2L::class.java)\n",
-                ProductImpl::class.asTypeName().canonicalName,
+                "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
+                ProductImpl::class.asClassName(),
                 "FallbackProduct"
             )
             add(
-                "setDeserializerModifier(%1L())\n",
-                CustomProductVariantAttributesModifierClassName(config).className.canonicalName,
+                "setDeserializerModifier(%1T())\n",
+                CustomProductVariantAttributesModifierClassName(config).className,
             )
         })
         .build()
