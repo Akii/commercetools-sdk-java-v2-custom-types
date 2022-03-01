@@ -118,8 +118,8 @@ subprojects {
         setRequired {
             (rootProject.extra["isReleaseVersion"] as Boolean) && (gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishPlugins"))
         }
-        val signingKey: String = project.findProperty("pgp.sign.key") as String
-        val signingPassword: String = project.findProperty("pgp.sign.passphrase") as String
+        val signingKey: String? = System.getenv("PGP_SIGN_KEY") ?: project.findProperty("pgp.sign.key") as String?
+        val signingPassword: String? = System.getenv("PGP_SIGN_PASSPHRASE") ?: project.findProperty("pgp.sign.passphrase") as String?
         useInMemoryPgpKeys(signingKey, signingPassword)
         sign(publishing.publications)
     }
@@ -143,8 +143,8 @@ tasks {
             sonatype {
                 nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
                 snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-                username.set(project.findProperty("sonatype.publish.username") as String)
-                password.set(project.findProperty("sonatype.publish.password") as String)
+                username.set(System.getenv("SONATYPE_PUBLISH_USERNAME") ?: project.findProperty("sonatype.publish.username") as String?)
+                password.set(System.getenv("SONATYPE_PUBLISH_PASSWORD") ?: project.findProperty("sonatype.publish.password") as String?)
             }
         }
 

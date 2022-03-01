@@ -69,6 +69,16 @@ tasks {
     compileKotlin {
         dependsOn(generateDefaultVersion)
     }
+    publishPlugins {
+        doFirst {
+            if (System.getProperty("gradle.publish.key") == null) {
+                System.setProperty("gradle.publish.key", System.getenv("GRADLE_PUBLISH_KEY"))
+            }
+            if (System.getProperty("gradle.publish.secret") == null) {
+                System.setProperty("gradle.publish.secret", System.getenv("GRADLE_PUBLISH_SECRET"))
+            }
+        }
+    }
     publishing {
         publications {
             afterEvaluate {
