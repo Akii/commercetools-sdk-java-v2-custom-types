@@ -5,10 +5,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Classpath
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
 import org.gradle.workers.ClassLoaderWorkerSpec
 import org.gradle.workers.WorkQueue
@@ -38,8 +35,12 @@ abstract class FetchProductTypesTask : DefaultTask() {
     @Option(option = "projectName", description = "Project Name")
     val projectName: Property<String> = project.objects.property(String::class.java)
 
-    @OutputFile
+    @Input
+    @Optional
     @Option(option = "outputFile", description = "Output File Name")
+    val customOutputFile: Property<String> = project.objects.property(String::class.java)
+
+    @OutputFile
     val outputFile: RegularFileProperty = project.objects.fileProperty()
 
     @Inject
@@ -54,7 +55,12 @@ abstract class FetchProductTypesTask : DefaultTask() {
 
     @TaskAction
     fun fetchProductTypesAction() {
-        val productTypesFile = outputFile.asFile.get()
+        val productTypesFile =
+            if (customOutputFile.isPresent)
+                project.layout.projectDirectory.file(customOutputFile.get()).asFile
+            else
+                outputFile.asFile.get()
+
         val targetDirectory = productTypesFile.parentFile
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("Failed to create target product types directory $targetDirectory")

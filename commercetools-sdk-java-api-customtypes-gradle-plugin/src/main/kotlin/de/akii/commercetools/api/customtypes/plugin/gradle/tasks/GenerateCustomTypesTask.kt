@@ -21,8 +21,12 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     @get:Classpath
     val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
-    @InputFile
+    @Input
+    @Optional
     @Option(option = "productTypesFile", description = "JSON file containing product types")
+    val customProductTypesFile: Property<String> = project.objects.property(String::class.java)
+
+    @InputFile
     val productTypesFile: RegularFileProperty = project.objects.fileProperty()
 
     @Input
@@ -38,8 +42,12 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     @Input
     val attributeNameToPropertyName: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
 
-    @OutputDirectory
+    @Input
+    @Optional
     @Option(option = "outputDirectory", description = "target package name to use for generated classes")
+    val customOutputDirectory: Property<String> = project.objects.property(String::class.java)
+
+    @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     init {
@@ -51,14 +59,25 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
 
     @TaskAction
     fun generateCustomTypesAction() {
-        val targetDirectory = outputDirectory.get().asFile
+        val targetDirectory =
+            if (customOutputDirectory.isPresent)
+                project.layout.projectDirectory.file(customOutputDirectory.get()).asFile
+            else
+                outputDirectory.get().asFile
+
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("Failed to generate generated source directory: $targetDirectory")
         }
 
+        val productTypesFile =
+            if (customProductTypesFile.isPresent)
+                project.layout.projectDirectory.file(customProductTypesFile.get()).asFile
+            else
+                productTypesFile.get().asFile
+
         val productTypes = JsonUtils
             .createObjectMapper()
-            .readValue(productTypesFile.get().asFile, object : TypeReference<List<ProductType>>() {})
+            .readValue(productTypesFile, object : TypeReference<List<ProductType>>() {})
 
         val config = Configuration(
             packageName.get(),
