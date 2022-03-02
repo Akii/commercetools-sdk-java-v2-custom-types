@@ -1,0 +1,315 @@
+[
+  {
+    "id": "0bdef965-9508-47ec-bf7f-3e2c41e67fb2",
+    "version": 7,
+    "lastMessageSequenceNumber": 2,
+    "createdAt": "2022-02-03T19:23:29.977Z",
+    "lastModifiedAt": "2022-02-12T15:40:16.985Z",
+    "lastModifiedBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "createdBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "productType": {
+      "typeId": "product-type",
+      "id": "e8de347b-38fa-401d-a996-aa118658a90f"
+    },
+    "masterData": {
+      "current": {
+        "name": {
+          "de-DE": "My first Product"
+        },
+        "categories": [],
+        "categoryOrderHints": {},
+        "slug": {
+          "de-DE": "my-first-product"
+        },
+        "metaTitle": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "metaDescription": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "masterVariant": {
+          "id": 1,
+          "sku": "the_sku",
+          "prices": [],
+          "images": [],
+          "attributes": [
+            {
+              "name": "a-boolean",
+              "value": true
+            },
+            {
+              "name": "a-text",
+              "value": "Text!"
+            },
+            {
+              "name": "an-enum",
+              "value": {
+                "key": "Value1",
+                "label": "Label1"
+              }
+            },
+            {
+              "name": "a-loc-enum",
+              "value": {
+                "key": "Value1",
+                "label": {
+                  "de-DE": "Label1 DE",
+                  "en-US": "Label1 EN"
+                }
+              }
+            },
+            {
+              "name": "a-number",
+              "value": 106
+            },
+            {
+              "name": "some-money",
+              "value": {
+                "type": "centPrecision",
+                "currencyCode": "USD",
+                "centAmount": 42069,
+                "fractionDigits": 2
+              }
+            },
+            {
+              "name": "a-date",
+              "value": "2022-02-02"
+            },
+            {
+              "name": "a-time",
+              "value": "12:30:00.000"
+            },
+            {
+              "name": "date-time",
+              "value": "2022-02-04T00:00:00.000Z"
+            }
+          ],
+          "assets": []
+        },
+        "variants": [],
+        "searchKeywords": {}
+      },
+      "staged": {
+        "name": {
+          "de-DE": "My first Product"
+        },
+        "categories": [],
+        "categoryOrderHints": {},
+        "slug": {
+          "de-DE": "my-first-product"
+        },
+        "metaTitle": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "masterVariant": {
+          "id": 1,
+          "sku": "the_sku",
+          "prices": [],
+          "images": [],
+          "attributes": [
+            {
+              "name": "a-boolean",
+              "value": true
+            },
+            {
+              "name": "a-text",
+              "value": "Text!"
+            },
+            {
+              "name": "an-enum",
+              "value": {
+                "key": "Value1",
+                "label": "Label1"
+              }
+            },
+            {
+              "name": "a-loc-enum",
+              "value": {
+                "key": "Value1",
+                "label": {
+                  "de-DE": "Label1 DE",
+                  "en-US": "Label1 EN"
+                }
+              }
+            },
+            {
+              "name": "a-number",
+              "value": 106
+            },
+            {
+              "name": "some-money",
+              "value": {
+                "type": "centPrecision",
+                "currencyCode": "USD",
+                "centAmount": 42069,
+                "fractionDigits": 2
+              }
+            },
+            {
+              "name": "a-date",
+              "value": "2022-02-02"
+            },
+            {
+              "name": "a-time",
+              "value": "12:30:00.000"
+            },
+            {
+              "name": "date-time",
+              "value": "2022-02-04T00:00:00.000Z"
+            },
+            {
+              "name": "same-for-all",
+              "value": true
+            },
+            {
+              "name": "nested-second-type",
+              "value": [
+                {
+                  "name": "nested-text",
+                  "value": "It really is!"
+                }
+              ]
+            }
+          ],
+          "assets": []
+        },
+        "variants": [
+          {
+            "id": 2,
+            "prices": [],
+            "images": [],
+            "attributes": [
+              {
+                "name": "a-boolean",
+                "value": false
+              },
+              {
+                "name": "a-text",
+                "value": "My first Variant"
+              },
+              {
+                "name": "some-money",
+                "value": {
+                  "type": "centPrecision",
+                  "currencyCode": "EUR",
+                  "centAmount": 6900,
+                  "fractionDigits": 2
+                }
+              },
+              {
+                "name": "same-for-all",
+                "value": true
+              }
+            ],
+            "assets": []
+          }
+        ],
+        "searchKeywords": {}
+      },
+      "published": false,
+      "hasStagedChanges": true
+    },
+    "lastVariantId": 2
+  },
+  {
+    "id": "850df394-6611-4b2c-acc8-166d4f062d77",
+    "version": 1,
+    "lastMessageSequenceNumber": 1,
+    "createdAt": "2022-02-11T13:35:01.191Z",
+    "lastModifiedAt": "2022-02-11T13:35:01.191Z",
+    "lastModifiedBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "createdBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "productType": {
+      "typeId": "product-type",
+      "id": "30313b5a-8573-4d3e-bfbf-566238168505"
+    },
+    "masterData": {
+      "current": {
+        "name": {
+          "de-DE": "Second Type!"
+        },
+        "categories": [],
+        "categoryOrderHints": {},
+        "slug": {
+          "de-DE": "second-type"
+        },
+        "metaTitle": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "metaDescription": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "masterVariant": {
+          "id": 1,
+          "sku": "skuuu",
+          "prices": [],
+          "images": [],
+          "attributes": [],
+          "assets": []
+        },
+        "variants": [],
+        "searchKeywords": {}
+      },
+      "staged": {
+        "name": {
+          "de-DE": "Second Type!"
+        },
+        "categories": [],
+        "categoryOrderHints": {},
+        "slug": {
+          "de-DE": "second-type"
+        },
+        "metaTitle": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "metaDescription": {
+          "de-DE": "",
+          "en-US": ""
+        },
+        "masterVariant": {
+          "id": 1,
+          "sku": "skuuu",
+          "prices": [],
+          "images": [],
+          "attributes": [],
+          "assets": []
+        },
+        "variants": [],
+        "searchKeywords": {}
+      },
+      "published": false,
+      "hasStagedChanges": false
+    },
+    "lastVariantId": 1
+  }
+]
