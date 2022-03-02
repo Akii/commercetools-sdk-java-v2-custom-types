@@ -8,7 +8,7 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesDelegatingDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesModifier
-import de.akii.commercetools.api.customtypes.generator.product.generateProductFile
+import de.akii.commercetools.api.customtypes.generator.product.generateProductFiles
 
 fun productFiles(config: Configuration): List<FileSpec> {
     val productDeserializerFile = FileSpec
@@ -27,7 +27,7 @@ fun productFiles(config: Configuration): List<FileSpec> {
         .build()
 
     return listOf(productDeserializerFile, apiModuleFile) + config.productTypes.flatMap {
-        generateProductFile(it, config)
+        generateProductFiles(it, config)
     }
 }
 

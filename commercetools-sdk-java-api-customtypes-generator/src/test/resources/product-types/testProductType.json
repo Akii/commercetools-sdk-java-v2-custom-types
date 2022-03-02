@@ -1,0 +1,275 @@
+{
+  "id": "e8de347b-38fa-401d-a996-aa118658a90f",
+  "version": 24,
+  "createdAt": "2022-02-03T18:22:08.738Z",
+  "lastModifiedAt": "2022-02-12T15:39:55.053Z",
+  "lastModifiedBy": {},
+  "createdBy": {},
+  "name": "test",
+  "description": "Some Test Product Type",
+  "attributes": [
+    {
+      "type": {
+        "name": "boolean"
+      },
+      "name": "a-boolean",
+      "label": {
+        "de-DE": "A Boolean",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": true
+    },
+    {
+      "type": {
+        "name": "text"
+      },
+      "name": "a-text",
+      "label": {
+        "de-DE": "A Text",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "Unique",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": true
+    },
+    {
+      "type": {
+        "name": "ltext"
+      },
+      "name": "a-loc-text",
+      "label": {
+        "de-DE": "A Localized Text",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "SameForAll",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "MultiLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "values": [
+          {
+            "key": "Value1",
+            "label": "Label1"
+          },
+          {
+            "key": "Value2",
+            "label": "Label2"
+          }
+        ],
+        "name": "enum"
+      },
+      "name": "an-enum",
+      "label": {
+        "de-DE": "An Enum",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "CombinationUnique",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "values": [
+          {
+            "key": "Value1",
+            "label": {
+              "de-DE": "Label1 DE",
+              "en-US": "Label1 EN"
+            }
+          },
+          {
+            "key": "Value2",
+            "label": {
+              "de-DE": "Label2",
+              "en-US": "Label2 EN"
+            }
+          }
+        ],
+        "name": "lenum"
+      },
+      "name": "a-loc-enum",
+      "label": {
+        "de-DE": "A Localized Enum",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "name": "number"
+      },
+      "name": "a-number",
+      "label": {
+        "de-DE": "A Number",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "name": "money"
+      },
+      "name": "some-money",
+      "label": {
+        "de-DE": "Tendies!",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "name": "date"
+      },
+      "name": "a-date",
+      "label": {
+        "de-DE": "A Date",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "name": "time"
+      },
+      "name": "a-time",
+      "label": {
+        "de-DE": "Time!",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "name": "datetime"
+      },
+      "name": "date-time",
+      "label": {
+        "de-DE": "Date and Time!",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "elementType": {
+          "referenceTypeId": "product",
+          "name": "reference"
+        },
+        "name": "set"
+      },
+      "name": "ref-set",
+      "label": {
+        "de-DE": "Ref set",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "name": "boolean"
+      },
+      "name": "same-for-all",
+      "label": {
+        "de-DE": "Same For All!",
+        "en-US": ""
+      },
+      "isRequired": false,
+      "attributeConstraint": "SameForAll",
+      "inputTip": {
+        "de-DE": "",
+        "en-US": ""
+      },
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    },
+    {
+      "type": {
+        "typeReference": {
+          "id": "30313b5a-8573-4d3e-bfbf-566238168505",
+          "typeId": "product-type"
+        },
+        "name": "nested"
+      },
+      "name": "nested-second-type",
+      "label": {
+        "de-DE": "It's nested! Wohoo!"
+      },
+      "isRequired": false,
+      "attributeConstraint": "None",
+      "inputHint": "SingleLine",
+      "isSearchable": false
+    }
+  ]
+}

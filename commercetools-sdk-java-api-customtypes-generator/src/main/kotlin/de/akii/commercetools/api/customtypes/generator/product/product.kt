@@ -14,7 +14,7 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.ZonedDateTime
 
-fun generateProductFile(
+fun generateProductFiles(
     productType: ProductType,
     config: Configuration
 ): List<FileSpec> {
