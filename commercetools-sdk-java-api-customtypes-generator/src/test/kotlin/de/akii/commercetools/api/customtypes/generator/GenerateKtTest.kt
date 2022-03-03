@@ -11,6 +11,9 @@ import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZonedDateTime
 
 internal class GenerateKtTest {
 
@@ -52,6 +55,34 @@ internal class GenerateKtTest {
 
         assertThat(result.classLoader.loadClass("test.package.product.test.TestProduct").isInstance(testProduct))
         assertThat(ProductImpl::class.java.isInstance(fallbackProduct))
+
+        val testProductVariant = testProduct
+            .masterData
+            .current
+            .masterVariant
+
+        val typedAttributesGetter = result
+            .classLoader
+            .loadClass("test.package.product.test.TestProductVariant")
+            .getMethod("getTypedAttributes")
+
+        val typedAttributes = typedAttributesGetter.invoke(testProductVariant)
+
+        assertThat(invokeMethod("getABoolean", typedAttributes) as Boolean).isTrue
+        assertThat(invokeMethod("getAText", typedAttributes) as String).isEqualTo("Text!")
+        assertThat(invokeMethod("getAnEnum", typedAttributes)).isNotNull
+        assertThat(invokeMethod("getALocEnum", typedAttributes)).isNotNull
+        assertThat(invokeMethod("getANumber", typedAttributes) as Int).isEqualTo(106)
+        assertThat(invokeMethod("getSomeMoney", typedAttributes)).isNotNull
+        assertThat(invokeMethod("getADate", typedAttributes)).isEqualTo(LocalDate.parse("2022-02-02"))
+        assertThat(invokeMethod("getATime", typedAttributes)).isEqualTo(LocalTime.parse("12:30:00.000"))
+        assertThat(invokeMethod("getDateTime", typedAttributes)).isEqualTo(ZonedDateTime.parse("2022-02-04T00:00:00.000Z"))
+        assertThat(invokeMethod("getRefSet", typedAttributes)).isNull()
+        assertThat(invokeMethod("getSameForAll", typedAttributes)).isNull()
+        assertThat(invokeMethod("getNestedSecondType", typedAttributes)).isNull()
     }
+
+    private fun invokeMethod(name: String, obj: Any): Any? =
+        obj.javaClass.getMethod(name).invoke(obj)
 
 }
