@@ -35,11 +35,6 @@ abstract class FetchProductTypesTask : DefaultTask() {
     @Option(option = "projectName", description = "Project Name")
     val projectName: Property<String> = project.objects.property(String::class.java)
 
-    @Input
-    @Optional
-    @Option(option = "outputFile", description = "Output File Name")
-    val customOutputFile: Property<String> = project.objects.property(String::class.java)
-
     @OutputFile
     val outputFile: RegularFileProperty = project.objects.fileProperty()
 
@@ -55,11 +50,7 @@ abstract class FetchProductTypesTask : DefaultTask() {
 
     @TaskAction
     fun fetchProductTypesAction() {
-        val productTypesFile =
-            if (customOutputFile.isPresent)
-                project.layout.projectDirectory.file(customOutputFile.get()).asFile
-            else
-                outputFile.asFile.get()
+        val productTypesFile = outputFile.asFile.get()
 
         val targetDirectory = productTypesFile.parentFile
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {

@@ -17,9 +17,15 @@ import org.junit.jupiter.api.Test
 
 internal class ProductKtTest {
 
+    private val productType =
+        JsonUtils
+            .createObjectMapper()
+            .readValue(
+                javaClass.getResource("/product-types/testProductType.json"),
+                object : TypeReference<ProductType>() {})
+
     @Test
     fun `generates custom product classes`() {
-        val productType = loadProductType("/product-types/testProductType.json")
         val config = Configuration("test.package", listOf(productType))
         val files = generateProductFiles(
             productType,
@@ -74,14 +80,6 @@ internal class ProductKtTest {
             "setNestedSecondType",
         )
     }
-
-    private fun loadProductType(fileName: String) =
-        JsonUtils
-            .createObjectMapper()
-            .readValue(
-                javaClass.getResource(fileName),
-                object : TypeReference<ProductType>() {}
-            )
 
     private fun customProductInterfaceFile(config: Configuration) =
         FileSpec

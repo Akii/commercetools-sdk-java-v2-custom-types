@@ -118,17 +118,23 @@ To do so, generate an API client with the scopes `view_types` and `view_products
 
 ```kotlin
 import de.akii.commercetools.api.customtypes.plugin.gradle.commercetoolsCustomTypes
+import com.commercetools.api.defaultconfig.ServiceRegion
 
 plugins {
     id("de.akii.commercetools.api.customtypes") version $pluginVersion
 }
 
 commercetoolsCustomTypes {
-    clientId = "<client-id>"
-    clientSecret = "<client-secret>"
-    serviceRegion = "GCP_EUROPE_WEST1"
-    projectName = "<project-name>"
-    packageName = "your.types.go.here"
+    credentials {
+        clientId = "<client-id>"
+        clientSecret = "<client-secret>"
+        serviceRegion = ServiceRegion.GCP_EUROPE_WEST1
+        projectName = "<project-name>"
+    }
+
+    productTypes {
+        packageName = "your.types.go.here"
+    }
 }
 ```
 
@@ -143,8 +149,10 @@ plugins {
 }
 
 commercetoolsCustomTypes {
-    productTypesFile = File("./productTypes.json")
-    packageName = "your.types.go.here"
+    productTypes {
+        packageName = "your.types.go.here"
+        productTypesFile = File("./productTypes.json")
+    }
 }
 ```
 

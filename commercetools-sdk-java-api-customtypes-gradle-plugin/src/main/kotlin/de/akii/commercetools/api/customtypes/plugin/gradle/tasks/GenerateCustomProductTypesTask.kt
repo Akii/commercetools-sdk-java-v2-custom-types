@@ -13,18 +13,13 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
 
-internal const val GENERATE_CUSTOM_TYPES_TASK_NAME: String = "generateCustomTypes"
+internal const val GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME: String = "generateCustomProductTypes"
 
 @Suppress("UNCHECKED_CAST")
-abstract class GenerateCustomTypesTask : DefaultTask() {
+abstract class GenerateCustomProductTypesTask : DefaultTask() {
 
     @get:Classpath
     val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
-
-    @Input
-    @Optional
-    @Option(option = "productTypesFile", description = "JSON file containing product types")
-    val customProductTypesFile: Property<String> = project.objects.property(String::class.java)
 
     @InputFile
     val productTypesFile: RegularFileProperty = project.objects.fileProperty()
@@ -42,11 +37,6 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     @Input
     val attributeNameToPropertyName: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
 
-    @Input
-    @Optional
-    @Option(option = "outputDirectory", description = "target package name to use for generated classes")
-    val customOutputDirectory: Property<String> = project.objects.property(String::class.java)
-
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -59,21 +49,12 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
 
     @TaskAction
     fun generateCustomTypesAction() {
-        val targetDirectory =
-            if (customOutputDirectory.isPresent)
-                project.layout.projectDirectory.file(customOutputDirectory.get()).asFile
-            else
-                outputDirectory.get().asFile
+        val productTypesFile = productTypesFile.get().asFile
+        val targetDirectory = outputDirectory.get().asFile
 
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("Failed to generate generated source directory: $targetDirectory")
         }
-
-        val productTypesFile =
-            if (customProductTypesFile.isPresent)
-                project.layout.projectDirectory.file(customProductTypesFile.get()).asFile
-            else
-                productTypesFile.get().asFile
 
         val productTypes = JsonUtils
             .createObjectMapper()

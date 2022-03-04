@@ -40,6 +40,8 @@ internal class GenerateKtTest {
             messageOutputStream = System.out
         }.compile()
 
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+
         val apiModule = result.classLoader
             .loadClass("test.package.CustomProductApiModule")
             .getDeclaredConstructor()
@@ -61,12 +63,7 @@ internal class GenerateKtTest {
             .current
             .masterVariant
 
-        val typedAttributesGetter = result
-            .classLoader
-            .loadClass("test.package.product.test.TestProductVariant")
-            .getMethod("getTypedAttributes")
-
-        val typedAttributes = typedAttributesGetter.invoke(testProductVariant)
+        val typedAttributes = invokeMethod("getTypedAttributes", testProductVariant)!!
 
         assertThat(invokeMethod("getABoolean", typedAttributes) as Boolean).isTrue
         assertThat(invokeMethod("getAText", typedAttributes) as String).isEqualTo("Text!")
