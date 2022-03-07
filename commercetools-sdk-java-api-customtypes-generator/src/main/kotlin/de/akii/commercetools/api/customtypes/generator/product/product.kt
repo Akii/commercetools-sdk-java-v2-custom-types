@@ -2,8 +2,7 @@ package de.akii.commercetools.api.customtypes.generator.product
 
 import com.commercetools.api.models.common.CreatedBy
 import com.commercetools.api.models.common.LastModifiedBy
-import com.commercetools.api.models.product.Product
-import com.commercetools.api.models.product.ProductCatalogData
+import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.product_type.ProductTypeReference
 import com.commercetools.api.models.review.ReviewRatingStatistics
@@ -49,23 +48,29 @@ fun generateProductFiles(
 
     val product = TypeSpec
         .classBuilder(productClassName.className)
-        .addModifiers(KModifier.DATA)
-        .addSuperinterface(Product::class)
         .addAnnotation(Generated::class)
+        .superclass(ProductImpl::class)
         .addAnnotation(deserializeAs(productClassName.className))
-        .addCTProperties(
-            SimpleCTProperty("id", String::class),
-            SimpleCTProperty("key", String::class, nullable = true),
-            SimpleCTProperty("version", Long::class),
-            SimpleCTProperty("createdAt", ZonedDateTime::class),
-            SimpleCTProperty("createdBy", CreatedBy::class),
-            SimpleCTProperty("lastModifiedAt", ZonedDateTime::class),
-            SimpleCTProperty("lastModifiedBy", LastModifiedBy::class),
-            SimpleCTProperty("productType", ProductTypeReference::class),
-            SimpleCTProperty("masterData", productCatalogDataClassName.className, castedFrom = ProductCatalogData::class),
-            SimpleCTProperty("taxCategory", TaxCategoryReference::class, nullable = true),
-            SimpleCTProperty("state", StateReference::class, nullable = true),
-            SimpleCTProperty("reviewRatingStatistics", ReviewRatingStatistics::class, nullable = true),
+        .addCTConstructorArguments(
+            CTParameter("id", String::class),
+            CTParameter("key", String::class, nullable = true),
+            CTParameter("version", Long::class),
+            CTParameter("createdAt", ZonedDateTime::class),
+            CTParameter("createdBy", CreatedBy::class),
+            CTParameter("lastModifiedAt", ZonedDateTime::class),
+            CTParameter("lastModifiedBy", LastModifiedBy::class),
+            CTParameter("productType", ProductTypeReference::class),
+            CTProperty("masterData", productCatalogDataClassName.className),
+            CTParameter("taxCategory", TaxCategoryReference::class, nullable = true),
+            CTParameter("state", StateReference::class, nullable = true),
+            CTParameter("reviewRatingStatistics", ReviewRatingStatistics::class, nullable = true),
+        )
+        .addFunction(FunSpec
+            .builder("getMasterData")
+            .addModifiers(KModifier.OVERRIDE)
+            .addStatement("return this.%N", "masterData")
+            .returns(productCatalogDataClassName.className)
+            .build()
         )
         .build()
 

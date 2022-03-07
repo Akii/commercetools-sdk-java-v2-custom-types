@@ -67,7 +67,7 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
         generateCustomTypesTask.productTypesFile.set(productTypesGeneratorExtension.productTypesFile)
         configureDefaultProjectSourceSet(project, generateCustomTypesTask.outputDirectory)
 
-        if (productTypesGeneratorExtension.productTypesFile == null && extension.credentialsConfigured()) {
+        if (extension.credentialsConfigured()) {
             val credentials = extension.credentialsExtension
 
             val fetchProductTypesTask =
@@ -77,8 +77,10 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
             fetchProductTypesTask.serviceRegion.convention(project.provider { credentials.serviceRegion.toString() })
             fetchProductTypesTask.projectName.convention(project.provider { credentials.projectName })
 
-            generateCustomTypesTask.dependsOn(fetchProductTypesTask)
-            generateCustomTypesTask.productTypesFile.set(fetchProductTypesTask.outputFile)
+            if (productTypesGeneratorExtension.productTypesFile == null) {
+                generateCustomTypesTask.dependsOn(fetchProductTypesTask)
+                generateCustomTypesTask.productTypesFile.set(fetchProductTypesTask.outputFile)
+            }
         }
     }
 

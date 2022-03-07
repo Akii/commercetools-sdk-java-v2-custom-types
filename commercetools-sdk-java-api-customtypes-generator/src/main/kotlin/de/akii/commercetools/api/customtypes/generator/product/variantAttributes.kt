@@ -53,17 +53,34 @@ fun productVariantAttributes(
         .addSuperinterface(customProductVariantAttributesClassName.className)
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
-        .addCTProperties(attributes.map { attribute(it, config) })
+        .primaryConstructor(constructor(attributes, config))
+        .addProperties(attributes.map { attribute(it, config) })
         .build()
 }
 
-private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): CTProperty =
-    SimpleCTProperty(
-        config.attributeNameToPropertyName(attributeDefinition.name),
-        typeNameForAttributeType(attributeDefinition.type, config),
-        nullable = true,
-        modifiers = emptyList()
-    )
+private fun constructor(attributes: List<AttributeDefinition>, config: Configuration): FunSpec =
+    FunSpec
+        .constructorBuilder()
+        .addParameters(attributes.map { parameter(it, config) })
+        .build()
+
+private fun parameter(attributeDefinition: AttributeDefinition, config: Configuration): ParameterSpec =
+    ParameterSpec
+        .builder(
+            config.attributeNameToPropertyName(attributeDefinition.name),
+            typeNameForAttributeType(attributeDefinition.type, config)
+        )
+        .addAnnotation(jsonProperty(config.attributeNameToPropertyName(attributeDefinition.name)))
+        .build()
+
+private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): PropertySpec =
+    PropertySpec
+        .builder(
+            config.attributeNameToPropertyName(attributeDefinition.name),
+            typeNameForAttributeType(attributeDefinition.type, config)
+        )
+        .initializer(config.attributeNameToPropertyName(attributeDefinition.name))
+        .build()
 
 private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
     when (attributeType) {
@@ -81,7 +98,7 @@ private fun typeNameForAttributeType(attributeType: AttributeType, config: Confi
         is AttributeSetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
         is AttributeNestedType -> findProductVariantAttributesTypeByProductTypeId(attributeType.typeReference.id, config)
         else -> Any::class.asTypeName()
-    }
+    }.copy(nullable = true)
 
 private fun findConcreteReference(referenceTypeId: ReferenceTypeId): ClassName =
     when (referenceTypeId) {

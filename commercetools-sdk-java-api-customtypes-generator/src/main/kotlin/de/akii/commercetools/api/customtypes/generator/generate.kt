@@ -9,6 +9,7 @@ import de.akii.commercetools.api.customtypes.generator.product.deserialization.c
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesDelegatingDeserializer
 import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesModifier
 import de.akii.commercetools.api.customtypes.generator.product.generateProductFiles
+import io.vrap.rmf.base.client.utils.Generated
 
 fun productFiles(config: Configuration): List<FileSpec> {
     val productDeserializerFile = FileSpec
@@ -34,23 +35,27 @@ fun productFiles(config: Configuration): List<FileSpec> {
 fun customProductInterface(config: Configuration): TypeSpec =
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "CustomProduct"))
+        .addAnnotation(Generated::class)
         .addAnnotation(deserializeUsing(CustomProductDeserializerClassName(config).className))
         .build()
 
 fun fallbackProductInterface(config: Configuration) =
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "FallbackProduct"))
+        .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(ProductImpl::class.asClassName()))
         .build()
 
 fun customProductVariantAttributesInterface(config: Configuration) =
     TypeSpec
         .interfaceBuilder(CustomProductVariantAttributesClassName(config).className)
+        .addAnnotation(Generated::class)
         .build()
 
 fun customProductApiModule(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(ClassName(config.packageName, "CustomProductApiModule"))
+        .addAnnotation(Generated::class)
         .superclass(SimpleModule::class)
         .addInitializerBlock(buildCodeBlock {
             add(

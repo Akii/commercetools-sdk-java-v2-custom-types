@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
+import io.vrap.rmf.base.client.utils.Generated
 
 private val jsonDeserializerType =
     JsonDeserializer::class
@@ -20,6 +21,7 @@ private val jsonDeserializerType =
 fun customProductVariantAttributesModifier(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(CustomProductVariantAttributesModifierClassName(config).className)
+        .addAnnotation(Generated::class)
         .superclass(BeanDeserializerModifier::class)
         .addFunction(modifyDeserializer)
         .build()
@@ -27,6 +29,7 @@ fun customProductVariantAttributesModifier(config: Configuration): TypeSpec =
 fun customProductVariantAttributesDelegatingDeserializer(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(CustomProductVariantAttributesDelegatingDeserializerClassName(config).className)
+        .addAnnotation(Generated::class)
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter("d", jsonDeserializerType)

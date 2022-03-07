@@ -8,10 +8,12 @@ import com.fasterxml.jackson.databind.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
+import io.vrap.rmf.base.client.utils.Generated
 
 fun customProductDeserializer(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(CustomProductDeserializerClassName(config).className)
+        .addAnnotation(Generated::class)
         .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(Product::class.asTypeName()))
         .addFunction(deserialize(config))
         .addFunction(makeParser)
@@ -31,11 +33,11 @@ private fun deserialize(config: Configuration): FunSpec =
             val productTypeId: String? = node?.path("productType")?.path("id")?.asText()
 
         """.trimIndent())
-        .addCode(generateOroductTypeToIdMap(config))
+        .addCode(generateProductTypeToIdMap(config))
         .returns(Product::class.asTypeName().copy(nullable = true))
         .build()
 
-private fun generateOroductTypeToIdMap(config: Configuration): CodeBlock {
+private fun generateProductTypeToIdMap(config: Configuration): CodeBlock {
     val whenExpression = CodeBlock
         .builder()
         .add("return when (productTypeId) {\n")

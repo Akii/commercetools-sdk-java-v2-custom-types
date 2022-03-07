@@ -53,31 +53,18 @@ internal class ProductKtTest {
 
         assertThat(variantAttributeClass).hasDeclaredMethods(
             "getABoolean",
-            "setABoolean",
             "getAText",
-            "setAText",
             "getALocText",
-            "setALocText",
             "getAnEnum",
-            "setAnEnum",
             "getALocEnum",
-            "setALocEnum",
             "getANumber",
-            "setANumber",
             "getSomeMoney",
-            "setSomeMoney",
             "getADate",
-            "setADate",
             "getATime",
-            "setATime",
             "getDateTime",
-            "setDateTime",
             "getRefSet",
-            "setRefSet",
             "getSameForAll",
-            "setSameForAll",
-            "getNestedSecondType",
-            "setNestedSecondType",
+            "getNestedSecondType"
         )
     }
 

@@ -2,12 +2,9 @@ package de.akii.commercetools.api.customtypes.generator.product
 
 import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.common.LocalizedString
-import com.commercetools.api.models.product.CategoryOrderHints
-import com.commercetools.api.models.product.ProductData
-import com.commercetools.api.models.product.ProductVariant
-import com.commercetools.api.models.product.SearchKeywords
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeSpec
+import com.commercetools.api.models.product.*
+import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 
@@ -16,21 +13,36 @@ fun productData(
     productVariantClassName: ProductVariantClassName,
 ): TypeSpec = TypeSpec
     .classBuilder(productDataClassName.className)
-    .addModifiers(KModifier.DATA)
-    .addSuperinterface(ProductData::class)
+    .superclass(ProductDataImpl::class)
     .addAnnotation(Generated::class)
     .addAnnotation(deserializeAs(productDataClassName.className))
-    .addCTProperties(
-        SimpleCTProperty("name", LocalizedString::class),
-        ListCTProperty("categories", MutableList::class, CategoryReference::class, nullable = true),
-        SimpleCTProperty("categoryOrderHints", CategoryOrderHints::class),
-        SimpleCTProperty("description", LocalizedString::class, nullable = true),
-        SimpleCTProperty("slug", LocalizedString::class, nullable = true),
-        SimpleCTProperty("metaTitle", LocalizedString::class, nullable = true),
-        SimpleCTProperty("metaDescription", LocalizedString::class, nullable = true),
-        SimpleCTProperty("metaKeywords", LocalizedString::class, nullable = true),
-        SimpleCTProperty("masterVariant", productVariantClassName.className, castedFrom = ProductVariant::class),
-        ListCTProperty("variants", MutableList::class, productVariantClassName.className, castedFrom = ProductVariant::class),
-        SimpleCTProperty("searchKeywords", SearchKeywords::class)
+    .addCTConstructorArguments(
+        CTParameter("name", LocalizedString::class),
+        CTParameter("categories", MutableList::class, CategoryReference::class, nullable = true),
+        CTParameter("categoryOrderHints", CategoryOrderHints::class),
+        CTParameter("description", LocalizedString::class, nullable = true),
+        CTParameter("slug", LocalizedString::class, nullable = true),
+        CTParameter("metaTitle", LocalizedString::class, nullable = true),
+        CTParameter("metaDescription", LocalizedString::class, nullable = true),
+        CTParameter("metaKeywords", LocalizedString::class, nullable = true),
+        CTProperty("masterVariant", productVariantClassName.className),
+        CTProperty("variants", MutableList::class.asTypeName(), productVariantClassName.className),
+        CTParameter("searchKeywords", SearchKeywords::class)
+    )
+    .addFunction(
+        FunSpec
+        .builder("getMasterVariant")
+        .addModifiers(KModifier.OVERRIDE)
+        .addStatement("return this.%N", "masterVariant")
+        .returns(productVariantClassName.className)
+        .build()
+    )
+    .addFunction(
+        FunSpec
+            .builder("getVariants")
+            .addModifiers(KModifier.OVERRIDE)
+            .addStatement("return this.%N", "variants")
+            .returns(LIST.parameterizedBy(productVariantClassName.className))
+            .build()
     )
     .build()
