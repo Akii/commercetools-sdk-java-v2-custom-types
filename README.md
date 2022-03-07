@@ -1,5 +1,7 @@
 # commercetools Java SDK custom types
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.akii.commercetools/commercetools-sdk-java-api-customtypes-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.akii.commercetools/commercetools-sdk-java-api-customtypes-generator)
+
 This library extends the official commercetools Java SDK by generating custom types defined in your commercetools project.
 Currently, type-safe product types are supported. The goal is to support type-safe reference expansion, custom fields and even custom objects.
 
@@ -55,16 +57,16 @@ Given a product-type like this:
 the library will generate the following classes (simplified):
 
 ```kotlin
-data class TestProduct : Product
-data class TestProductCatalogData : ProductCatalogData
-data class TestProductData : ProductData
-data class TestProductVariant : ProductVariant
+class TestProduct : ProductImpl
+class TestProductCatalogData : ProductCatalogDataImpl
+class TestProductData : ProductDataImpl
+class TestProductVariant : ProductVariantImpl
 
 data class TestProductVariantAttributes (
-    var aBoolean: Boolean?,
-    var anEnum: AttributePlainEnumValue?,
-    var refSet: Set<ProductReference>?,
-    var nestedSecondType: SecondTypeProductVariantAttributes?
+    val aBoolean: Boolean?,
+    val anEnum: AttributePlainEnumValue?,
+    val refSet: Set<ProductReference>?,
+    val nestedSecondType: SecondTypeProductVariantAttributes?
 )
 ```
 
