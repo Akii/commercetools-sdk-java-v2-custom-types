@@ -24,7 +24,7 @@ internal class GenerateKtTest {
                 javaClass.getResource("/product-types/testProductType.json"),
                 object : TypeReference<ProductType>() {})
 
-    private val config = Configuration("test.package", listOf(productType))
+    private val config = Configuration("test.package", listOf(productType), emptyList())
 
     private val testProducts = javaClass.getResource("/products/testProducts.json")
 

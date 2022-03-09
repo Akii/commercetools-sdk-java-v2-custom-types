@@ -1,0 +1,117 @@
+[
+  {
+    "id": "bf88871c-94d6-41cf-8f5d-e0289fb0bcd0",
+    "version": 1,
+    "createdAt": "2022-03-08T16:12:23.536Z",
+    "lastModifiedAt": "2022-03-08T16:12:23.536Z",
+    "lastModifiedBy": {
+      "clientId": "vBe9XtBaHWdMooOdAZCP8KVx",
+      "isPlatformClient": false
+    },
+    "createdBy": {
+      "clientId": "vBe9XtBaHWdMooOdAZCP8KVx",
+      "isPlatformClient": false
+    },
+    "key": "type-a",
+    "name": {
+      "en": "Type A"
+    },
+    "resourceTypeIds": [
+      "order",
+      "category"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "a-boolean",
+        "label": {
+          "en": "A boolean"
+        },
+        "required": false,
+        "type": {
+          "name": "Boolean"
+        },
+        "inputHint": "SingleLine"
+      },
+      {
+        "name": "a-reference",
+        "label": {
+          "en": "A reference"
+        },
+        "required": false,
+        "type": {
+          "name": "Reference",
+          "referenceTypeId": "product"
+        },
+        "inputHint": "SingleLine"
+      }
+    ]
+  },
+  {
+    "id": "f9109ca2-4a64-4e61-b551-27b91a73afdc",
+    "version": 1,
+    "createdAt": "2022-03-08T16:13:49.553Z",
+    "lastModifiedAt": "2022-03-08T16:13:49.553Z",
+    "lastModifiedBy": {
+      "clientId": "vBe9XtBaHWdMooOdAZCP8KVx",
+      "isPlatformClient": false
+    },
+    "createdBy": {
+      "clientId": "vBe9XtBaHWdMooOdAZCP8KVx",
+      "isPlatformClient": false
+    },
+    "key": "type-b",
+    "name": {
+      "en": "Type B"
+    },
+    "resourceTypeIds": [
+      "category"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "another-boolean",
+        "label": {
+          "en": "Another boolean"
+        },
+        "required": false,
+        "type": {
+          "name": "Boolean"
+        },
+        "inputHint": "SingleLine"
+      }
+    ]
+  },
+  {
+    "id": "26d8ec8e-9dcb-4e51-8131-35d2e479865b",
+    "version": 1,
+    "createdAt": "2022-03-08T16:14:27.382Z",
+    "lastModifiedAt": "2022-03-08T16:14:27.382Z",
+    "lastModifiedBy": {
+      "clientId": "vBe9XtBaHWdMooOdAZCP8KVx",
+      "isPlatformClient": false
+    },
+    "createdBy": {
+      "clientId": "vBe9XtBaHWdMooOdAZCP8KVx",
+      "isPlatformClient": false
+    },
+    "key": "type-c",
+    "name": {
+      "en": "Type B"
+    },
+    "resourceTypeIds": [
+      "category"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "another-boolean",
+        "label": {
+          "en": "Another boolean"
+        },
+        "required": false,
+        "type": {
+          "name": "Boolean"
+        },
+        "inputHint": "SingleLine"
+      }
+    ]
+  }
+]

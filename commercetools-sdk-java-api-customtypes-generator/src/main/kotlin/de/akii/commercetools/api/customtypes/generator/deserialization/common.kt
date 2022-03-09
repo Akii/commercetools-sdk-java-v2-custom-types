@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator.product.deserialization
+package de.akii.commercetools.api.customtypes.generator.deserialization
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.ObjectCodec

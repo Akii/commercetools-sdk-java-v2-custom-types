@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator
 
 import com.commercetools.api.models.common.CreatedBy
 import com.commercetools.api.models.common.LastModifiedBy
@@ -10,10 +10,14 @@ import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
+import de.akii.commercetools.api.customtypes.generator.product.productCatalogData
+import de.akii.commercetools.api.customtypes.generator.product.productData
+import de.akii.commercetools.api.customtypes.generator.product.productVariant
+import de.akii.commercetools.api.customtypes.generator.product.productVariantAttributes
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.ZonedDateTime
 
-fun generateProductFiles(
+fun productFiles(
     productType: ProductType,
     config: Configuration
 ): List<FileSpec> {
@@ -64,13 +68,6 @@ fun generateProductFiles(
             CTParameter("taxCategory", TaxCategoryReference::class, nullable = true),
             CTParameter("state", StateReference::class, nullable = true),
             CTParameter("reviewRatingStatistics", ReviewRatingStatistics::class, nullable = true),
-        )
-        .addFunction(FunSpec
-            .builder("getMasterData")
-            .addModifiers(KModifier.OVERRIDE)
-            .addStatement("return this.%N", "masterData")
-            .returns(productCatalogDataClassName.className)
-            .build()
         )
         .build()
 

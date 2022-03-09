@@ -21,18 +21,4 @@ fun productCatalogData(
         CTParameter("published", Boolean::class),
         CTParameter("hasStagedChanges", Boolean::class)
     )
-    .addFunction(FunSpec
-        .builder("getCurrent")
-        .addModifiers(KModifier.OVERRIDE)
-        .addStatement("return this.%N", "current")
-        .returns(productDataClassName.className)
-        .build()
-    )
-    .addFunction(FunSpec
-        .builder("getStaged")
-        .addModifiers(KModifier.OVERRIDE)
-        .addStatement("return this.%N", "staged")
-        .returns(productDataClassName.className)
-        .build()
-    )
     .build()

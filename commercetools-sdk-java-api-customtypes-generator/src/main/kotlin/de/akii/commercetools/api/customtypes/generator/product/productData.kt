@@ -29,20 +29,4 @@ fun productData(
         CTProperty("variants", MutableList::class.asTypeName(), productVariantClassName.className),
         CTParameter("searchKeywords", SearchKeywords::class)
     )
-    .addFunction(
-        FunSpec
-        .builder("getMasterVariant")
-        .addModifiers(KModifier.OVERRIDE)
-        .addStatement("return this.%N", "masterVariant")
-        .returns(productVariantClassName.className)
-        .build()
-    )
-    .addFunction(
-        FunSpec
-            .builder("getVariants")
-            .addModifiers(KModifier.OVERRIDE)
-            .addStatement("return this.%N", "variants")
-            .returns(LIST.parameterizedBy(productVariantClassName.className))
-            .build()
-    )
     .build()

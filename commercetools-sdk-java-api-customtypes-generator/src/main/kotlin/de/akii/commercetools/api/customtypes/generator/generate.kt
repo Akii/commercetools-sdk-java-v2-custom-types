@@ -5,10 +5,9 @@ import com.commercetools.api.models.product.ProductImpl
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductDeserializer
-import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesDelegatingDeserializer
-import de.akii.commercetools.api.customtypes.generator.product.deserialization.customProductVariantAttributesModifier
-import de.akii.commercetools.api.customtypes.generator.product.generateProductFiles
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductDeserializer
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesDelegatingDeserializer
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesModifier
 import io.vrap.rmf.base.client.utils.Generated
 
 fun productFiles(config: Configuration): List<FileSpec> {
@@ -28,7 +27,7 @@ fun productFiles(config: Configuration): List<FileSpec> {
         .build()
 
     return listOf(productDeserializerFile, apiModuleFile) + config.productTypes.flatMap {
-        generateProductFiles(it, config)
+        productFiles(it, config)
     }
 }
 
