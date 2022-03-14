@@ -9,7 +9,7 @@ import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
-internal class AddressKtTest {
+internal class TypedResourceKtTest {
 
     private val types =
         JsonUtils
@@ -19,12 +19,9 @@ internal class AddressKtTest {
                 object : TypeReference<List<Type>>() {})
 
     @Test
-    fun `generates typed addresses`() {
+    fun `generates typed resourced`() {
         val config = Configuration("test.package", listOf(), types)
-        val files = listOf(
-            customFieldsFile(types, config),
-            typedAddressFile(config)
-        )
+        val files = typedResourceFiles(config) + customFieldsFile(types, config)
 
         val sourceFiles = files.map {
             SourceFile.kotlin("${it.name}.kt", it.toString())
