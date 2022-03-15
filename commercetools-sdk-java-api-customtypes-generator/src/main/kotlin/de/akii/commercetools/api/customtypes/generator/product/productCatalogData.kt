@@ -1,8 +1,6 @@
 package de.akii.commercetools.api.customtypes.generator.product
 
 import com.commercetools.api.models.product.ProductCatalogDataImpl
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated

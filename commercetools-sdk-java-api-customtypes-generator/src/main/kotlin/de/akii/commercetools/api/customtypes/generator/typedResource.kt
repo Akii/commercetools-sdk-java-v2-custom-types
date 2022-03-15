@@ -31,7 +31,6 @@ import com.commercetools.api.models.shopping_list.TextLineItemImpl
 import com.commercetools.api.models.store.Store
 import com.commercetools.api.models.store.StoreImpl
 import com.commercetools.api.models.type.ResourceTypeId
-import com.commercetools.api.models.type.ResourceTypeId.ResourceTypeIdEnum
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
@@ -39,9 +38,102 @@ import kotlin.reflect.KClass
 
 val resourceTypeNameToSubPackage: (String) -> String = { it.split('-').joinToString("_") }
 val resourceTypeNameToClassName: (String) -> String = { "Typed${productTypeNameToClassNamePrefix(it)}" }
-val resourceTypeNameToConstructorArgumentName: (String) -> String = { attributeNameToPropertyName(it) }
 
-fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
+data class TypedResourceFile(
+    val resourceInterface: KClass<*>,
+    val resourceDefaultImplementation: KClass<*>,
+    val typedResourceClassName: ClassName,
+    val file: FileSpec
+)
+
+fun typedResourceFiles(config: Configuration): List<TypedResourceFile> =
+    config.customTypes
+        .flatMap { it.resourceTypeIds }
+        .toSet()
+        .flatMap { typedResourceFiles(it, config) }
+
+private fun typedResourceFiles(resourceTypeId: ResourceTypeId, config: Configuration): List<TypedResourceFile> =
+    when (resourceTypeId) {
+        ResourceTypeId.ORDER -> listOf(
+            typedResourceFile(resourceTypeId, "order", OrderImpl::class, Order::class, config),
+            typedResourceFile(resourceTypeId, "cart", CartImpl::class, Cart::class, config),
+            typedResourceFile(resourceTypeId, "return-item", ReturnItemImpl::class, ReturnItem::class, config),
+        )
+        else -> listOf(
+            typedResourceFile(
+                resourceTypeId,
+                resourceTypeId.jsonName,
+                resourceTypeIdToClasses(resourceTypeId).first,
+                resourceTypeIdToClasses(resourceTypeId).second,
+                config
+            )
+        )
+    }
+
+private fun typedResourceFile(
+    resourceTypeId: ResourceTypeId,
+    resourceTypeName: String,
+    resourceTypeDefaultImplementation: KClass<*>,
+    resourceInterface: KClass<*>,
+    config: Configuration
+): TypedResourceFile {
+    val packageName = "${config.packageName}.custom_fields.${resourceTypeNameToSubPackage(resourceTypeName)}"
+    val resourceClassName = resourceTypeNameToClassName(resourceTypeName)
+    val customFieldType = resourceTypeIdToClassName(resourceTypeId, config)
+    val className = ClassName(packageName, resourceClassName)
+
+    val file = FileSpec
+        .builder(packageName, resourceClassName)
+        .addType(
+            TypeSpec
+                .classBuilder(className)
+                .addAnnotation(Generated::class)
+                .addAnnotation(deserializeAs(className))
+                .primaryConstructor(
+                    FunSpec
+                        .constructorBuilder()
+                        .addAnnotation(jsonCreator)
+                        .addParameter(ParameterSpec
+                            .builder("delegate", resourceTypeDefaultImplementation)
+                            .addAnnotation(jsonProperty("delegate"))
+                            .build()
+                        )
+                        .addParameter(ParameterSpec
+                            .builder("custom", customFieldType.copy(nullable = true))
+                            .addAnnotation(jsonProperty("custom"))
+                            .build()
+                        )
+                        .build()
+                )
+                .addSuperinterface(resourceInterface, "delegate")
+                .addProperty(
+                    PropertySpec
+                        .builder("custom", customFieldType.copy(nullable = true))
+                        .initializer("custom")
+                        .addModifiers(KModifier.PRIVATE)
+                        .build()
+                )
+                .addFunction(
+                    FunSpec
+                        .builder("getCustom")
+                        .returns(customFieldType.copy(nullable = true))
+                        .addStatement("return this.custom")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .build()
+                )
+                .build()
+        )
+        .build()
+
+    return TypedResourceFile(
+        resourceInterface,
+        resourceTypeDefaultImplementation,
+        className,
+        file
+    )
+}
+
+private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
     when (resourceTypeId) {
         ResourceTypeId.ADDRESS -> (AddressImpl::class to Address::class)
         ResourceTypeId.ASSET -> (AssetImpl::class to Asset::class)
@@ -68,81 +160,3 @@ fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
         ResourceTypeId.TRANSACTION -> (TransactionImpl::class to Transaction::class)
         else -> error("Unknown resource type id ${resourceTypeId.jsonName}")
     }
-
-fun typedResourceFiles(config: Configuration): List<FileSpec> =
-    config.customTypes
-        .flatMap { it.resourceTypeIds }
-        .toSet()
-        .flatMap { typedResourceFiles(it, config) }
-
-private fun typedResourceFiles(resourceTypeId: ResourceTypeId, config: Configuration): List<FileSpec> =
-    when (resourceTypeId) {
-        ResourceTypeId.ORDER -> listOf(
-            typedResourceFile(resourceTypeId, "order", OrderImpl::class, Order::class, config),
-            typedResourceFile(resourceTypeId, "cart", CartImpl::class, Cart::class, config),
-            typedResourceFile(resourceTypeId, "return-item", ReturnItemImpl::class, ReturnItem::class, config),
-        )
-        else -> listOf(
-            typedResourceFile(
-                resourceTypeId,
-                resourceTypeId.jsonName,
-                resourceTypeIdToClasses(resourceTypeId).first,
-                resourceTypeIdToClasses(resourceTypeId).second,
-                config
-            )
-        )
-    }
-
-private fun typedResourceFile(
-    resourceTypeId: ResourceTypeId,
-    resourceTypeName: String,
-    resourceTypeDefaultImplementation: KClass<*>,
-    resourceInterface: KClass<*>,
-    config: Configuration
-): FileSpec {
-    val packageName = "${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}"
-    val resourceClassName = resourceTypeNameToClassName(resourceTypeName)
-    val customFieldType = resourceTypeIdToClassName(resourceTypeId, config)
-
-    return FileSpec
-        .builder(packageName, resourceClassName)
-        .addType(
-            TypeSpec
-                .classBuilder(ClassName(packageName, resourceClassName))
-                .addAnnotation(Generated::class)
-                .primaryConstructor(
-                    FunSpec
-                        .constructorBuilder()
-                        .addAnnotation(jsonCreator)
-                        .addParameter(ParameterSpec
-                            .builder("delegate", resourceTypeDefaultImplementation)
-                            .addAnnotation(jsonProperty("delegate"))
-                            .build()
-                        )
-                        .addParameter(ParameterSpec
-                            .builder("custom", customFieldType)
-                            .addAnnotation(jsonProperty("custom"))
-                            .build()
-                        )
-                        .build()
-                )
-                .addSuperinterface(resourceInterface, "delegate")
-                .addProperty(
-                    PropertySpec
-                        .builder("custom", customFieldType)
-                        .initializer("custom")
-                        .addModifiers(KModifier.PRIVATE)
-                        .build()
-                )
-                .addFunction(
-                    FunSpec
-                        .builder("getCustom")
-                        .returns(customFieldType)
-                        .addStatement("return this.custom")
-                        .addModifiers(KModifier.OVERRIDE)
-                        .build()
-                )
-                .build()
-        )
-        .build()
-}

@@ -52,11 +52,13 @@ private fun sealedOrderCustomFieldInterfaces(types: List<Type>, config: Configur
         }
 
 private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
+    val className = typeToClassName(type, config)
     val fields = typedFields(type.fieldDefinitions, config)
 
     return TypeSpec
-        .classBuilder(typeToClassName(type, config))
+        .classBuilder(className)
         .addAnnotation(Generated::class)
+        .addAnnotation(deserializeAs(className))
         .primaryConstructor(
             FunSpec
                 .constructorBuilder()
@@ -111,7 +113,7 @@ private fun parameter(fieldDefinition: FieldDefinition, config: Configuration): 
             config.attributeNameToPropertyName(fieldDefinition.name),
             typeNameForFieldType(fieldDefinition.type, config)
         )
-        .addAnnotation(jsonProperty(config.attributeNameToPropertyName(fieldDefinition.name)))
+        .addAnnotation(jsonProperty(fieldDefinition.name))
         .build()
 
 private fun attribute(fieldDefinition: FieldDefinition, config: Configuration): PropertySpec =
@@ -156,7 +158,7 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
         else -> Reference::class.asClassName()
     }
 
-private fun typeToClassName(type: Type, config: Configuration): ClassName =
+fun typeToClassName(type: Type, config: Configuration): ClassName =
     ClassName(
         "${config.packageName}.custom_fields",
         classNamePrefix(type.key) + "CustomFields"

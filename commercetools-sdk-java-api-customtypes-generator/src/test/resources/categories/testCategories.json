@@ -1,0 +1,71 @@
+[
+  {
+    "id": "c5f58d52-3e7b-43cd-bb99-85f0d341dc97",
+    "version": 1,
+    "lastMessageSequenceNumber": 1,
+    "createdAt": "2022-02-12T15:37:29.547Z",
+    "lastModifiedAt": "2022-02-12T15:37:29.547Z",
+    "lastModifiedBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "createdBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "name": {
+      "de-DE": "Category"
+    },
+    "slug": {
+      "de-DE": "category"
+    },
+    "ancestors": [],
+    "orderHint": "1",
+    "assets": []
+  },
+  {
+    "id": "1bd56ab4-bac1-4866-b87a-9cef40ec7bd3",
+    "version": 2,
+    "lastMessageSequenceNumber": 1,
+    "createdAt": "2022-03-08T16:16:19.368Z",
+    "lastModifiedAt": "2022-03-08T16:59:10.878Z",
+    "lastModifiedBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "createdBy": {
+      "isPlatformClient": true,
+      "user": {
+        "typeId": "user",
+        "id": "0d6532d6-28f4-48af-89a9-29b67d154d98"
+      }
+    },
+    "name": {
+      "de-DE": "Category"
+    },
+    "slug": {
+      "de-DE": "category2"
+    },
+    "ancestors": [],
+    "orderHint": "hint",
+    "custom": {
+      "type": {
+        "typeId": "type",
+        "id": "bf88871c-94d6-41cf-8f5d-e0289fb0bcd0"
+      },
+      "fields": {
+        "a-boolean": false
+      }
+    },
+    "assets": []
+  }
+]

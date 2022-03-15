@@ -10,6 +10,10 @@ import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductDeserializer
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesDelegatingDeserializer
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesInterface
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesModifier
 import de.akii.commercetools.api.customtypes.generator.product.productCatalogData
 import de.akii.commercetools.api.customtypes.generator.product.productData
 import de.akii.commercetools.api.customtypes.generator.product.productVariant
@@ -71,7 +75,16 @@ fun productFiles(
         )
         .build()
 
+    val productDeserializerFile = FileSpec
+        .builder("${config.packageName}.product", "deserializer")
+        .addType(customProductVariantAttributesInterface(config))
+        .addType(customProductDeserializer(config))
+        .addType(customProductVariantAttributesModifier(config))
+        .addType(customProductVariantAttributesDelegatingDeserializer(config))
+        .build()
+
     return listOf(
+        productDeserializerFile,
         makeFile(productClassName.className, product),
         makeFile(productCatalogDataClassName.className, masterDataTypeSpec),
         makeFile(productDataClassName.className, productDataTypeSpec),

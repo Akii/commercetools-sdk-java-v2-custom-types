@@ -4,7 +4,6 @@ import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.product.*
 import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 

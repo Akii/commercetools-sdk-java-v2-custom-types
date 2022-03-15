@@ -2,6 +2,7 @@ package de.akii.commercetools.api.customtypes.generator.common
 
 import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.ClassName
+import de.akii.commercetools.api.customtypes.generator.TypedResourceFile
 
 sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName
@@ -44,3 +45,9 @@ class ProductVariantAttributesClassName(productType: ProductType, config: Config
     "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
     "${config.productTypeNameToClassNamePrefix(productType.name)}ProductVariantAttributes"
 )
+
+class TypedCustomFieldsDeserializerClassName(config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "TypedCustomFieldsDeserializer")
+
+class TypedResourceDeserializerClassName(typedResource: TypedResourceFile, config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "${typedResource.resourceInterface.simpleName}Deserializer")

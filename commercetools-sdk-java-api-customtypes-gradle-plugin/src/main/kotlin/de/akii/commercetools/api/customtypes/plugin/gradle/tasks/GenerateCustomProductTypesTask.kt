@@ -2,6 +2,7 @@ package de.akii.commercetools.api.customtypes.plugin.gradle.tasks
 
 import com.commercetools.api.models.product_type.ProductType
 import com.fasterxml.jackson.core.type.TypeReference
+import de.akii.commercetools.api.customtypes.generate
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import de.akii.commercetools.api.customtypes.generator.productFiles
 import io.vrap.rmf.base.client.utils.json.JsonUtils
@@ -63,12 +64,13 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
         val config = Configuration(
             packageName.get(),
             productTypes,
+            emptyList(),
             productTypeNameToSubPackageName = { productTypeNameToSubPackageName.get()(it) },
             productTypeNameToClassNamePrefix = { productTypeNameToClassNamePrefix.get()(it) },
             attributeNameToPropertyName = { attributeNameToPropertyName.get()(it) },
         )
 
-        val files = productFiles(config)
+        val files = generate(config)
 
         files.forEach {
             it.writeTo(targetDirectory)

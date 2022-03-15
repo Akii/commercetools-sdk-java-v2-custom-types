@@ -33,7 +33,7 @@ internal class ProductKtTest {
         val sourceFiles =
             files.map {
                 SourceFile.kotlin("${it.name}.kt", it.toString())
-            } + SourceFile.kotlin("CustomProduct.kt", customProductInterfaceFile(config).toString())
+            }
 
         val result = KotlinCompilation().apply {
             sources = sourceFiles
@@ -67,9 +67,4 @@ internal class ProductKtTest {
         )
     }
 
-    private fun customProductInterfaceFile(config: Configuration) =
-        FileSpec
-            .builder("${config.packageName}.product", "CustomProduct")
-            .addType(customProductVariantAttributesInterface(config))
-            .build()
 }

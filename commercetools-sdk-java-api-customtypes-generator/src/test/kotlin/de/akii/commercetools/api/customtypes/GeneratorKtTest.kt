@@ -1,8 +1,10 @@
-package de.akii.commercetools.api.customtypes.generator
+package de.akii.commercetools.api.customtypes
 
+import com.commercetools.api.models.category.Category
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
+import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -14,8 +16,9 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
+import kotlin.test.assertNull
 
-internal class GenerateKtTest {
+internal class GeneratorKtTest {
 
     private val productType =
         JsonUtils
@@ -24,14 +27,23 @@ internal class GenerateKtTest {
                 javaClass.getResource("/product-types/testProductType.json"),
                 object : TypeReference<ProductType>() {})
 
-    private val config = Configuration("test.package", listOf(productType), emptyList())
+    private val types =
+        JsonUtils
+            .createObjectMapper()
+            .readValue(
+                javaClass.getResource("/types/types.json"),
+                object : TypeReference<List<Type>>() {})
+
+    private val config = Configuration("test.package", listOf(productType), types)
 
     private val testProducts = javaClass.getResource("/products/testProducts.json")
 
+    private val testCategories = javaClass.getResource("/categories/testCategories.json")
+
     @Test
     fun `api module can deserialize custom product types`() {
-        val sourceFiles = productFiles(config).map {
-            SourceFile.kotlin("${it.name}.kt", it.toString())
+        val sourceFiles = generate(config).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
         }
 
         val result = KotlinCompilation().apply {
@@ -77,6 +89,45 @@ internal class GenerateKtTest {
         assertThat(invokeMethod("getRefSet", typedAttributes)).isNull()
         assertThat(invokeMethod("getSameForAll", typedAttributes)).isNull()
         assertThat(invokeMethod("getNestedSecondType", typedAttributes)).isNull()
+    }
+
+    @Test
+    fun `api module can deserialize typed custom fields`() {
+        val sourceFiles = generate(config).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
+        }
+
+        val result = KotlinCompilation().apply {
+            sources = sourceFiles
+            inheritClassPath = true
+            messageOutputStream = System.out
+        }.compile()
+
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+
+        val apiModule = result.classLoader
+            .loadClass("test.package.TypedCustomFieldsApiModule")
+            .getDeclaredConstructor()
+            .newInstance() as SimpleModule
+
+        val categories = JsonUtils
+            .createObjectMapper()
+            .registerModule(apiModule)
+            .readValue(testCategories, object : TypeReference<List<Category>>() {})
+
+        val category1 = categories[0]
+        val category2 = categories[1]
+
+        val typedCategoryClass = result.classLoader.loadClass("test.package.custom_fields.category.TypedCategory")
+
+        assertThat(category1.javaClass).isEqualTo(typedCategoryClass)
+        assertThat(category2.javaClass).isEqualTo(typedCategoryClass)
+
+        assertNull(category1.custom)
+
+        val custom2 = invokeMethod("getTypedFields", category2.custom)!!
+
+        assertThat(invokeMethod("getABoolean", custom2) as Boolean).isFalse
     }
 
     private fun invokeMethod(name: String, obj: Any): Any? =
