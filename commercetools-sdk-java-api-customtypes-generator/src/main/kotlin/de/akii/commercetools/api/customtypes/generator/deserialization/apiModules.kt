@@ -52,7 +52,7 @@ private fun customProductApiModule(config: Configuration): TypeSpec =
         })
         .build()
 
-fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResourceFile>, config: Configuration): TypeSpec =
+private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResourceFile>, config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(ClassName(config.packageName, "TypedCustomFieldsApiModule"))
         .addAnnotation(Generated::class)

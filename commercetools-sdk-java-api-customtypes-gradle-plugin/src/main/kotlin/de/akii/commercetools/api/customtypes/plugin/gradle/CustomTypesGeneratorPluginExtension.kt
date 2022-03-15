@@ -14,11 +14,10 @@ open class CustomTypesGeneratorPluginExtension {
         Credentials()
     }
 
-    private var customProductTypesGeneratorConfigured: Boolean = false
-    internal val productTypesGeneratorExtension: CustomProductTypesGeneratorConfiguration by lazy {
-        customProductTypesGeneratorConfigured = true
-        CustomProductTypesGeneratorConfiguration()
-    }
+    internal val productTypesGeneratorExtension = CustomProductTypesGeneratorConfiguration()
+    internal val typesGeneratorExtension = CustomTypesGeneratorConfiguration()
+
+    var packageName: String? = null
 
     fun credentials(action: Action<Credentials>) {
         action.execute(credentialsExtension)
@@ -28,9 +27,11 @@ open class CustomTypesGeneratorPluginExtension {
         action.execute(productTypesGeneratorExtension)
     }
 
-    internal fun credentialsConfigured(): Boolean = credentialsConfigured
+    fun customFields(action: Action<CustomTypesGeneratorConfiguration>) {
+        action.execute(typesGeneratorExtension)
+    }
 
-    internal fun customProductTypesGenerationConfigured(): Boolean = customProductTypesGeneratorConfigured
+    internal fun credentialsConfigured(): Boolean = credentialsConfigured
 }
 
 open class Credentials {
@@ -41,9 +42,12 @@ open class Credentials {
 }
 
 open class CustomProductTypesGeneratorConfiguration {
-    var packageName: String? = null
     var productTypesFile: File? = null
     var productTypeNameToSubPackageName: (productTypeName: String) -> String = ::productTypeNameToSubPackageName
     var productTypeNameToClassNamePrefix: (productTypeName: String) -> String = ::productTypeNameToClassNamePrefix
     var attributeNameToPropertyName: (attributeName: String) -> String = ::attributeNameToPropertyName
+}
+
+open class CustomTypesGeneratorConfiguration {
+    var typesFile: File? = null
 }

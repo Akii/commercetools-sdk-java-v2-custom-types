@@ -118,7 +118,7 @@ internal class GeneratorKtTest {
         val category1 = categories[0]
         val category2 = categories[1]
 
-        val typedCategoryClass = result.classLoader.loadClass("test.package.custom_fields.category.TypedCategory")
+        val typedCategoryClass = result.classLoader.loadClass("test.package.category.TypedCategory")
 
         assertThat(category1.javaClass).isEqualTo(typedCategoryClass)
         assertThat(category2.javaClass).isEqualTo(typedCategoryClass)

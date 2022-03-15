@@ -77,7 +77,7 @@ private fun typedResourceFile(
     resourceInterface: KClass<*>,
     config: Configuration
 ): TypedResourceFile {
-    val packageName = "${config.packageName}.custom_fields.${resourceTypeNameToSubPackage(resourceTypeName)}"
+    val packageName = "${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}"
     val resourceClassName = resourceTypeNameToClassName(resourceTypeName)
     val customFieldType = resourceTypeIdToClassName(resourceTypeId, config)
     val className = ClassName(packageName, resourceClassName)

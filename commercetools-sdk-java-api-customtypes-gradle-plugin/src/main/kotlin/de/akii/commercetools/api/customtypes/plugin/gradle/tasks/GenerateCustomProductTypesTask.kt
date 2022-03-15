@@ -1,6 +1,7 @@
 package de.akii.commercetools.api.customtypes.plugin.gradle.tasks
 
 import com.commercetools.api.models.product_type.ProductType
+import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
 import de.akii.commercetools.api.customtypes.generate
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
@@ -24,6 +25,9 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
 
     @InputFile
     val productTypesFile: RegularFileProperty = project.objects.fileProperty()
+
+    @InputFile
+    val typesFile: RegularFileProperty = project.objects.fileProperty()
 
     @Input
     @Option(option = "packageName", description = "target package name to use for generated classes")
@@ -51,6 +55,7 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
     @TaskAction
     fun generateCustomTypesAction() {
         val productTypesFile = productTypesFile.get().asFile
+        val typesFile = typesFile.get().asFile
         val targetDirectory = outputDirectory.get().asFile
 
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
@@ -61,10 +66,14 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
             .createObjectMapper()
             .readValue(productTypesFile, object : TypeReference<List<ProductType>>() {})
 
+        val types = JsonUtils
+            .createObjectMapper()
+            .readValue(typesFile, object : TypeReference<List<Type>>() {})
+
         val config = Configuration(
             packageName.get(),
             productTypes,
-            emptyList(),
+            types,
             productTypeNameToSubPackageName = { productTypeNameToSubPackageName.get()(it) },
             productTypeNameToClassNamePrefix = { productTypeNameToClassNamePrefix.get()(it) },
             attributeNameToPropertyName = { attributeNameToPropertyName.get()(it) },

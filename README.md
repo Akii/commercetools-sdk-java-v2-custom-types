@@ -2,8 +2,8 @@
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.akii.commercetools/commercetools-sdk-java-api-customtypes-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.akii.commercetools/commercetools-sdk-java-api-customtypes-generator)
 
-This library extends the official commercetools Java SDK by generating custom types defined in your commercetools project.
-Currently, type-safe product types are supported. The goal is to support type-safe reference expansion, custom fields and even custom objects.
+This library extends the official commercetools Java SDK by generating custom types defined in commercetools projects.
+Currently, type-safe product types, reference expansion and custom fields are supported.
 
 ## Why?
 
@@ -57,10 +57,10 @@ Given a product-type like this:
 the library will generate the following classes (simplified):
 
 ```kotlin
-class TestProduct : ProductImpl
-class TestProductCatalogData : ProductCatalogDataImpl
-class TestProductData : ProductDataImpl
-class TestProductVariant : ProductVariantImpl
+class TestProduct : Product
+class TestProductCatalogData : ProductCatalogData
+class TestProductData : ProductData
+class TestProductVariant : ProductVariant
 
 data class TestProductVariantAttributes (
     val aBoolean: Boolean?,
@@ -85,7 +85,7 @@ val productVariant =
 print(productVariant.withProductVariant(AttributesAccessor::of).asBoolean("a-boolean"))
 ```
 
-you can now easily use typed attributes:
+you can now use typed attributes:
 
 ```kotlin
 fun fetchProduct(productId: String): Product
@@ -127,15 +127,13 @@ plugins {
 }
 
 commercetoolsCustomTypes {
+    packageName = "your.types.go.here"
+    
     credentials {
         clientId = "<client-id>"
         clientSecret = "<client-secret>"
         serviceRegion = ServiceRegion.GCP_EUROPE_WEST1
         projectName = "<project-name>"
-    }
-
-    productTypes {
-        packageName = "your.types.go.here"
     }
 }
 ```
@@ -151,8 +149,9 @@ plugins {
 }
 
 commercetoolsCustomTypes {
+    packageName = "your.types.go.here"
+    
     productTypes {
-        packageName = "your.types.go.here"
         productTypesFile = File("./productTypes.json")
     }
 }
@@ -163,7 +162,7 @@ The plugin will now automatically generate custom product types based on your pr
 ### commercetools SDK
 
 Once you've generated your custom types, you can configure the official commercetools SDK API to use them.
-To do so, you need to register the generated Jackson module `CustomProductApiModule`.
+To do so, you need to register the generated Jackson module `CustomProductApiModule` and/or `TypedCustomFieldsApiModule`.
 
 ```kotlin
 import com.commercetools.api.defaultconfig.ApiRootBuilder
@@ -172,11 +171,13 @@ import io.vrap.rmf.base.client.ResponseSerializer
 import io.vrap.rmf.base.client.oauth2.ClientCredentials
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import your.types.go.here.CustomProductApiModule
+import your.types.go.here.TypedCustomFieldsApiModule
 
 val objectMapper =
     JsonUtils
         .createObjectMapper()
         .registerModule(CustomProductApiModule())
+        .registerModule(TypedCustomFieldsApiModule())
 
 val ctApi =
     ApiRootBuilder.of()
