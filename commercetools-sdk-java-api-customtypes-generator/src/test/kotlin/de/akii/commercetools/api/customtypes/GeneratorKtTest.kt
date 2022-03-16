@@ -41,6 +41,21 @@ internal class GeneratorKtTest {
     private val testCategories = javaClass.getResource("/categories/testCategories.json")
 
     @Test
+    fun `it compiles without any product-types or custom field types`() {
+        val sourceFiles = generate(Configuration("test.package", emptyList(), emptyList())).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
+        }
+
+        val result = KotlinCompilation().apply {
+            sources = sourceFiles
+            inheritClassPath = true
+            messageOutputStream = System.out
+        }.compile()
+
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+    }
+
+    @Test
     fun `api module can deserialize custom product types`() {
         val sourceFiles = generate(config).map {
             SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())

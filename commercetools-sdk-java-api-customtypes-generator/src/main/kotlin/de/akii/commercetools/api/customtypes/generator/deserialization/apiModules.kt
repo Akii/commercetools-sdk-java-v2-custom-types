@@ -13,20 +13,26 @@ import io.vrap.rmf.base.client.utils.Generated
 fun apiModulesFile(typedResourceFiles: List<TypedResourceFile>, config: Configuration): FileSpec {
     val file = FileSpec
         .builder(config.packageName, "apiModules")
-        .addType(customProductInterface(config))
-        .addType(fallbackProductInterface(config))
         .addType(typedCustomFieldsInterface(config))
         .addType(fallbackCustomFieldsInterface(config))
 
-    typedResourceFiles.forEach {
-        file.addType(typedResourceInterface(it, config))
-        file.addType(fallbackResourceInterface(it, config))
+    if (config.productTypes.isNotEmpty()) {
+        file
+            .addType(customProductInterface(config))
+            .addType(fallbackProductInterface(config))
+            .addType(customProductApiModule(config))
     }
 
-    return file
-        .addType(customProductApiModule(config))
-        .addType(typedCustomFieldsApiModule(typedResourceFiles, config))
-        .build()
+    if (config.customTypes.isNotEmpty()) {
+        typedResourceFiles.forEach {
+            file.addType(typedResourceInterface(it, config))
+            file.addType(fallbackResourceInterface(it, config))
+        }
+
+        file.addType(typedCustomFieldsApiModule(typedResourceFiles, config))
+    }
+
+    return file.build()
 }
 
 private fun customProductApiModule(config: Configuration): TypeSpec =

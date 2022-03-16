@@ -2,7 +2,7 @@ package de.akii.commercetools.api.customtypes.plugin.gradle
 
 import de.akii.commercetools.api.customtypes.plugin.gradle.tasks.*
 import de.akii.commercetools.api.customtypes.plugin.gradle.tasks.FETCH_PRODUCT_TYPES_TASK_NAME
-import de.akii.commercetools.api.customtypes.plugin.gradle.tasks.GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME
+import de.akii.commercetools.api.customtypes.plugin.gradle.tasks.GENERATE_CUSTOM_TYPES_TASK_NAME
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -27,7 +27,7 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
         project.configurations.create(FETCH_PRODUCT_TYPES_TASK_NAME) { configuration ->
             configuration.isVisible = true
             configuration.isTransitive = true
-            configuration.description = "Configuration for fetching commercetools product types"
+            configuration.description = "Configuration for fetching commercetools product-types"
 
             configuration.dependencies.add(project.dependencies.create("de.akii.commercetools:commercetools-sdk-java-api-customtypes-generator:$DEFAULT_PLUGIN_VERSION"))
             configuration.dependencies.add(project.dependencies.create("com.commercetools.sdk:commercetools-http-client:$DEFAULT_COMMERCETOOLS_VERSION"))
@@ -42,7 +42,7 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
             configuration.dependencies.add(project.dependencies.create("com.commercetools.sdk:commercetools-http-client:$DEFAULT_COMMERCETOOLS_VERSION"))
         }
 
-        project.configurations.create(GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME) { configuration ->
+        project.configurations.create(GENERATE_CUSTOM_TYPES_TASK_NAME) { configuration ->
             configuration.isVisible = true
             configuration.isTransitive = true
             configuration.description = "Configuration for generating commercetools custom types"
@@ -54,7 +54,7 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
     private fun registerTasks(project: Project) {
         project.tasks.register(FETCH_PRODUCT_TYPES_TASK_NAME, FetchProductTypesTask::class.java)
         project.tasks.register(FETCH_TYPES_TASK_NAME, FetchTypesTask::class.java)
-        project.tasks.register(GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME, GenerateCustomProductTypesTask::class.java)
+        project.tasks.register(GENERATE_CUSTOM_TYPES_TASK_NAME, GenerateCustomTypesTask::class.java)
     }
 
     private fun processExtensionConfiguration(project: Project, extension: CustomTypesGeneratorPluginExtension) {
@@ -62,10 +62,19 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
     }
 
     private fun configureCustomProductTypesGeneration(project: Project, extension: CustomTypesGeneratorPluginExtension) {
+        val generateCustomTypesTask = project.tasks.named(GENERATE_CUSTOM_TYPES_TASK_NAME, GenerateCustomTypesTask::class.java).get()
+
+        if (extension.productTypesGeneratorConfigured()) {
+            generateCustomTypesTask.productTypesFile.set(extension.productTypesGeneratorExtension.productTypesFile)
+        }
+
+        if (extension.typesGeneratorConfigured()) {
+            generateCustomTypesTask.typesFile.set(extension.typesGeneratorExtension.typesFile)
+        }
+
         val productTypesGeneratorExtension = extension.productTypesGeneratorExtension
         val typesGeneratorExtension = extension.typesGeneratorExtension
 
-        val generateCustomTypesTask = project.tasks.named(GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME, GenerateCustomProductTypesTask::class.java).get()
         generateCustomTypesTask.packageName.convention(project.provider { extension.packageName })
         generateCustomTypesTask.productTypeToSubPackageName.convention(project.provider { productTypesGeneratorExtension.productTypeToSubPackageName })
         generateCustomTypesTask.productTypeToClassName.convention(project.provider { productTypesGeneratorExtension.productTypeToClassName })
@@ -114,8 +123,8 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
             fetchTask.pluginClasspath.setFrom(configuration)
         }
 
-        project.tasks.withType(GenerateCustomProductTypesTask::class.java).configureEach { fetchTask ->
-            val configuration = project.configurations.getAt(GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME)
+        project.tasks.withType(GenerateCustomTypesTask::class.java).configureEach { fetchTask ->
+            val configuration = project.configurations.getAt(GENERATE_CUSTOM_TYPES_TASK_NAME)
             fetchTask.pluginClasspath.setFrom(configuration)
         }
     }

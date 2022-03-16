@@ -17,18 +17,20 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
 
-internal const val GENERATE_CUSTOM_PRODUCT_TYPES_TASK_NAME: String = "generateCustomProductTypes"
+internal const val GENERATE_CUSTOM_TYPES_TASK_NAME: String = "generateCustomTypes"
 
 @Suppress("UNCHECKED_CAST")
-abstract class GenerateCustomProductTypesTask : DefaultTask() {
+abstract class GenerateCustomTypesTask : DefaultTask() {
 
     @get:Classpath
     val pluginClasspath: ConfigurableFileCollection = project.objects.fileCollection()
 
     @InputFile
+    @Optional
     val productTypesFile: RegularFileProperty = project.objects.fileProperty()
 
     @InputFile
+    @Optional
     val typesFile: RegularFileProperty = project.objects.fileProperty()
 
     @Input
@@ -59,21 +61,27 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
 
     @TaskAction
     fun generateCustomTypesAction() {
-        val productTypesFile = productTypesFile.get().asFile
-        val typesFile = typesFile.get().asFile
         val targetDirectory = outputDirectory.get().asFile
-
         if (!targetDirectory.isDirectory && !targetDirectory.mkdirs()) {
             throw RuntimeException("Failed to generate generated source directory: $targetDirectory")
         }
 
-        val productTypes = JsonUtils
-            .createObjectMapper()
-            .readValue(productTypesFile, object : TypeReference<List<ProductType>>() {})
+        var productTypes = emptyList<ProductType>()
+        var types = emptyList<Type>()
 
-        val types = JsonUtils
-            .createObjectMapper()
-            .readValue(typesFile, object : TypeReference<List<Type>>() {})
+        if (productTypesFile.isPresent) {
+            val productTypesFile = productTypesFile.get().asFile
+            productTypes = JsonUtils
+                .createObjectMapper()
+                .readValue(productTypesFile, object : TypeReference<List<ProductType>>() {})
+        }
+
+        if (typesFile.isPresent) {
+            val typesFile = typesFile.get().asFile
+            types = JsonUtils
+                .createObjectMapper()
+                .readValue(typesFile, object : TypeReference<List<Type>>() {})
+        }
 
         val config = Configuration(
             packageName.get(),

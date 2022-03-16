@@ -16,8 +16,17 @@ open class CustomTypesGeneratorPluginExtension {
         Credentials()
     }
 
-    internal val productTypesGeneratorExtension = CustomProductTypesGeneratorConfiguration()
-    internal val typesGeneratorExtension = CustomTypesGeneratorConfiguration()
+    private var productTypesGeneratorConfigured = false
+    internal val productTypesGeneratorExtension: CustomProductTypesGeneratorConfiguration by lazy {
+        productTypesGeneratorConfigured = true
+        CustomProductTypesGeneratorConfiguration()
+    }
+
+    private var typesGeneratorConfigured = false
+    internal val typesGeneratorExtension: CustomTypesGeneratorConfiguration by lazy {
+        typesGeneratorConfigured = true
+        CustomTypesGeneratorConfiguration()
+    }
 
     var packageName: String? = null
 
@@ -34,6 +43,8 @@ open class CustomTypesGeneratorPluginExtension {
     }
 
     internal fun credentialsConfigured(): Boolean = credentialsConfigured
+    internal fun productTypesGeneratorConfigured(): Boolean = productTypesGeneratorConfigured
+    internal fun typesGeneratorConfigured(): Boolean = typesGeneratorConfigured
 }
 
 open class Credentials {

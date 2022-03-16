@@ -138,8 +138,8 @@ commercetoolsCustomTypes {
 }
 ```
 
-Alternatively, you can provide the product types yourself.
-To do so, do not specify client credentials but instead, configure the path to the product types JSON file.
+Alternatively, you can provide the types yourself.
+To do so, configure paths to the JSON files instead.
 
 ```kotlin
 import de.akii.commercetools.api.customtypes.plugin.gradle.commercetoolsCustomTypes
@@ -154,10 +154,14 @@ commercetoolsCustomTypes {
     productTypes {
         productTypesFile = File("./productTypes.json")
     }
+
+    customFields {
+        typesFile = File("./types.json")
+    }
 }
 ```
 
-The plugin will now automatically generate custom product types based on your product type definition.
+The plugin will now automatically generate custom types based on your type definitions.
 
 ### commercetools SDK
 
