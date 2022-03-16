@@ -60,7 +60,7 @@ fun TypeSpec.Builder.addCTConstructorArguments(constructorArguments: List<Constr
         .addParameters(attributes.map { it.first })
 
     attributes.forEach {
-        constructor.addStatement("this.%1N = %2N", handleExceptions(it.first.name), it.first.name)
+        constructor.addStatement("this.%1N = %2N", it.first.name, it.first.name)
     }
 
     this.primaryConstructor(constructor.build())
@@ -72,12 +72,6 @@ fun TypeSpec.Builder.addCTConstructorArguments(constructorArguments: List<Constr
 
     return this
 }
-
-private fun handleExceptions(name: String): String =
-    when (name) {
-        "pOBox" -> "poBox"
-        else -> name
-    }
 
 private fun parameter(name: String, type: TypeName): ParameterSpec =
     ParameterSpec
