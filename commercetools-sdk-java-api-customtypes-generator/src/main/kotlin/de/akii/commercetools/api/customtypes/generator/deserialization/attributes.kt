@@ -118,8 +118,11 @@ private fun generateAttributeNameToPropertyNameMap(config: Configuration): CodeB
 
     config
         .productTypes
-        .flatMap { it.attributes }
-        .map { it.name to config.attributeNameToPropertyName(it.name) }
+        .flatMap { productType ->
+            productType.attributes.map {
+                it.name to config.productTypeAttributeToPropertyName(productType, it)
+            }
+        }
         .toSet()
         .forEach {
             whenExpression.add("%1S -> %2S\n", it.first, it.second)

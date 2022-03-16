@@ -1,9 +1,11 @@
 package de.akii.commercetools.api.customtypes.plugin.gradle
 
 import com.commercetools.api.defaultconfig.ServiceRegion
-import de.akii.commercetools.api.customtypes.generator.common.attributeNameToPropertyName
-import de.akii.commercetools.api.customtypes.generator.common.productTypeNameToClassNamePrefix
-import de.akii.commercetools.api.customtypes.generator.common.productTypeNameToSubPackageName
+import com.commercetools.api.models.product_type.AttributeDefinition
+import com.commercetools.api.models.product_type.ProductType
+import com.commercetools.api.models.type.FieldDefinition
+import com.commercetools.api.models.type.Type
+import de.akii.commercetools.api.customtypes.generator.common.*
 import org.gradle.api.Action
 import java.io.File
 
@@ -43,11 +45,12 @@ open class Credentials {
 
 open class CustomProductTypesGeneratorConfiguration {
     var productTypesFile: File? = null
-    var productTypeNameToSubPackageName: (productTypeName: String) -> String = ::productTypeNameToSubPackageName
-    var productTypeNameToClassNamePrefix: (productTypeName: String) -> String = ::productTypeNameToClassNamePrefix
-    var attributeNameToPropertyName: (attributeName: String) -> String = ::attributeNameToPropertyName
+    var productTypeToSubPackageName: (productType: ProductType) -> String = ::productTypeToSubPackageName
+    var productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName
+    var productTypeAttributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::productTypeAttributeToPropertyName
 }
 
 open class CustomTypesGeneratorConfiguration {
     var typesFile: File? = null
+    var fieldDefinitionToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldDefinitionToPropertyName
 }

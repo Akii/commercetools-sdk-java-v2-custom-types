@@ -35,7 +35,7 @@ fun productFiles(
     val attributeTypeSpec = productVariantAttributes(
         productVariantAttributesClassName,
         customProductVariantAttributesClassName,
-        productType.attributes,
+        productType,
         config
     )
 

@@ -39,13 +39,13 @@ import java.time.ZonedDateTime
 fun productVariantAttributes(
     productVariantAttributesClassName: ProductVariantAttributesClassName,
     customProductVariantAttributesClassName: CustomProductVariantAttributesClassName,
-    attributes: List<AttributeDefinition>,
+    productType: ProductType,
     config: Configuration
 ): TypeSpec {
     return TypeSpec
         .classBuilder(productVariantAttributesClassName.className)
         .addModifiers(
-            if (attributes.isEmpty())
+            if (productType.attributes.isEmpty())
                 emptyList()
             else
                 listOf(KModifier.DATA)
@@ -53,33 +53,33 @@ fun productVariantAttributes(
         .addSuperinterface(customProductVariantAttributesClassName.className)
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
-        .primaryConstructor(constructor(attributes, config))
-        .addProperties(attributes.map { attribute(it, config) })
+        .primaryConstructor(constructor(productType, config))
+        .addProperties(productType.attributes.map { attribute(productType, it, config) })
         .build()
 }
 
-private fun constructor(attributes: List<AttributeDefinition>, config: Configuration): FunSpec =
+private fun constructor(productType: ProductType, config: Configuration): FunSpec =
     FunSpec
         .constructorBuilder()
-        .addParameters(attributes.map { parameter(it, config) })
+        .addParameters(productType.attributes.map { parameter(productType, it, config) })
         .build()
 
-private fun parameter(attributeDefinition: AttributeDefinition, config: Configuration): ParameterSpec =
+private fun parameter(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): ParameterSpec =
     ParameterSpec
         .builder(
-            config.attributeNameToPropertyName(attributeDefinition.name),
+            config.productTypeAttributeToPropertyName(productType, attributeDefinition),
             typeNameForAttributeType(attributeDefinition.type, config)
         )
-        .addAnnotation(jsonProperty(config.attributeNameToPropertyName(attributeDefinition.name)))
+        .addAnnotation(jsonProperty(config.productTypeAttributeToPropertyName(productType, attributeDefinition)))
         .build()
 
-private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): PropertySpec =
+private fun attribute(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): PropertySpec =
     PropertySpec
         .builder(
-            config.attributeNameToPropertyName(attributeDefinition.name),
+            config.productTypeAttributeToPropertyName(productType, attributeDefinition),
             typeNameForAttributeType(attributeDefinition.type, config)
         )
-        .initializer(config.attributeNameToPropertyName(attributeDefinition.name))
+        .initializer(config.productTypeAttributeToPropertyName(productType, attributeDefinition))
         .build()
 
 private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =

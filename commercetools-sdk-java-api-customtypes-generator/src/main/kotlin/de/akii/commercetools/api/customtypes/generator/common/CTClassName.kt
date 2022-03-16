@@ -22,28 +22,28 @@ class CustomProductVariantAttributesClassName(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductVariantAttributes")
 
 class ProductClassName(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
-    "${config.productTypeNameToClassNamePrefix(productType.name)}Product"
+    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    config.productTypeToClassName(productType, ProductClassType.Product)
 )
 
 class ProductCatalogDataClassName(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
-    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductCatalogData"
+    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    config.productTypeToClassName(productType, ProductClassType.ProductCatalogData)
 )
 
 class ProductDataClassName(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
-    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductData"
+    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    config.productTypeToClassName(productType, ProductClassType.ProductData)
 )
 
 class ProductVariantClassName(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
-    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductVariant"
+    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    config.productTypeToClassName(productType, ProductClassType.ProductVariant)
 )
 
 class ProductVariantAttributesClassName(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeNameToSubPackageName(productType.name)}",
-    "${config.productTypeNameToClassNamePrefix(productType.name)}ProductVariantAttributes"
+    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes)
 )
 
 class TypedCustomFieldsDeserializerClassName(config: Configuration) :

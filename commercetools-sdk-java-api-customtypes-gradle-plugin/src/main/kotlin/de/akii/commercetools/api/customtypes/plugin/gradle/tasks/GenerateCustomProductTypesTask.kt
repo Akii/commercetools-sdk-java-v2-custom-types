@@ -1,11 +1,13 @@
 package de.akii.commercetools.api.customtypes.plugin.gradle.tasks
 
+import com.commercetools.api.models.product_type.AttributeDefinition
 import com.commercetools.api.models.product_type.ProductType
+import com.commercetools.api.models.type.FieldDefinition
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
 import de.akii.commercetools.api.customtypes.generate
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
-import de.akii.commercetools.api.customtypes.generator.productFiles
+import de.akii.commercetools.api.customtypes.generator.common.ProductClassType
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -34,13 +36,16 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
     val packageName: Property<String> = project.objects.property(String::class.java)
 
     @Input
-    val productTypeNameToSubPackageName: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
+    val productTypeToSubPackageName: Property<(ProductType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType) -> String>
 
     @Input
-    val productTypeNameToClassNamePrefix: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
+    val productTypeToClassName: Property<(ProductType, ProductClassType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, ProductClassType) -> String>
 
     @Input
-    val attributeNameToPropertyName: Property<(String) -> String> = project.objects.property(Any::class.java) as Property<(String) -> String>
+    val productTypeAttributeToPropertyName: Property<(ProductType, AttributeDefinition) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> String>
+
+    @Input
+    val fieldDefinitionToPropertyName: Property<(Type, FieldDefinition) -> String> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> String>
 
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
@@ -74,9 +79,10 @@ abstract class GenerateCustomProductTypesTask : DefaultTask() {
             packageName.get(),
             productTypes,
             types,
-            productTypeNameToSubPackageName = { productTypeNameToSubPackageName.get()(it) },
-            productTypeNameToClassNamePrefix = { productTypeNameToClassNamePrefix.get()(it) },
-            attributeNameToPropertyName = { attributeNameToPropertyName.get()(it) },
+            productTypeToSubPackageName = { productTypeToSubPackageName.get()(it) },
+            productTypeToClassName = { type, classType -> productTypeToClassName.get()(type, classType) },
+            productTypeAttributeToPropertyName = { type, attribute -> productTypeAttributeToPropertyName.get()(type, attribute) },
+            fieldDefinitionToPropertyName = { type, field -> fieldDefinitionToPropertyName.get()(type, field) }
         )
 
         val files = generate(config)

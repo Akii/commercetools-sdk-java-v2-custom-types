@@ -53,7 +53,7 @@ private fun sealedOrderCustomFieldInterfaces(types: List<Type>, config: Configur
 
 private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
     val className = typeToClassName(type, config)
-    val fields = typedFields(type.fieldDefinitions, config)
+    val fields = typedFields(type, config)
 
     return TypeSpec
         .classBuilder(className)
@@ -86,43 +86,43 @@ private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
         .build()
 }
 
-private fun typedFields(fieldDefinitions: List<FieldDefinition>, config: Configuration): TypeSpec =
+private fun typedFields(type: Type, config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder("Fields")
         .addModifiers(
-            if (fieldDefinitions.isEmpty())
+            if (type.fieldDefinitions.isEmpty())
                 emptyList()
             else
                 listOf(KModifier.DATA)
         )
         .addAnnotation(Generated::class)
-        .primaryConstructor(constructor(fieldDefinitions, config))
-        .addProperties(fieldDefinitions.map { attribute(it, config) })
+        .primaryConstructor(constructor(type, config))
+        .addProperties(type.fieldDefinitions.map { attribute(type, it, config) })
         .build()
 
-private fun constructor(fieldDefinitions: List<FieldDefinition>, config: Configuration): FunSpec =
+private fun constructor(type: Type, config: Configuration): FunSpec =
     FunSpec
         .constructorBuilder()
         .addAnnotation(jsonCreator)
-        .addParameters(fieldDefinitions.map { parameter(it, config) })
+        .addParameters(type.fieldDefinitions.map { parameter(type, it, config) })
         .build()
 
-private fun parameter(fieldDefinition: FieldDefinition, config: Configuration): ParameterSpec =
+private fun parameter(type: Type, fieldDefinition: FieldDefinition, config: Configuration): ParameterSpec =
     ParameterSpec
         .builder(
-            config.attributeNameToPropertyName(fieldDefinition.name),
+            config.fieldDefinitionToPropertyName(type, fieldDefinition),
             typeNameForFieldType(fieldDefinition.type, config)
         )
         .addAnnotation(jsonProperty(fieldDefinition.name))
         .build()
 
-private fun attribute(fieldDefinition: FieldDefinition, config: Configuration): PropertySpec =
+private fun attribute(type: Type, fieldDefinition: FieldDefinition, config: Configuration): PropertySpec =
     PropertySpec
         .builder(
-            config.attributeNameToPropertyName(fieldDefinition.name),
+            config.fieldDefinitionToPropertyName(type, fieldDefinition),
             typeNameForFieldType(fieldDefinition.type, config)
         )
-        .initializer(config.attributeNameToPropertyName(fieldDefinition.name))
+        .initializer(config.fieldDefinitionToPropertyName(type, fieldDefinition))
         .build()
 
 private fun typeNameForFieldType(fieldType: FieldType, config: Configuration): TypeName =

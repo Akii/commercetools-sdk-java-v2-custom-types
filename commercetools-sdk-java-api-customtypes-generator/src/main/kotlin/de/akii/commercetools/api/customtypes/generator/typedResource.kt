@@ -20,6 +20,7 @@ import com.commercetools.api.models.order.*
 import com.commercetools.api.models.order_edit.OrderEdit
 import com.commercetools.api.models.order_edit.OrderEditImpl
 import com.commercetools.api.models.payment.*
+import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.review.Review
 import com.commercetools.api.models.review.ReviewImpl
 import com.commercetools.api.models.shipping_method.ShippingMethod
@@ -37,7 +38,12 @@ import io.vrap.rmf.base.client.utils.Generated
 import kotlin.reflect.KClass
 
 val resourceTypeNameToSubPackage: (String) -> String = { it.split('-').joinToString("_") }
-val resourceTypeNameToClassName: (String) -> String = { "Typed${productTypeNameToClassNamePrefix(it)}" }
+val resourceTypeNameToClassName: (name: String) -> String = { name ->
+    "Typed" + name.split('-', '_')
+        .joinToString("") { part ->
+            part.replaceFirstChar { it.uppercase() }
+        }
+}
 
 data class TypedResourceFile(
     val resourceInterface: KClass<*>,
@@ -93,15 +99,17 @@ private fun typedResourceFile(
                     FunSpec
                         .constructorBuilder()
                         .addAnnotation(jsonCreator)
-                        .addParameter(ParameterSpec
-                            .builder("delegate", resourceTypeDefaultImplementation)
-                            .addAnnotation(jsonProperty("delegate"))
-                            .build()
+                        .addParameter(
+                            ParameterSpec
+                                .builder("delegate", resourceTypeDefaultImplementation)
+                                .addAnnotation(jsonProperty("delegate"))
+                                .build()
                         )
-                        .addParameter(ParameterSpec
-                            .builder("custom", customFieldType.copy(nullable = true))
-                            .addAnnotation(jsonProperty("custom"))
-                            .build()
+                        .addParameter(
+                            ParameterSpec
+                                .builder("custom", customFieldType.copy(nullable = true))
+                                .addAnnotation(jsonProperty("custom"))
+                                .build()
                         )
                         .build()
                 )
