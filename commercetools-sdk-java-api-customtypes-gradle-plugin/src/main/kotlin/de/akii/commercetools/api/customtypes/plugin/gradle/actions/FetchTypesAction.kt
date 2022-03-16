@@ -3,13 +3,13 @@ package de.akii.commercetools.api.customtypes.plugin.gradle.actions
 import com.commercetools.api.client.QueryUtils
 import com.commercetools.api.defaultconfig.ApiRootBuilder
 import com.commercetools.api.defaultconfig.ServiceRegion
-import com.commercetools.api.models.product_type.ProductType
-import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.FetchProductTypesParameters
+import com.commercetools.api.models.type.Type
+import de.akii.commercetools.api.customtypes.plugin.gradle.parameters.FetchTypesParameters
 import io.vrap.rmf.base.client.oauth2.ClientCredentials
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.gradle.workers.WorkAction
 
-abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters> {
+abstract class FetchTypesAction : WorkAction<FetchTypesParameters> {
 
     override fun execute() {
         val ctApi = ApiRootBuilder.of()
@@ -22,9 +22,9 @@ abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters>
             )
             .build(parameters.projectName.get())
 
-        val productTypes: List<ProductType> = QueryUtils
+        val types: List<Type> = QueryUtils
             .queryAll(
-                ctApi.productTypes().get(),
+                ctApi.types().get(),
                 java.util.function.Function.identity()
             )
             .toCompletableFuture()
@@ -33,7 +33,7 @@ abstract class FetchProductTypesAction : WorkAction<FetchProductTypesParameters>
 
         JsonUtils
             .createObjectMapper()
-            .writeValue(parameters.productTypesFile.get(), productTypes)
+            .writeValue(parameters.typesFile.get(), types)
     }
 
 }

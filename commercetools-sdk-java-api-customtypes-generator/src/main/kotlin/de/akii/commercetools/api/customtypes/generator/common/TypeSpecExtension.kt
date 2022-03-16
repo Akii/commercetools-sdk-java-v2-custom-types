@@ -1,16 +1,8 @@
 package de.akii.commercetools.api.customtypes.generator.common
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlin.reflect.KClass
-
-private val jsonCreator =
-    AnnotationSpec
-        .builder(JsonCreator::class)
-        .build()
 
 sealed class ConstructorArgument(
     val name: String,
@@ -45,20 +37,19 @@ class CTProperty(
     type: ClassName,
     parameterizedBy: ClassName? = null,
     nullable: Boolean = false,
-    val modifiers: List<KModifier> = listOf(KModifier.PRIVATE)
+    val modifiers: List<KModifier> = listOf(KModifier.PRIVATE, KModifier.OVERRIDE)
 ) : ConstructorArgument(name, type, parameterizedBy, nullable)
 
-fun TypeSpec.Builder.addCTConstructorArguments(vararg properties: ConstructorArgument): TypeSpec.Builder =
-    this.addCTConstructorArguments(properties.asList())
+fun TypeSpec.Builder.addCTConstructorArguments(vararg constructorArguments: ConstructorArgument): TypeSpec.Builder =
+    this.addCTConstructorArguments(constructorArguments.asList())
 
-fun TypeSpec.Builder.addCTConstructorArguments(properties: List<ConstructorArgument>): TypeSpec.Builder {
-    val attributes = properties.map {
+fun TypeSpec.Builder.addCTConstructorArguments(constructorArguments: List<ConstructorArgument>): TypeSpec.Builder {
+    val attributes = constructorArguments.map {
         when (it) {
             is CTParameter -> parameter(it.name, it.typeName) to null
             is CTProperty -> parameter(it.name, it.typeName) to property(
                 it.name,
-                it.typeName,
-                it.modifiers
+                it.typeName
             )
         }
     }
@@ -74,6 +65,10 @@ fun TypeSpec.Builder.addCTConstructorArguments(properties: List<ConstructorArgum
 
     this.primaryConstructor(constructor.build())
     this.addProperties(attributes.mapNotNull { it.second })
+    this.addFunctions(constructorArguments
+        .filterIsInstance(CTProperty::class.java)
+        .map { getter(it.name, it.typeName, it.modifiers) }
+    )
 
     return this
 }
@@ -84,26 +79,16 @@ private fun parameter(name: String, type: TypeName): ParameterSpec =
         .addAnnotation(jsonProperty(name))
         .build()
 
-private fun property(name: String, type: TypeName, modifiers: List<KModifier>): PropertySpec =
+private fun property(name: String, type: TypeName): PropertySpec =
     PropertySpec
         .builder(name, type)
-        .addModifiers(modifiers)
+        .addModifiers(KModifier.PRIVATE)
         .build()
 
-fun deserializeAs(asClassName: ClassName): AnnotationSpec =
-    AnnotationSpec
-        .builder(JsonDeserialize::class)
-        .addMember(CodeBlock.of("`as` = %T::class", asClassName))
-        .build()
-
-fun deserializeUsing(asClassName: ClassName): AnnotationSpec =
-    AnnotationSpec
-        .builder(JsonDeserialize::class)
-        .addMember(CodeBlock.of("using = %T::class", asClassName))
-        .build()
-
-fun jsonProperty(name: String): AnnotationSpec =
-    AnnotationSpec
-        .builder(JsonProperty::class)
-        .addMember("%S", name)
+private fun getter(name: String, type: TypeName, modifiers: List<KModifier>): FunSpec =
+    FunSpec
+        .builder("get${name.replaceFirstChar { it.uppercase() }}")
+        .addModifiers(modifiers.filter { it != KModifier.PRIVATE })
+        .addStatement("return this.%N", name)
+        .returns(type)
         .build()

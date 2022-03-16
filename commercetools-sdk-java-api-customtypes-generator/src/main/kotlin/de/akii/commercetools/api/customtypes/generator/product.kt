@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator
 
 import com.commercetools.api.models.common.CreatedBy
 import com.commercetools.api.models.common.LastModifiedBy
@@ -10,10 +10,18 @@ import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductDeserializer
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesDelegatingDeserializer
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesInterface
+import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesModifier
+import de.akii.commercetools.api.customtypes.generator.product.productCatalogData
+import de.akii.commercetools.api.customtypes.generator.product.productData
+import de.akii.commercetools.api.customtypes.generator.product.productVariant
+import de.akii.commercetools.api.customtypes.generator.product.productVariantAttributes
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.ZonedDateTime
 
-fun generateProductFiles(
+fun productFiles(
     productType: ProductType,
     config: Configuration
 ): List<FileSpec> {
@@ -27,7 +35,7 @@ fun generateProductFiles(
     val attributeTypeSpec = productVariantAttributes(
         productVariantAttributesClassName,
         customProductVariantAttributesClassName,
-        productType.attributes,
+        productType,
         config
     )
 
@@ -65,16 +73,18 @@ fun generateProductFiles(
             CTParameter("state", StateReference::class, nullable = true),
             CTParameter("reviewRatingStatistics", ReviewRatingStatistics::class, nullable = true),
         )
-        .addFunction(FunSpec
-            .builder("getMasterData")
-            .addModifiers(KModifier.OVERRIDE)
-            .addStatement("return this.%N", "masterData")
-            .returns(productCatalogDataClassName.className)
-            .build()
-        )
+        .build()
+
+    val productDeserializerFile = FileSpec
+        .builder("${config.packageName}.product", "deserializer")
+        .addType(customProductVariantAttributesInterface(config))
+        .addType(customProductDeserializer(config))
+        .addType(customProductVariantAttributesModifier(config))
+        .addType(customProductVariantAttributesDelegatingDeserializer(config))
         .build()
 
     return listOf(
+        productDeserializerFile,
         makeFile(productClassName.className, product),
         makeFile(productCatalogDataClassName.className, masterDataTypeSpec),
         makeFile(productDataClassName.className, productDataTypeSpec),

@@ -4,10 +4,10 @@ import org.gradle.api.provider.Property
 import org.gradle.workers.WorkParameters
 import java.io.File
 
-interface FetchProductTypesParameters : WorkParameters {
+interface FetchTypesParameters : WorkParameters {
     val clientId: Property<String>
     val clientSecret: Property<String>
     val serviceRegion: Property<String>
     val projectName: Property<String>
-    val productTypesFile: Property<File>
+    val typesFile: Property<File>
 }

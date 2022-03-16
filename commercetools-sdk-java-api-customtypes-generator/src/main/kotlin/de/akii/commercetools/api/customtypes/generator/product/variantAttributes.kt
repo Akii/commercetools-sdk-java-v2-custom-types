@@ -5,9 +5,9 @@ import com.commercetools.api.models.cart_discount.CartDiscountReference
 import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.channel.ChannelReference
 import com.commercetools.api.models.common.LocalizedString
-import com.commercetools.api.models.common.TypedMoney
 import com.commercetools.api.models.common.Reference
 import com.commercetools.api.models.common.ReferenceTypeId
+import com.commercetools.api.models.common.TypedMoney
 import com.commercetools.api.models.customer.CustomerReference
 import com.commercetools.api.models.customer_group.CustomerGroupReference
 import com.commercetools.api.models.discount_code.DiscountCodeReference
@@ -39,13 +39,13 @@ import java.time.ZonedDateTime
 fun productVariantAttributes(
     productVariantAttributesClassName: ProductVariantAttributesClassName,
     customProductVariantAttributesClassName: CustomProductVariantAttributesClassName,
-    attributes: List<AttributeDefinition>,
+    productType: ProductType,
     config: Configuration
 ): TypeSpec {
     return TypeSpec
         .classBuilder(productVariantAttributesClassName.className)
         .addModifiers(
-            if (attributes.isEmpty())
+            if (productType.attributes.isEmpty())
                 emptyList()
             else
                 listOf(KModifier.DATA)
@@ -53,33 +53,33 @@ fun productVariantAttributes(
         .addSuperinterface(customProductVariantAttributesClassName.className)
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
-        .primaryConstructor(constructor(attributes, config))
-        .addProperties(attributes.map { attribute(it, config) })
+        .primaryConstructor(constructor(productType, config))
+        .addProperties(productType.attributes.map { attribute(productType, it, config) })
         .build()
 }
 
-private fun constructor(attributes: List<AttributeDefinition>, config: Configuration): FunSpec =
+private fun constructor(productType: ProductType, config: Configuration): FunSpec =
     FunSpec
         .constructorBuilder()
-        .addParameters(attributes.map { parameter(it, config) })
+        .addParameters(productType.attributes.map { parameter(productType, it, config) })
         .build()
 
-private fun parameter(attributeDefinition: AttributeDefinition, config: Configuration): ParameterSpec =
+private fun parameter(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): ParameterSpec =
     ParameterSpec
         .builder(
-            config.attributeNameToPropertyName(attributeDefinition.name),
+            config.productTypeAttributeToPropertyName(productType, attributeDefinition),
             typeNameForAttributeType(attributeDefinition.type, config)
         )
-        .addAnnotation(jsonProperty(config.attributeNameToPropertyName(attributeDefinition.name)))
+        .addAnnotation(jsonProperty(config.productTypeAttributeToPropertyName(productType, attributeDefinition)))
         .build()
 
-private fun attribute(attributeDefinition: AttributeDefinition, config: Configuration): PropertySpec =
+private fun attribute(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): PropertySpec =
     PropertySpec
         .builder(
-            config.attributeNameToPropertyName(attributeDefinition.name),
+            config.productTypeAttributeToPropertyName(productType, attributeDefinition),
             typeNameForAttributeType(attributeDefinition.type, config)
         )
-        .initializer(config.attributeNameToPropertyName(attributeDefinition.name))
+        .initializer(config.productTypeAttributeToPropertyName(productType, attributeDefinition))
         .build()
 
 private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
@@ -94,13 +94,13 @@ private fun typeNameForAttributeType(attributeType: AttributeType, config: Confi
         is AttributeDateType -> LocalDate::class.asTypeName()
         is AttributeTimeType -> LocalTime::class.asTypeName()
         is AttributeDateTimeType -> ZonedDateTime::class.asTypeName()
-        is AttributeReferenceType -> findConcreteReference(attributeType.referenceTypeId)
+        is AttributeReferenceType -> referenceTypeIdToClassName(attributeType.referenceTypeId)
         is AttributeSetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
         is AttributeNestedType -> findProductVariantAttributesTypeByProductTypeId(attributeType.typeReference.id, config)
         else -> Any::class.asTypeName()
     }.copy(nullable = true)
 
-private fun findConcreteReference(referenceTypeId: ReferenceTypeId): ClassName =
+private fun referenceTypeIdToClassName(referenceTypeId: ReferenceTypeId): ClassName =
     when (referenceTypeId) {
         ReferenceTypeId.CART -> CartReference::class.asClassName()
         ReferenceTypeId.CART_DISCOUNT -> CartDiscountReference::class.asClassName()

@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator
 
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductCatalogData
@@ -10,7 +10,6 @@ import com.squareup.kotlinpoet.FileSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
-import de.akii.commercetools.api.customtypes.generator.customProductVariantAttributesInterface
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -26,15 +25,15 @@ internal class ProductKtTest {
 
     @Test
     fun `generates custom product classes`() {
-        val config = Configuration("test.package", listOf(productType))
-        val files = generateProductFiles(
+        val config = Configuration("test.package", listOf(productType), emptyList())
+        val files = productFiles(
             productType,
             config
         )
         val sourceFiles =
             files.map {
                 SourceFile.kotlin("${it.name}.kt", it.toString())
-            } + SourceFile.kotlin("CustomProduct.kt", customProductInterfaceFile(config).toString())
+            }
 
         val result = KotlinCompilation().apply {
             sources = sourceFiles
@@ -68,9 +67,4 @@ internal class ProductKtTest {
         )
     }
 
-    private fun customProductInterfaceFile(config: Configuration) =
-        FileSpec
-            .builder("${config.packageName}.product", "CustomProduct")
-            .addType(customProductVariantAttributesInterface(config))
-            .build()
 }
