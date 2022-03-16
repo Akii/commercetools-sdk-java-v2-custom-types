@@ -19,5 +19,4 @@ fun generate(config: Configuration): List<FileSpec> {
         customFieldsDeserializerFile,
         apiModuleFile
     ) + typedResourceFiles.map { it.file } + customProductFiles
-
 }

@@ -20,7 +20,6 @@ import com.commercetools.api.models.order.*
 import com.commercetools.api.models.order_edit.OrderEdit
 import com.commercetools.api.models.order_edit.OrderEditImpl
 import com.commercetools.api.models.payment.*
-import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.review.Review
 import com.commercetools.api.models.review.ReviewImpl
 import com.commercetools.api.models.shipping_method.ShippingMethod

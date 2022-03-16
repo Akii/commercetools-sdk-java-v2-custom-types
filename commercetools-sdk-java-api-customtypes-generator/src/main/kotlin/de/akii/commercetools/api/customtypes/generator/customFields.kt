@@ -38,6 +38,12 @@ fun customFieldsFile(types: List<Type>, config: Configuration): FileSpec {
     return customFieldsFile.build()
 }
 
+fun typeToClassName(type: Type, config: Configuration): ClassName =
+    ClassName(
+        "${config.packageName}.custom_fields",
+        classNamePrefix(type.key) + "CustomFields"
+    )
+
 private fun sealedOrderCustomFieldInterfaces(types: List<Type>, config: Configuration): List<TypeSpec> =
     types
         .flatMap { it.resourceTypeIds }
@@ -158,16 +164,9 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
         else -> Reference::class.asClassName()
     }
 
-fun typeToClassName(type: Type, config: Configuration): ClassName =
-    ClassName(
-        "${config.packageName}.custom_fields",
-        classNamePrefix(type.key) + "CustomFields"
-    )
-
-// TODO: make configurable
 private fun classNamePrefix(name: String): String =
     name
-        .split('-')
+        .split('-', '_')
         .joinToString("") { part ->
             part.replaceFirstChar { it.uppercase() }
         }
