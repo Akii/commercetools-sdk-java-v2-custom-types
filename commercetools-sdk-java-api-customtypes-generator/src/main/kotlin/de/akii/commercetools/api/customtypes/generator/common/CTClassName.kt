@@ -1,53 +1,66 @@
 package de.akii.commercetools.api.customtypes.generator.common
 
 import com.commercetools.api.models.product_type.ProductType
+import com.commercetools.api.models.type.ResourceTypeId
 import com.squareup.kotlinpoet.ClassName
-import de.akii.commercetools.api.customtypes.generator.TypedResourceFile
+import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
 
 sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName
         get() = ClassName(packageName, ctClassName)
 }
 
-class CustomProductDeserializerClassName(config: Configuration) :
+class TypeResolver(config: Configuration) :
+    CTClassName(config.packageName, "TypeResolver")
+
+class CustomProductDeserializer(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductDeserializer")
 
-class CustomProductVariantAttributesModifierClassName(config: Configuration) :
+class ProductTypeResolver(config: Configuration) :
+    CTClassName("${config.packageName}.product", "ProductTypeResolver")
+
+class CustomProductVariantAttributesModifier(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductVariantAttributesModifier")
 
-class CustomProductVariantAttributesDelegatingDeserializerClassName(config: Configuration) :
+class CustomProductVariantAttributesDelegatingDeserializer(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductVariantAttributesDelegatingDeserializer")
 
-class CustomProductVariantAttributesClassName(config: Configuration) :
+class CustomProductVariantAttributes(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductVariantAttributes")
 
-class ProductClassName(productType: ProductType, config: Configuration) : CTClassName(
+class Product(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
     config.productTypeToClassName(productType, ProductClassType.Product)
 )
 
-class ProductCatalogDataClassName(productType: ProductType, config: Configuration) : CTClassName(
+class ProductCatalogData(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
     config.productTypeToClassName(productType, ProductClassType.ProductCatalogData)
 )
 
-class ProductDataClassName(productType: ProductType, config: Configuration) : CTClassName(
+class ProductData(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
     config.productTypeToClassName(productType, ProductClassType.ProductData)
 )
 
-class ProductVariantClassName(productType: ProductType, config: Configuration) : CTClassName(
+class ProductVariant(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
     config.productTypeToClassName(productType, ProductClassType.ProductVariant)
 )
 
-class ProductVariantAttributesClassName(productType: ProductType, config: Configuration) : CTClassName(
+class ProductVariantAttributes(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
     config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes)
 )
 
-class TypedCustomFieldsDeserializerClassName(config: Configuration) :
-    CTClassName("${config.packageName}.custom_fields", "TypedCustomFieldsDeserializer")
+class FallbackCustomFields(config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "FallbackCustomFields")
 
-class TypedResourceDeserializerClassName(typedResource: TypedResourceFile, config: Configuration) :
-    CTClassName("${config.packageName}.custom_fields", "${typedResource.resourceInterface.simpleName}Deserializer")
+class TypedCustomFieldsDeserializer(resourceTypeId: ResourceTypeId, config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "${resourceTypeIdToClassName(resourceTypeId, config).simpleName}Deserializer")
+
+class CustomTypeResolver(config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "CustomTypeResolver")
+
+class TypedResourceDeserializer(typedResource: TypedResourceFile, config: Configuration) :
+    CTClassName(typedResource.typedResourceClassName.packageName, "${typedResource.typedResourceClassName.simpleName}Deserializer")

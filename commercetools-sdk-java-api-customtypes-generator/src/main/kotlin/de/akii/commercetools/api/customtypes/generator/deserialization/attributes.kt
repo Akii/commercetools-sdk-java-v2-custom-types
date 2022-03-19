@@ -11,7 +11,7 @@ import io.vrap.rmf.base.client.utils.Generated
 
 fun customProductVariantAttributesModifier(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(CustomProductVariantAttributesModifierClassName(config).className)
+        .classBuilder(CustomProductVariantAttributesModifier(config).className)
         .addAnnotation(Generated::class)
         .superclass(BeanDeserializerModifier::class)
         .addFunction(modifyDeserializer)
@@ -19,7 +19,7 @@ fun customProductVariantAttributesModifier(config: Configuration): TypeSpec =
 
 fun customProductVariantAttributesDelegatingDeserializer(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(CustomProductVariantAttributesDelegatingDeserializerClassName(config).className)
+        .classBuilder(CustomProductVariantAttributesDelegatingDeserializer(config).className)
         .addAnnotation(Generated::class)
         .primaryConstructor(FunSpec
             .constructorBuilder()

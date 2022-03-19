@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator
+package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
@@ -21,7 +21,7 @@ internal class TypedResourceKtTest {
     @Test
     fun `generates typed resources`() {
         val config = Configuration("test.package", listOf(), types)
-        val files = typedResourceFiles(config).map { it.file } + customFieldsFile(types, config)
+        val files = typedResourceFiles(config).map { it.file } + customFieldsFile(config)
 
         val sourceFiles = files.map {
             SourceFile.kotlin("${it.name}.kt", it.toString())

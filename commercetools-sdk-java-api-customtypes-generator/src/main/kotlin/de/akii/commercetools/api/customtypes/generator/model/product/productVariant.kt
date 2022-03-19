@@ -1,14 +1,15 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator.model.product
 
 import com.commercetools.api.models.common.*
 import com.commercetools.api.models.product.*
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
+import de.akii.commercetools.api.customtypes.generator.common.ProductVariant
 import io.vrap.rmf.base.client.utils.Generated
 
 fun productVariant(
-    productVariantClassName: ProductVariantClassName,
-    productVariantAttributesClassName: ProductVariantAttributesClassName
+    productVariantClassName: ProductVariant,
+    productVariantAttributesClassName: ProductVariantAttributes
 ): TypeSpec = TypeSpec
     .classBuilder(productVariantClassName.className)
     .superclass(ProductVariantImpl::class)

@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator.model.product
 
 import com.commercetools.api.models.cart.CartReference
 import com.commercetools.api.models.cart_discount.CartDiscountReference
@@ -37,8 +37,8 @@ import java.time.LocalTime
 import java.time.ZonedDateTime
 
 fun productVariantAttributes(
-    productVariantAttributesClassName: ProductVariantAttributesClassName,
-    customProductVariantAttributesClassName: CustomProductVariantAttributesClassName,
+    productVariantAttributesClassName: ProductVariantAttributes,
+    customProductVariantAttributesClassName: CustomProductVariantAttributes,
     productType: ProductType,
     config: Configuration
 ): TypeSpec {
@@ -130,6 +130,6 @@ private fun referenceTypeIdToClassName(referenceTypeId: ReferenceTypeId): ClassN
 
 private fun findProductVariantAttributesTypeByProductTypeId(productTypeId: String, config: Configuration): TypeName =
     when (val productType = config.productTypes.find { it.id == productTypeId }) {
-        is ProductType -> ProductVariantAttributesClassName(productType, config).className
+        is ProductType -> ProductVariantAttributes(productType, config).className
         else -> MUTABLE_LIST.parameterizedBy(Attribute::class.asTypeName())
     }

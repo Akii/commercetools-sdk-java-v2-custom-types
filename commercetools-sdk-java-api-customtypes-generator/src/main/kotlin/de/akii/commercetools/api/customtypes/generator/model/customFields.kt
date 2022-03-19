@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator
+package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.cart.CartReference
 import com.commercetools.api.models.category.CategoryReference
@@ -23,26 +23,53 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-fun customFieldsFile(types: List<Type>, config: Configuration): FileSpec {
-    val customFieldsFile = FileSpec
-        .builder("${config.packageName}.custom_fields", "typedCustomFields")
-
-    sealedOrderCustomFieldInterfaces(types, config).forEach {
-        customFieldsFile.addType(it)
-    }
-
-    types.forEach {
-        customFieldsFile.addType(typedCustomField(it, config))
-    }
-
-    return customFieldsFile.build()
-}
-
+// TODO: y public?
 fun typeToClassName(type: Type, config: Configuration): ClassName =
     ClassName(
         "${config.packageName}.custom_fields",
         classNamePrefix(type.key) + "CustomFields"
     )
+
+fun customFieldsFile(config: Configuration): FileSpec {
+    val customFieldsFile = FileSpec
+        .builder("${config.packageName}.custom_fields", "typedCustomFields")
+
+    sealedOrderCustomFieldInterfaces(config.customTypes, config).forEach {
+        customFieldsFile.addType(it)
+    }
+
+    config.customTypes.forEach {
+        customFieldsFile.addType(typedCustomField(it, config))
+    }
+
+    customFieldsFile.addType(fallbackCustomFields(config.customTypes, config))
+
+    return customFieldsFile.build()
+}
+
+private fun fallbackCustomFields(types: List<Type>, config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(FallbackCustomFields(config).className)
+        .addAnnotation(Generated::class)
+        .addAnnotation(deserializeAs(FallbackCustomFields(config).className))
+        .primaryConstructor(FunSpec
+            .constructorBuilder()
+            .addAnnotation(jsonCreator)
+            .addParameter(ParameterSpec
+                .builder("custom", CustomFieldsImpl::class)
+                .addAnnotation(jsonProperty("custom"))
+                .build()
+            )
+            .build()
+        )
+        .addSuperinterface(CustomFields::class, "custom")
+        .addSuperinterfaces(
+            types
+                .flatMap { it.resourceTypeIds }
+                .toSet()
+                .map { resourceTypeIdToClassName(it, config) }
+        )
+        .build()
 
 private fun sealedOrderCustomFieldInterfaces(types: List<Type>, config: Configuration): List<TypeSpec> =
     types
@@ -52,6 +79,7 @@ private fun sealedOrderCustomFieldInterfaces(types: List<Type>, config: Configur
             TypeSpec
                 .interfaceBuilder(resourceTypeIdToClassName(it, config))
                 .addAnnotation(Generated::class)
+                .addAnnotation(deserializeAs(resourceTypeIdToClassName(it, config)))
                 .addModifiers(KModifier.SEALED)
                 .addSuperinterface(CustomFields::class)
                 .build()
@@ -69,25 +97,28 @@ private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
             FunSpec
                 .constructorBuilder()
                 .addAnnotation(jsonCreator)
-                .addParameter(ParameterSpec
-                    .builder("custom", CustomFieldsImpl::class)
-                    .addAnnotation(jsonProperty("custom"))
-                    .build()
+                .addParameter(
+                    ParameterSpec
+                        .builder("custom", CustomFieldsImpl::class)
+                        .addAnnotation(jsonProperty("custom"))
+                        .build()
                 )
-                .addParameter(ParameterSpec
-                    .builder("typedFields", ClassName("", "Fields"))
-                    .addAnnotation(jsonProperty("typedFields"))
-                    .build()
+                .addParameter(
+                    ParameterSpec
+                        .builder("typedFields", ClassName("", "Fields"))
+                        .addAnnotation(jsonProperty("typedFields"))
+                        .build()
                 )
                 .build()
         )
         .addSuperinterface(CustomFields::class, "custom")
         .addSuperinterfaces(type.resourceTypeIds.map { resourceTypeIdToClassName(it, config) })
         .addType(fields)
-        .addProperty(PropertySpec
-            .builder("typedFields", ClassName("", "Fields"))
-            .initializer("typedFields")
-            .build()
+        .addProperty(
+            PropertySpec
+                .builder("typedFields", ClassName("", "Fields"))
+                .initializer("typedFields")
+                .build()
         )
         .build()
 }

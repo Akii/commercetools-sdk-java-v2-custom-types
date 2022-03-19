@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator.product
+package de.akii.commercetools.api.customtypes.generator.model.product
 
 import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.squareup.kotlinpoet.TypeSpec
@@ -6,8 +6,8 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 
 fun productCatalogData(
-    productCatalogDataClassName: ProductCatalogDataClassName,
-    productDataClassName: ProductDataClassName
+    productCatalogDataClassName: ProductCatalogData,
+    productDataClassName: ProductData
 ): TypeSpec = TypeSpec
     .classBuilder(productCatalogDataClassName.className)
     .superclass(ProductCatalogDataImpl::class)

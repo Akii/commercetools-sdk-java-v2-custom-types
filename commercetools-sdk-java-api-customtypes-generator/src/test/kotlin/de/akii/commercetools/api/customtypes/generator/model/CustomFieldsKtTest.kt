@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator
+package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
@@ -21,7 +21,7 @@ internal class CustomFieldsKtTest {
     @Test
     fun `generates typed custom fields`() {
         val config = Configuration("test.package", listOf(), types)
-        val file = customFieldsFile(types, config)
+        val file = customFieldsFile(config)
         val sourceFiles = listOf(
             SourceFile.kotlin("${file.name}.kt", file.toString())
         )

@@ -7,14 +7,22 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import de.akii.commercetools.api.customtypes.generator.TypedResourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
-import de.akii.commercetools.api.customtypes.generator.common.TypedResourceDeserializerClassName
+import de.akii.commercetools.api.customtypes.generator.common.TypedResourceDeserializer
+import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
 import io.vrap.rmf.base.client.utils.Generated
 
-fun typedResourceDeserializer(typedResource: TypedResourceFile, config: Configuration): TypeSpec =
+fun typedResourceDeserializerFiles(typedResourceFiles: List<TypedResourceFile>, config: Configuration): List<FileSpec> =
+    typedResourceFiles.map {
+        FileSpec
+            .builder(it.typedResourceClassName.packageName, "deserializer")
+            .addType(typedResourceDeserializer(it, config))
+            .build()
+    }
+
+private fun typedResourceDeserializer(typedResource: TypedResourceFile, config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(TypedResourceDeserializerClassName(typedResource, config).className)
+        .classBuilder(TypedResourceDeserializer(typedResource, config).className)
         .addAnnotation(Generated::class)
         .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(typedResource.resourceInterface.asClassName()))
         .addFunction(deserialize(typedResource))

@@ -10,27 +10,37 @@ import com.commercetools.api.models.state.StateReference
 import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.deserialization.customProductDeserializer
-import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesDelegatingDeserializer
-import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesInterface
-import de.akii.commercetools.api.customtypes.generator.deserialization.customProductVariantAttributesModifier
-import de.akii.commercetools.api.customtypes.generator.product.productCatalogData
-import de.akii.commercetools.api.customtypes.generator.product.productData
-import de.akii.commercetools.api.customtypes.generator.product.productVariant
-import de.akii.commercetools.api.customtypes.generator.product.productVariantAttributes
+import de.akii.commercetools.api.customtypes.generator.model.product.productCatalogData
+import de.akii.commercetools.api.customtypes.generator.model.product.productData
+import de.akii.commercetools.api.customtypes.generator.model.product.productVariant
+import de.akii.commercetools.api.customtypes.generator.model.product.productVariantAttributes
 import io.vrap.rmf.base.client.utils.Generated
 import java.time.ZonedDateTime
 
-fun productFiles(
+fun productFiles(config: Configuration): List<FileSpec> =
+    config.productTypes.flatMap { productFiles(it, config) } + customProductVariantAttributesInterface(config)
+
+private fun customProductVariantAttributesInterface(config: Configuration) =
+    FileSpec
+        .builder("${config.packageName}.product", "CustomProductVariantAttributes")
+        .addType(
+            TypeSpec
+                .interfaceBuilder(CustomProductVariantAttributes(config).className)
+                .addAnnotation(Generated::class)
+                .build()
+        )
+        .build()
+
+private fun productFiles(
     productType: ProductType,
     config: Configuration
 ): List<FileSpec> {
-    val productClassName = ProductClassName(productType, config)
-    val productCatalogDataClassName = ProductCatalogDataClassName(productType, config)
-    val productDataClassName = ProductDataClassName(productType, config)
-    val productVariantClassName = ProductVariantClassName(productType, config)
-    val productVariantAttributesClassName = ProductVariantAttributesClassName(productType, config)
-    val customProductVariantAttributesClassName = CustomProductVariantAttributesClassName(config)
+    val productClassName = Product(productType, config)
+    val productCatalogDataClassName = ProductCatalogData(productType, config)
+    val productDataClassName = ProductData(productType, config)
+    val productVariantClassName = ProductVariant(productType, config)
+    val productVariantAttributesClassName = ProductVariantAttributes(productType, config)
+    val customProductVariantAttributesClassName = CustomProductVariantAttributes(config)
 
     val attributeTypeSpec = productVariantAttributes(
         productVariantAttributesClassName,
@@ -75,16 +85,7 @@ fun productFiles(
         )
         .build()
 
-    val productDeserializerFile = FileSpec
-        .builder("${config.packageName}.product", "deserializer")
-        .addType(customProductVariantAttributesInterface(config))
-        .addType(customProductDeserializer(config))
-        .addType(customProductVariantAttributesModifier(config))
-        .addType(customProductVariantAttributesDelegatingDeserializer(config))
-        .build()
-
     return listOf(
-        productDeserializerFile,
         makeFile(productClassName.className, product),
         makeFile(productCatalogDataClassName.className, masterDataTypeSpec),
         makeFile(productDataClassName.className, productDataTypeSpec),
