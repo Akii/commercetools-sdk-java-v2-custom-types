@@ -1,13 +1,7 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
-import com.commercetools.api.models.common.CreatedBy
-import com.commercetools.api.models.common.LastModifiedBy
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
-import com.commercetools.api.models.product_type.ProductTypeReference
-import com.commercetools.api.models.review.ReviewRatingStatistics
-import com.commercetools.api.models.state.StateReference
-import com.commercetools.api.models.tax_category.TaxCategoryReference
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.product.productCatalogData
@@ -15,7 +9,6 @@ import de.akii.commercetools.api.customtypes.generator.model.product.productData
 import de.akii.commercetools.api.customtypes.generator.model.product.productVariant
 import de.akii.commercetools.api.customtypes.generator.model.product.productVariantAttributes
 import io.vrap.rmf.base.client.utils.Generated
-import java.time.ZonedDateTime
 
 fun productFiles(config: Configuration): List<FileSpec> =
     config.productTypes.flatMap { productFiles(it, config) } + customProductVariantAttributesInterface(config)
@@ -67,21 +60,37 @@ private fun productFiles(
     val product = TypeSpec
         .classBuilder(productClassName.className)
         .addAnnotation(Generated::class)
-        .superclass(ProductImpl::class)
         .addAnnotation(deserializeAs(productClassName.className))
-        .addCTConstructorArguments(
-            CTParameter("id", String::class),
-            CTParameter("key", String::class, nullable = true),
-            CTParameter("version", Long::class),
-            CTParameter("createdAt", ZonedDateTime::class),
-            CTParameter("createdBy", CreatedBy::class),
-            CTParameter("lastModifiedAt", ZonedDateTime::class),
-            CTParameter("lastModifiedBy", LastModifiedBy::class),
-            CTParameter("productType", ProductTypeReference::class),
-            CTProperty("masterData", productCatalogDataClassName.className),
-            CTParameter("taxCategory", TaxCategoryReference::class, nullable = true),
-            CTParameter("state", StateReference::class, nullable = true),
-            CTParameter("reviewRatingStatistics", ReviewRatingStatistics::class, nullable = true),
+        .primaryConstructor(FunSpec
+            .constructorBuilder()
+            .addAnnotation(jsonCreator)
+            .addParameter(ParameterSpec
+                .builder("delegate", ProductImpl::class)
+                .addAnnotation(jsonProperty("delegate"))
+                .build()
+            )
+            .addParameter(ParameterSpec
+                .builder("masterData", productCatalogDataClassName.className)
+                .addAnnotation(jsonProperty("masterData"))
+                .build()
+            )
+            .build()
+        )
+        .addSuperinterface(com.commercetools.api.models.product.Product::class, "delegate")
+        .addProperty(
+            PropertySpec
+                .builder("masterData", productCatalogDataClassName.className)
+                .initializer("masterData")
+                .addModifiers(KModifier.PRIVATE)
+                .build()
+        )
+        .addFunction(
+            FunSpec
+                .builder("getMasterData")
+                .returns(productCatalogDataClassName.className)
+                .addStatement("return this.masterData")
+                .addModifiers(KModifier.OVERRIDE)
+                .build()
         )
         .build()
 

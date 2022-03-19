@@ -116,7 +116,9 @@ private fun customProductDeserializer(config: Configuration): TypeSpec =
         .addFunction(deserialize(config))
         .addFunction(makeParser)
         .addFunction(transformJson)
+        .addFunction(transformProductCatalogDataJson)
         .addFunction(transformProductDataJson)
+        .addFunction(transformProductVariantJson)
         .build()
 
 private fun deserialize(config: Configuration): FunSpec =
@@ -163,11 +165,33 @@ private val transformJson =
         .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
         .addParameter("codec", ObjectCodec::class.asTypeName().copy(nullable = true))
         .addCode("""
-            transformProductDataJson(json?.path("masterData")?.path("current"))
-            transformProductDataJson(json?.path("masterData")?.path("staged"))
-            return makeParser(json, codec)
+            val objectNode = json as com.fasterxml.jackson.databind.node.ObjectNode
+            val wrapperObject = objectNode.objectNode()
+
+            wrapperObject.set<JsonNode>("delegate", objectNode)
+            wrapperObject.set<JsonNode>("masterData", transformProductCatalogDataJson(objectNode.get("masterData")))
+
+            return makeParser(wrapperObject, codec)
         """.trimIndent())
         .returns(JsonParser::class.asTypeName().copy(nullable = true))
+        .build()
+
+private val transformProductCatalogDataJson =
+    FunSpec
+        .builder("transformProductCatalogDataJson")
+        .addModifiers(KModifier.PRIVATE)
+        .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
+        .addCode("""
+            val objectNode = json as com.fasterxml.jackson.databind.node.ObjectNode
+            val wrapperObject = objectNode.objectNode()
+
+            wrapperObject.set<JsonNode>("delegate", objectNode)
+            wrapperObject.set<JsonNode>("current", transformProductDataJson(objectNode.get("current")))
+            wrapperObject.set<JsonNode>("staged", transformProductDataJson(objectNode.get("staged")))
+
+            return wrapperObject
+        """.trimIndent())
+        .returns(JsonNode::class)
         .build()
 
 private val transformProductDataJson =
@@ -176,15 +200,32 @@ private val transformProductDataJson =
         .addModifiers(KModifier.PRIVATE)
         .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
         .addCode("""
-            val variants: List<JsonNode?> =
-                listOf(json?.path("masterVariant")) +
-                        (json?.path("variants")?.elements()?.asSequence()?.toList() ?: emptyList())
-    
-            variants.forEach {
-                when (it) {
-                    is com.fasterxml.jackson.databind.node.ObjectNode ->
-                        it.set<JsonNode>("typedAttributes", it.path("attributes"))
-                }
-            }
+            val objectNode = json as com.fasterxml.jackson.databind.node.ObjectNode
+            val wrapperObject = objectNode.objectNode()
+            val variantsNode = objectNode.arrayNode()
+
+            wrapperObject.set<JsonNode>("delegate", objectNode)
+            wrapperObject.set<JsonNode>("masterVariant", transformProductVariantJson(objectNode.get("masterVariant")))
+            wrapperObject.set<JsonNode>("variants", variantsNode.addAll(objectNode.get("variants")?.map { transformProductVariantJson(it) } ?: emptyList()))
+
+            return wrapperObject
         """.trimIndent())
+        .returns(JsonNode::class)
+        .build()
+
+private val transformProductVariantJson =
+    FunSpec
+        .builder("transformProductVariantJson")
+        .addModifiers(KModifier.PRIVATE)
+        .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
+        .addCode("""
+            val objectNode = json as com.fasterxml.jackson.databind.node.ObjectNode
+            val wrapperObject = objectNode.objectNode()
+
+            wrapperObject.set<JsonNode>("delegate", objectNode)
+            wrapperObject.set<JsonNode>("typedAttributes", objectNode.get("attributes"))
+
+            return wrapperObject
+        """.trimIndent())
+        .returns(JsonNode::class)
         .build()
