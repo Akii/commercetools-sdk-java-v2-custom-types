@@ -13,7 +13,6 @@ data class Configuration(
     val packageName: String,
     val productTypes: List<ProductType>,
     val customTypes: List<Type>,
-    val productTypeToSubPackageName: (productType: ProductType) -> String = ::productTypeToSubPackageName,
     val productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName,
     val productTypeAttributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::productTypeAttributeToPropertyName,
     val fieldDefinitionToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldDefinitionToPropertyName

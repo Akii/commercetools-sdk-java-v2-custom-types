@@ -38,9 +38,6 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     val packageName: Property<String> = project.objects.property(String::class.java)
 
     @Input
-    val productTypeToSubPackageName: Property<(ProductType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType) -> String>
-
-    @Input
     val productTypeToClassName: Property<(ProductType, ProductClassType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, ProductClassType) -> String>
 
     @Input
@@ -87,7 +84,6 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             packageName.get(),
             productTypes,
             types,
-            productTypeToSubPackageName = { productTypeToSubPackageName.get()(it) },
             productTypeToClassName = { type, classType -> productTypeToClassName.get()(type, classType) },
             productTypeAttributeToPropertyName = { type, attribute -> productTypeAttributeToPropertyName.get()(type, attribute) },
             fieldDefinitionToPropertyName = { type, field -> fieldDefinitionToPropertyName.get()(type, field) }

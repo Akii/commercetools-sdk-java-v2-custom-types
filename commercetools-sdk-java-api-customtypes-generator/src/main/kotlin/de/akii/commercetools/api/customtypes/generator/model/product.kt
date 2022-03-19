@@ -11,7 +11,7 @@ import de.akii.commercetools.api.customtypes.generator.model.product.productVari
 import io.vrap.rmf.base.client.utils.Generated
 
 fun productFiles(config: Configuration): List<FileSpec> =
-    config.productTypes.flatMap { productFiles(it, config) } + customProductVariantAttributesInterface(config)
+    config.productTypes.map { productFiles(it, config) } + customProductVariantAttributesInterface(config)
 
 private fun customProductVariantAttributesInterface(config: Configuration) =
     FileSpec
@@ -27,7 +27,7 @@ private fun customProductVariantAttributesInterface(config: Configuration) =
 private fun productFiles(
     productType: ProductType,
     config: Configuration
-): List<FileSpec> {
+): FileSpec {
     val productClassName = Product(productType, config)
     val productCatalogDataClassName = ProductCatalogData(productType, config)
     val productDataClassName = ProductData(productType, config)
@@ -94,17 +94,12 @@ private fun productFiles(
         )
         .build()
 
-    return listOf(
-        makeFile(productClassName.className, product),
-        makeFile(productCatalogDataClassName.className, masterDataTypeSpec),
-        makeFile(productDataClassName.className, productDataTypeSpec),
-        makeFile(productVariantClassName.className, variantTypeSpec),
-        makeFile(productVariantAttributesClassName.className, attributeTypeSpec)
-    )
-}
-
-private fun makeFile(className: ClassName, type: TypeSpec): FileSpec =
-    FileSpec
-        .builder(className.packageName, className.simpleName)
-        .addType(type)
+    return FileSpec
+        .builder(productClassName.className.packageName, productClassName.className.simpleName)
+        .addType(product)
+        .addType(masterDataTypeSpec)
+        .addType(productDataTypeSpec)
+        .addType(variantTypeSpec)
+        .addType(attributeTypeSpec)
         .build()
+}

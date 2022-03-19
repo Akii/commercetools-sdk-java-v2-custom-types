@@ -82,7 +82,7 @@ internal class GeneratorKtTest {
         val testProduct = products[0]
         val fallbackProduct = products[1]
 
-        assertThat(result.classLoader.loadClass("test.package.product.test.TestProduct").isInstance(testProduct))
+        assertThat(result.classLoader.loadClass("test.package.product.TestProduct").isInstance(testProduct))
         assertThat(ProductImpl::class.java.isInstance(fallbackProduct))
 
         val testProductVariant = testProduct

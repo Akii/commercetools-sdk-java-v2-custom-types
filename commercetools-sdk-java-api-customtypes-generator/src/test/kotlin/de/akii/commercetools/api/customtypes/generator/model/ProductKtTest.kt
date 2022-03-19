@@ -38,23 +38,23 @@ internal class ProductKtTest {
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
 
         assertThat(
-            result.classLoader.loadClass("test.package.product.test.TestProduct").isAssignableFrom(Product::class.java)
+            result.classLoader.loadClass("test.package.product.TestProduct").isAssignableFrom(Product::class.java)
         )
         assertThat(
-            result.classLoader.loadClass("test.package.product.test.TestProductCatalogData")
+            result.classLoader.loadClass("test.package.product.TestProductCatalogData")
                 .isAssignableFrom(ProductCatalogData::class.java)
         )
         assertThat(
-            result.classLoader.loadClass("test.package.product.test.TestProductData")
+            result.classLoader.loadClass("test.package.product.TestProductData")
                 .isAssignableFrom(ProductData::class.java)
         )
         assertThat(
-            result.classLoader.loadClass("test.package.product.test.TestProductVariant")
+            result.classLoader.loadClass("test.package.product.TestProductVariant")
                 .isAssignableFrom(ProductVariant::class.java)
         )
 
         val variantAttributeClass =
-            result.classLoader.loadClass("test.package.product.test.TestProductVariantAttributes")
+            result.classLoader.loadClass("test.package.product.TestProductVariantAttributes")
 
         assertThat(variantAttributeClass).hasDeclaredMethods(
             "getABoolean",

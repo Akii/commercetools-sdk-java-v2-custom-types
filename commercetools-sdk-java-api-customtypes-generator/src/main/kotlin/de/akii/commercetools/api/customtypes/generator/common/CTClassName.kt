@@ -28,27 +28,27 @@ class CustomProductVariantAttributes(config: Configuration) :
     CTClassName("${config.packageName}.product", "CustomProductVariantAttributes")
 
 class Product(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    "${config.packageName}.product",
     config.productTypeToClassName(productType, ProductClassType.Product)
 )
 
 class ProductCatalogData(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    "${config.packageName}.product",
     config.productTypeToClassName(productType, ProductClassType.ProductCatalogData)
 )
 
 class ProductData(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    "${config.packageName}.product",
     config.productTypeToClassName(productType, ProductClassType.ProductData)
 )
 
 class ProductVariant(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    "${config.packageName}.product",
     config.productTypeToClassName(productType, ProductClassType.ProductVariant)
 )
 
 class ProductVariantAttributes(productType: ProductType, config: Configuration) : CTClassName(
-    "${config.packageName}.product.${config.productTypeToSubPackageName(productType)}",
+    "${config.packageName}.product",
     config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes)
 )
 

@@ -76,7 +76,6 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
         val typesGeneratorExtension = extension.typesGeneratorExtension
 
         generateCustomTypesTask.packageName.convention(project.provider { extension.packageName })
-        generateCustomTypesTask.productTypeToSubPackageName.convention(project.provider { productTypesGeneratorExtension.productTypeToSubPackageName })
         generateCustomTypesTask.productTypeToClassName.convention(project.provider { productTypesGeneratorExtension.productTypeToClassName })
         generateCustomTypesTask.productTypeAttributeToPropertyName.convention(project.provider { productTypesGeneratorExtension.productTypeAttributeToPropertyName })
         generateCustomTypesTask.fieldDefinitionToPropertyName.convention(project.provider { typesGeneratorExtension.fieldDefinitionToPropertyName })

@@ -56,7 +56,6 @@ open class Credentials {
 
 open class CustomProductTypesGeneratorConfiguration {
     var productTypesFile: File? = null
-    var productTypeToSubPackageName: (productType: ProductType) -> String = ::productTypeToSubPackageName
     var productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName
     var productTypeAttributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::productTypeAttributeToPropertyName
 }
