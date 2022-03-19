@@ -36,8 +36,8 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 import kotlin.reflect.KClass
 
-val resourceTypeNameToSubPackage: (String) -> String = { it.split('-').joinToString("_") }
-val resourceTypeNameToClassName: (name: String) -> String = { name ->
+private val resourceTypeNameToSubPackage: (String) -> String = { it.split('-').joinToString("_") }
+private val resourceTypeNameToClassName: (name: String) -> String = { name ->
     "Typed" + name.split('-', '_')
         .joinToString("") { part ->
             part.replaceFirstChar { it.uppercase() }

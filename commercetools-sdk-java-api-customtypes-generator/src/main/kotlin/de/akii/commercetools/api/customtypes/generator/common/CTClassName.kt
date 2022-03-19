@@ -3,7 +3,6 @@ package de.akii.commercetools.api.customtypes.generator.common
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.type.ResourceTypeId
 import com.squareup.kotlinpoet.ClassName
-import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
 
 sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName

@@ -3,8 +3,6 @@ package de.akii.commercetools.api.customtypes.generator.deserialization
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
-import com.commercetools.api.models.type.CustomFields
-import com.commercetools.api.models.type.CustomFieldsImpl
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*

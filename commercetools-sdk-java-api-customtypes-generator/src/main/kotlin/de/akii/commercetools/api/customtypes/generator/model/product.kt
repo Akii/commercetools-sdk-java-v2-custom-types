@@ -1,4 +1,4 @@
-package de.akii.commercetools.api.customtypes.generator
+package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.common.CreatedBy
 import com.commercetools.api.models.common.LastModifiedBy

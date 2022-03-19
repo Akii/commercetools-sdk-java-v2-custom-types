@@ -27,7 +27,7 @@ fun customFieldsDeserializerFile(config: Configuration): FileSpec {
     return file.build()
 }
 
-fun customTypeResolver(config: Configuration): TypeSpec =
+private fun customTypeResolver(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(CustomTypeResolver(config).className)
         .addAnnotation(Generated::class)
@@ -99,7 +99,7 @@ fun customTypeResolver(config: Configuration): TypeSpec =
             .build())
         .build()
 
-fun customFieldsDeserializers(config: Configuration): List<TypeSpec> =
+private fun customFieldsDeserializers(config: Configuration): List<TypeSpec> =
     config
         .customTypes
         .flatMap { it.resourceTypeIds }
@@ -108,7 +108,7 @@ fun customFieldsDeserializers(config: Configuration): List<TypeSpec> =
             customFieldsDeserializer(it, config)
         }
 
-fun customFieldsDeserializer(resourceTypeId: ResourceTypeId, config: Configuration): TypeSpec =
+private fun customFieldsDeserializer(resourceTypeId: ResourceTypeId, config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(TypedCustomFieldsDeserializer(resourceTypeId, config).className)
         .addAnnotation(Generated::class)

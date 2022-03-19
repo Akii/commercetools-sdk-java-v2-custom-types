@@ -5,7 +5,7 @@ import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import de.akii.commercetools.api.customtypes.generator.model.customFieldsFile
 import de.akii.commercetools.api.customtypes.generator.deserialization.*
 import de.akii.commercetools.api.customtypes.generator.model.typedResourceFiles
-import de.akii.commercetools.api.customtypes.generator.productFiles
+import de.akii.commercetools.api.customtypes.generator.model.productFiles
 
 fun generate(config: Configuration): List<FileSpec> {
     val customFieldsFile = customFieldsFile(config)
