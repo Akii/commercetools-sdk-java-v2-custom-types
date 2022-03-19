@@ -22,6 +22,8 @@ fun customFieldsDeserializerFile(config: Configuration): FileSpec {
         file.addType(it)
     }
 
+    file.addType(typedResourceDeserializer(config))
+
     return file.build()
 }
 

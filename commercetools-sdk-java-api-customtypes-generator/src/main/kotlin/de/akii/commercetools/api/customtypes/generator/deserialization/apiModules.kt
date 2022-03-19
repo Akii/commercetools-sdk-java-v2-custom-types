@@ -115,6 +115,12 @@ private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResourceFil
 
             typedResourceFiles.forEach {
                 add(
+                    "addDeserializer(%1T::class.java, %2T(%3T::class))\n",
+                    it.resourceInterface,
+                    TypedResourceDeserializer(config).className,
+                    it.typedResourceClassName
+                )
+                add(
                     "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                     it.resourceInterface,
                     "${it.typedResourceClassName.simpleName}Resource"
@@ -146,7 +152,7 @@ private fun typedResourceInterface(typedResourceFile: TypedResourceFile, config:
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "${typedResourceFile.typedResourceClassName.simpleName}Resource"))
         .addAnnotation(Generated::class)
-        .addAnnotation(deserializeUsing(TypedResourceDeserializer(typedResourceFile, config).className))
+        .addAnnotation(deserializeAs(typedResourceFile.resourceInterface.asClassName()))
         .build()
 
 private fun fallbackResourceInterface(typedResourceFile: TypedResourceFile, config: Configuration) =

@@ -9,28 +9,35 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import de.akii.commercetools.api.customtypes.generator.common.TypedResourceDeserializer
-import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
 import io.vrap.rmf.base.client.utils.Generated
+import kotlin.reflect.KClass
 
-fun typedResourceDeserializerFiles(typedResourceFiles: List<TypedResourceFile>, config: Configuration): List<FileSpec> =
-    typedResourceFiles.map {
-        FileSpec
-            .builder(it.typedResourceClassName.packageName, "deserializer")
-            .addType(typedResourceDeserializer(it, config))
-            .build()
-    }
-
-private fun typedResourceDeserializer(typedResource: TypedResourceFile, config: Configuration): TypeSpec =
+fun typedResourceDeserializer(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(TypedResourceDeserializer(typedResource, config).className)
+        .classBuilder(TypedResourceDeserializer(config).className)
         .addAnnotation(Generated::class)
-        .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(typedResource.resourceInterface.asClassName()))
-        .addFunction(deserialize(typedResource))
+        .addTypeVariable(TypeVariableName.invoke("A : Any"))
+        .primaryConstructor(FunSpec
+            .constructorBuilder()
+            .addParameter(ParameterSpec
+                .builder("typeClass", KClass::class.asTypeName().parameterizedBy(TypeVariableName.invoke("A")))
+                .build()
+            )
+            .build()
+        )
+        .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(TypeVariableName.invoke("A")))
+        .addProperty(PropertySpec
+            .builder("typeClass", KClass::class.asTypeName().parameterizedBy(TypeVariableName.invoke("A")))
+            .addModifiers(KModifier.PRIVATE)
+            .initializer("typeClass")
+            .build()
+        )
+        .addFunction(deserialize)
         .addFunction(makeParser)
         .addFunction(transformJson)
         .build()
 
-private fun deserialize(typedResource: TypedResourceFile): FunSpec =
+private val deserialize: FunSpec =
     FunSpec
         .builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
@@ -39,9 +46,9 @@ private fun deserialize(typedResource: TypedResourceFile): FunSpec =
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            return ctxt?.readValue(transformJson(node, codec), %1T::class.java)
-        """.trimIndent(), typedResource.typedResourceClassName)
-        .returns(typedResource.resourceInterface.asClassName().copy(nullable = true))
+            return ctxt?.readValue(transformJson(node, codec), typeClass.java)
+        """.trimIndent())
+        .returns(TypeVariableName.invoke("A").copy(nullable = true))
         .build()
 
 private val transformJson =

@@ -11,7 +11,6 @@ fun generate(config: Configuration): List<FileSpec> {
     val customFieldsFile = customFieldsFile(config)
     val typedResourceFiles = typedResourceFiles(config)
     val customFieldsDeserializerFile = customFieldsDeserializerFile(config)
-    val typedResourceDeserializerFiles = typedResourceDeserializerFiles(typedResourceFiles, config)
     val customProductFiles = productFiles(config)
     val apiModuleFile = apiModulesFile(typedResourceFiles, config)
 
@@ -20,5 +19,5 @@ fun generate(config: Configuration): List<FileSpec> {
         customFieldsFile,
         customFieldsDeserializerFile,
         apiModuleFile
-    ) + typedResourceFiles.map { it.file } + typedResourceDeserializerFiles + customProductFiles
+    ) + typedResourceFiles.map { it.file } + customProductFiles
 }

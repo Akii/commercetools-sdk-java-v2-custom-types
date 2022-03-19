@@ -62,5 +62,5 @@ class TypedCustomFieldsDeserializer(resourceTypeId: ResourceTypeId, config: Conf
 class CustomTypeResolver(config: Configuration) :
     CTClassName("${config.packageName}.custom_fields", "CustomTypeResolver")
 
-class TypedResourceDeserializer(typedResource: TypedResourceFile, config: Configuration) :
-    CTClassName(typedResource.typedResourceClassName.packageName, "${typedResource.typedResourceClassName.simpleName}Deserializer")
+class TypedResourceDeserializer(config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "TypedResourceDeserializer")

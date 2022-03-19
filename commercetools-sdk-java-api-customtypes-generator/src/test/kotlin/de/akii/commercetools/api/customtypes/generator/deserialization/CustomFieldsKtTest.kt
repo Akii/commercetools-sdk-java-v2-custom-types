@@ -25,7 +25,6 @@ internal class CustomFieldsKtTest {
         val config = Configuration("test.package", listOf(), types)
         val typedResources = typedResourceFiles(config)
         val customFieldsFile = customFieldsFile(config)
-        val typedResourceDeserializerFiles = typedResourceDeserializerFiles(typedResources, config)
         val customFieldsDeserializerFile = customFieldsDeserializerFile(config)
         val apiModulesFile = apiModulesFile(typedResources, config)
 
@@ -35,8 +34,6 @@ internal class CustomFieldsKtTest {
             SourceFile.kotlin("${apiModulesFile.packageName}.${apiModulesFile.name}.kt", apiModulesFile.toString())
         ) + typedResources.map {
             SourceFile.kotlin("${it.file.packageName}.${it.file.name}.kt", it.file.toString())
-        } + typedResourceDeserializerFiles.map {
-            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
         }
 
         val result = KotlinCompilation().apply {
