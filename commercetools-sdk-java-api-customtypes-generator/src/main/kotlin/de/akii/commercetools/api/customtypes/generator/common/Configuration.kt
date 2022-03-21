@@ -18,18 +18,9 @@ data class Configuration(
     val fieldDefinitionToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldDefinitionToPropertyName
 )
 
-fun productTypeToSubPackageName(productType: ProductType) =
-    productType
-        .name
-        .split('-', '_')
-        .joinToString("") { part ->
-            part.replaceFirstChar { it.uppercase() }
-        }
-        .lowercase()
-
 fun productTypeToClassName(productType: ProductType, productClassType: ProductClassType): String =
     productType
-        .name
+        .key!!
         .split('-', '_')
         .joinToString("") { part ->
             part.replaceFirstChar { it.uppercase() }

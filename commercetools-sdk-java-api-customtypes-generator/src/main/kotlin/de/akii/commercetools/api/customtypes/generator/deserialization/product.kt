@@ -62,7 +62,7 @@ private fun productTypeResolver(config: Configuration): TypeSpec =
             .builder("typeIdMap", MAP.parameterizedBy(String::class.asTypeName(), String::class.asTypeName()), KModifier.PRIVATE)
             .initializer("""
                 mapOf(
-                    *(runtimeTypes ?: compiledTypes).map { it.id to it.name }.toTypedArray()
+                    *(runtimeTypes ?: compiledTypes).map { it.id to it.key!! }.toTypedArray()
                 )
             """.trimIndent())
             .build()
@@ -70,7 +70,7 @@ private fun productTypeResolver(config: Configuration): TypeSpec =
         .addInitializerBlock(CodeBlock.of("""
                 if (runtimeTypes != null) {
                     compiledTypes.forEach { compiledType ->
-                        val runtimeType = runtimeTypes.find { it.name == compiledType.name } ?:
+                        val runtimeType = runtimeTypes.find { it.key == compiledType.key } ?:
                             throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·product·type·with·name·${'$'}{compiledType.name}")
     
                         compiledType.attributes.forEach { compiledAttribute ->
@@ -86,7 +86,7 @@ private fun productTypeResolver(config: Configuration): TypeSpec =
             """.trimIndent())
         )
         .addFunction(FunSpec
-            .builder("resolveTypeName")
+            .builder("resolveTypeKey")
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("typeId", String::class)
             .addCode("return typeIdMap[typeId]")
@@ -130,7 +130,7 @@ private fun deserialize(config: Configuration): FunSpec =
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            val productTypeId: String? = typeResolver.resolveTypeName(node?.path("productType")?.path("id")?.asText()!!)
+            val productTypeId: String? = typeResolver.resolveTypeKey(node?.path("productType")?.path("id")?.asText()!!)
 
         """.trimIndent())
         .addCode(generateProductTypeToIdMap(config))
@@ -146,7 +146,7 @@ private fun generateProductTypeToIdMap(config: Configuration): CodeBlock {
     config.productTypes.forEach {
         whenExpression.add(
             "%1S -> ctxt?.readValue(transformJson(node, codec), %2T::class.java)\n",
-            it.name,
+            it.key!!,
             Product(it, config).className
         )
     }

@@ -91,7 +91,7 @@ private fun customTypeResolver(config: Configuration): TypeSpec =
             """.trimIndent())
         )
         .addFunction(FunSpec
-            .builder("resolveTypeName")
+            .builder("resolveTypeKey")
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("typeId", String::class)
             .addCode("return typeIdMap[typeId]")
@@ -141,7 +141,7 @@ private fun deserialize(resourceTypeId: ResourceTypeId, config: Configuration): 
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            val typeId: String? = typeResolver.resolveTypeName(node?.path("type")?.path("id")?.asText()!!)
+            val typeId: String? = typeResolver.resolveTypeKey(node?.path("type")?.path("id")?.asText()!!)
 
         """.trimIndent())
         .addCode(generateTypeToIdMap(resourceTypeId, config))

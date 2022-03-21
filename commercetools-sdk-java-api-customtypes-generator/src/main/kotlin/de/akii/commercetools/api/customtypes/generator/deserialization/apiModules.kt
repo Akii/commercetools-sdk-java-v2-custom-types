@@ -39,7 +39,7 @@ private fun typeResolver(config: Configuration) =
         .interfaceBuilder(TypeResolver(config).className)
         .addTypeVariable(TypeVariableName.invoke("A"))
         .addFunction(FunSpec
-            .builder("resolveTypeName")
+            .builder("resolveTypeKey")
             .addModifiers(KModifier.ABSTRACT)
             .addParameter("typeId", String::class)
             .returns(String::class.asTypeName().copy(nullable = true))
