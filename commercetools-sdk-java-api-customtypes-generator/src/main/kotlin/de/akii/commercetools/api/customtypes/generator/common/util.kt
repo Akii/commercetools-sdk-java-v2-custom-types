@@ -19,25 +19,13 @@ fun deserializeAs(asClassName: ClassName): AnnotationSpec =
         .addMember(CodeBlock.of("`as` = %T::class", asClassName))
         .build()
 
-fun deserializeUsing(asClassName: ClassName): AnnotationSpec =
-    AnnotationSpec
-        .builder(JsonDeserialize::class)
-        .addMember(CodeBlock.of("using = %T::class", asClassName))
-        .build()
-
 fun jsonProperty(name: String): AnnotationSpec =
     AnnotationSpec
         .builder(JsonProperty::class)
         .addMember("%S", name)
         .build()
 
-fun resourceTypeIdToClassName(resourceTypeId: ResourceTypeId, config: Configuration): ClassName =
-    ClassName(
-        "${config.packageName}.custom_fields",
-        classNamePrefix(resourceTypeId.jsonName) + "CustomFieldsType"
-    )
-
-private fun classNamePrefix(name: String): String =
+fun classNamePrefix(name: String): String =
     name
         .split('-')
         .joinToString("") { part ->

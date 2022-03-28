@@ -16,6 +16,8 @@ fun apiModulesFile(typedResourceFiles: List<TypedResourceFile>, config: Configur
         .builder(config.packageName, "apiModules")
         .addType(typeResolver(config))
 
+    val distinctResourceFiles = packageDistinct(typedResourceFiles)
+
     if (config.productTypes.isNotEmpty()) {
         file
             .addType(customProductInterface(config))
@@ -24,11 +26,11 @@ fun apiModulesFile(typedResourceFiles: List<TypedResourceFile>, config: Configur
     }
 
     if (config.customTypes.isNotEmpty()) {
-        typedResourceFiles.forEach {
+        distinctResourceFiles.forEach {
             file.addType(typedResourceInterface(it, config))
             file.addType(fallbackResourceInterface(it, config))
         }
-        file.addType(typedCustomFieldsApiModule(typedResourceFiles, config))
+        file.addType(typedCustomFieldsApiModule(distinctResourceFiles, config))
     }
 
     return file.build()
@@ -99,34 +101,21 @@ private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResourceFil
             .build()
         )
         .addInitializerBlock(buildCodeBlock {
-            config
-                .customTypes
-                .flatMap { it.resourceTypeIds }
-                .toSet()
-                .forEach {
-                    add(
-                        "addDeserializer(%1T::class.java, %2T(typeResolver))\n",
-                        resourceTypeIdToClassName(it, config),
-                        TypedCustomFieldsDeserializer(it, config).className
-                    )
-                }
-
             typedResourceFiles.forEach {
                 add(
-                    "addDeserializer(%1T::class.java, %2T(%3T::class))\n",
+                    "addDeserializer(%1T::class.java, %2T(typeResolver))\n",
                     it.resourceInterface,
-                    TypedResourceDeserializer(config).className,
-                    it.typedResourceClassName
+                    TypedResourceDeserializer(it).className
                 )
                 add(
                     "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                     it.resourceInterface,
-                    "${it.typedResourceClassName.simpleName}Resource"
+                    "Custom${it.resourceInterface.simpleName}"
                 )
                 add(
                     "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                     it.resourceDefaultImplementation,
-                    "Fallback${it.typedResourceClassName.simpleName}Resource"
+                    "Fallback${it.resourceInterface.simpleName}"
                 )
             }
         })
@@ -148,14 +137,17 @@ private fun fallbackProductInterface(config: Configuration) =
 
 private fun typedResourceInterface(typedResourceFile: TypedResourceFile, config: Configuration) =
     TypeSpec
-        .interfaceBuilder(ClassName(config.packageName, "${typedResourceFile.typedResourceClassName.simpleName}Resource"))
+        .interfaceBuilder(ClassName(config.packageName, "Custom${typedResourceFile.resourceInterface.simpleName}"))
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(typedResourceFile.resourceInterface.asClassName()))
         .build()
 
 private fun fallbackResourceInterface(typedResourceFile: TypedResourceFile, config: Configuration) =
     TypeSpec
-        .interfaceBuilder(ClassName(config.packageName, "Fallback${typedResourceFile.typedResourceClassName.simpleName}Resource"))
+        .interfaceBuilder(ClassName(config.packageName, "Fallback${typedResourceFile.resourceInterface.simpleName}"))
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(typedResourceFile.resourceDefaultImplementation.asClassName()))
         .build()
+
+private fun packageDistinct(a: List<TypedResourceFile>): List<TypedResourceFile> =
+    mapOf(*(a.map { it.typedResourceClassName.packageName to it}).toTypedArray()).values.toList()

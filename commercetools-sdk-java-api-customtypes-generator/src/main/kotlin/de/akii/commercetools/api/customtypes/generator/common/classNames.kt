@@ -2,7 +2,9 @@ package de.akii.commercetools.api.customtypes.generator.common
 
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.type.ResourceTypeId
+import com.commercetools.api.models.type.Type
 import com.squareup.kotlinpoet.ClassName
+import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
 
 sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName
@@ -52,14 +54,18 @@ class ProductVariantAttributes(productType: ProductType, config: Configuration) 
     config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes)
 )
 
-class FallbackCustomFields(config: Configuration) :
-    CTClassName("${config.packageName}.custom_fields", "FallbackCustomFields")
+class TypedCustomFields(type: Type, config: Configuration) :
+    CTClassName("${config.packageName}.custom_fields", "${classNamePrefix(type.key)}CustomFields")
 
-class TypedCustomFieldsDeserializer(resourceTypeId: ResourceTypeId, config: Configuration) :
-    CTClassName("${config.packageName}.custom_fields", "${resourceTypeIdToClassName(resourceTypeId, config).simpleName}Deserializer")
+class TypedResource(type: Type, resourceTypeName: String, config: Configuration) :
+    CTClassName("${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}", "${classNamePrefix(type.key)}${classNamePrefix(resourceTypeName)}")
 
 class CustomTypeResolver(config: Configuration) :
     CTClassName("${config.packageName}.custom_fields", "CustomTypeResolver")
 
-class TypedResourceDeserializer(config: Configuration) :
-    CTClassName("${config.packageName}.custom_fields", "TypedResourceDeserializer")
+class TypedResourceDeserializer(typedResourceFile: TypedResourceFile) :
+    CTClassName(typedResourceFile.typedResourceClassName.packageName, "Typed${typedResourceFile.resourceInterface.simpleName}Deserializer")
+
+private val resourceTypeNameToSubPackage: (String) -> String = {
+    it.split('-').joinToString("_")
+}

@@ -13,8 +13,11 @@ data class Configuration(
     val packageName: String,
     val productTypes: List<ProductType>,
     val customTypes: List<Type>,
+
     val productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName,
     val productTypeAttributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::productTypeAttributeToPropertyName,
+
+    val typeToClassName: (type: Type, referenceTypeName: String) -> String = ::typeToClassName,
     val fieldDefinitionToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldDefinitionToPropertyName
 )
 
@@ -34,6 +37,9 @@ fun productTypeAttributeToPropertyName(@Suppress("UNUSED_PARAMETER") productType
             part.replaceFirstChar { it.uppercase() }
         }
         .replaceFirstChar { it.lowercase() }
+
+fun typeToClassName(type: Type, referenceTypeName: String): String =
+    "${classNamePrefix(type.key)}${classNamePrefix(referenceTypeName)}"
 
 fun fieldDefinitionToPropertyName(@Suppress("UNUSED_PARAMETER") type: Type, fieldDefinition: FieldDefinition): String =
     fieldDefinition

@@ -31,20 +31,14 @@ import com.commercetools.api.models.shopping_list.TextLineItemImpl
 import com.commercetools.api.models.store.Store
 import com.commercetools.api.models.store.StoreImpl
 import com.commercetools.api.models.type.ResourceTypeId
+import com.commercetools.api.models.type.Type
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 import kotlin.reflect.KClass
 
-private val resourceTypeNameToSubPackage: (String) -> String = { it.split('-').joinToString("_") }
-private val resourceTypeNameToClassName: (name: String) -> String = { name ->
-    "Typed" + name.split('-', '_')
-        .joinToString("") { part ->
-            part.replaceFirstChar { it.uppercase() }
-        }
-}
-
 data class TypedResourceFile(
+    val type: Type,
     val resourceInterface: KClass<*>,
     val resourceDefaultImplementation: KClass<*>,
     val typedResourceClassName: ClassName,
@@ -53,20 +47,26 @@ data class TypedResourceFile(
 
 fun typedResourceFiles(config: Configuration): List<TypedResourceFile> =
     config.customTypes
-        .flatMap { it.resourceTypeIds }
-        .toSet()
-        .flatMap { typedResourceFiles(it, config) }
+        .flatMap { type ->
+            type.resourceTypeIds.flatMap {
+                typedResourceFiles(type, it, config)
+            }
+        }
 
-private fun typedResourceFiles(resourceTypeId: ResourceTypeId, config: Configuration): List<TypedResourceFile> =
+private fun typedResourceFiles(
+    type: Type,
+    resourceTypeId: ResourceTypeId,
+    config: Configuration
+): List<TypedResourceFile> =
     when (resourceTypeId) {
         ResourceTypeId.ORDER -> listOf(
-            typedResourceFile(resourceTypeId, "order", OrderImpl::class, Order::class, config),
-            typedResourceFile(resourceTypeId, "cart", CartImpl::class, Cart::class, config),
-            typedResourceFile(resourceTypeId, "return-item", ReturnItemImpl::class, ReturnItem::class, config),
+            typedResourceFile(type, "order", OrderImpl::class, Order::class, config),
+            typedResourceFile(type, "cart", CartImpl::class, Cart::class, config),
+            typedResourceFile(type, "return-item", ReturnItemImpl::class, ReturnItem::class, config),
         )
         else -> listOf(
             typedResourceFile(
-                resourceTypeId,
+                type,
                 resourceTypeId.jsonName,
                 resourceTypeIdToClasses(resourceTypeId).first,
                 resourceTypeIdToClasses(resourceTypeId).second,
@@ -76,19 +76,17 @@ private fun typedResourceFiles(resourceTypeId: ResourceTypeId, config: Configura
     }
 
 private fun typedResourceFile(
-    resourceTypeId: ResourceTypeId,
+    type: Type,
     resourceTypeName: String,
     resourceTypeDefaultImplementation: KClass<*>,
     resourceInterface: KClass<*>,
     config: Configuration
 ): TypedResourceFile {
-    val packageName = "${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}"
-    val resourceClassName = resourceTypeNameToClassName(resourceTypeName)
-    val customFieldType = resourceTypeIdToClassName(resourceTypeId, config)
-    val className = ClassName(packageName, resourceClassName)
+    val customFieldType = TypedCustomFields(type, config).className
+    val className = TypedResource(type, resourceTypeName, config).className
 
     val file = FileSpec
-        .builder(packageName, resourceClassName)
+        .builder(className.packageName, className.simpleName)
         .addType(
             TypeSpec
                 .classBuilder(className)
@@ -133,6 +131,7 @@ private fun typedResourceFile(
         .build()
 
     return TypedResourceFile(
+        type,
         resourceInterface,
         resourceTypeDefaultImplementation,
         className,

@@ -1,6 +1,7 @@
 package de.akii.commercetools.api.customtypes
 
 import com.commercetools.api.models.category.Category
+import com.commercetools.api.models.category.CategoryImpl
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
@@ -133,10 +134,10 @@ internal class GeneratorKtTest {
         val category1 = categories[0]
         val category2 = categories[1]
 
-        val typedCategoryClass = result.classLoader.loadClass("test.package.category.TypedCategory")
+        val typeACategoryClass = result.classLoader.loadClass("test.package.category.TypeACategory")
 
-        assertThat(category1.javaClass).isEqualTo(typedCategoryClass)
-        assertThat(category2.javaClass).isEqualTo(typedCategoryClass)
+        assertThat(category1.javaClass).isEqualTo(CategoryImpl::class.java)
+        assertThat(category2.javaClass).isEqualTo(typeACategoryClass)
 
         assertNull(category1.custom)
 

@@ -9,15 +9,14 @@ import de.akii.commercetools.api.customtypes.generator.model.productFiles
 
 fun generate(config: Configuration): List<FileSpec> {
     val customFieldsFile = customFieldsFile(config)
+    val customTypeResolver = customTypeResolverFile(config)
     val typedResourceFiles = typedResourceFiles(config)
-    val customFieldsDeserializerFile = customFieldsDeserializerFile(config)
+    val typedResourceDeserializers = typedResourceDeserializerFile(typedResourceFiles, config)
     val customProductFiles = productFiles(config)
     val apiModuleFile = apiModulesFile(typedResourceFiles, config)
 
     return listOf(
-        productDeserializerFile(config),
-        customFieldsFile,
-        customFieldsDeserializerFile,
-        apiModuleFile
-    ) + typedResourceFiles.map { it.file } + customProductFiles
+        productDeserializerFile(config), customFieldsFile, apiModuleFile, customTypeResolver
+    ) + typedResourceDeserializers + typedResourceFiles.map { it.file } + customProductFiles
+
 }

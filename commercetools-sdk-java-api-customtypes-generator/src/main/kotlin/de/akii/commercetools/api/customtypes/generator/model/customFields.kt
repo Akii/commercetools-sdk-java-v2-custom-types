@@ -6,6 +6,7 @@ import com.commercetools.api.models.channel.ChannelReference
 import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.Reference
 import com.commercetools.api.models.common.TypedMoney
+import com.commercetools.api.models.custom_object.CustomObjectReference
 import com.commercetools.api.models.customer.CustomerReference
 import com.commercetools.api.models.order.OrderReference
 import com.commercetools.api.models.product.ProductReference
@@ -23,70 +24,19 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-// TODO: y public?
-fun typeToClassName(type: Type, config: Configuration): ClassName =
-    ClassName(
-        "${config.packageName}.custom_fields",
-        classNamePrefix(type.key) + "CustomFields"
-    )
-
 fun customFieldsFile(config: Configuration): FileSpec {
     val customFieldsFile = FileSpec
         .builder("${config.packageName}.custom_fields", "typedCustomFields")
-
-    sealedOrderCustomFieldInterfaces(config.customTypes, config).forEach {
-        customFieldsFile.addType(it)
-    }
 
     config.customTypes.forEach {
         customFieldsFile.addType(typedCustomField(it, config))
     }
 
-    customFieldsFile.addType(fallbackCustomFields(config.customTypes, config))
-
     return customFieldsFile.build()
 }
 
-private fun fallbackCustomFields(types: List<Type>, config: Configuration): TypeSpec =
-    TypeSpec
-        .classBuilder(FallbackCustomFields(config).className)
-        .addAnnotation(Generated::class)
-        .addAnnotation(deserializeAs(FallbackCustomFields(config).className))
-        .primaryConstructor(FunSpec
-            .constructorBuilder()
-            .addAnnotation(jsonCreator)
-            .addParameter(ParameterSpec
-                .builder("custom", CustomFieldsImpl::class)
-                .addAnnotation(jsonProperty("custom"))
-                .build()
-            )
-            .build()
-        )
-        .addSuperinterface(CustomFields::class, "custom")
-        .addSuperinterfaces(
-            types
-                .flatMap { it.resourceTypeIds }
-                .toSet()
-                .map { resourceTypeIdToClassName(it, config) }
-        )
-        .build()
-
-private fun sealedOrderCustomFieldInterfaces(types: List<Type>, config: Configuration): List<TypeSpec> =
-    types
-        .flatMap { it.resourceTypeIds }
-        .toSet()
-        .map {
-            TypeSpec
-                .interfaceBuilder(resourceTypeIdToClassName(it, config))
-                .addAnnotation(Generated::class)
-                .addAnnotation(deserializeAs(resourceTypeIdToClassName(it, config)))
-                .addModifiers(KModifier.SEALED)
-                .addSuperinterface(CustomFields::class)
-                .build()
-        }
-
 private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
-    val className = typeToClassName(type, config)
+    val className = TypedCustomFields(type, config).className
     val fields = typedFields(type, config)
 
     return TypeSpec
@@ -99,8 +49,8 @@ private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
                 .addAnnotation(jsonCreator)
                 .addParameter(
                     ParameterSpec
-                        .builder("custom", CustomFieldsImpl::class)
-                        .addAnnotation(jsonProperty("custom"))
+                        .builder("fields", CustomFieldsImpl::class)
+                        .addAnnotation(jsonProperty("fields"))
                         .build()
                 )
                 .addParameter(
@@ -111,8 +61,7 @@ private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
                 )
                 .build()
         )
-        .addSuperinterface(CustomFields::class, "custom")
-        .addSuperinterfaces(type.resourceTypeIds.map { resourceTypeIdToClassName(it, config) })
+        .addSuperinterface(CustomFields::class, "fields")
         .addType(fields)
         .addProperty(
             PropertySpec
@@ -185,6 +134,7 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
         CustomFieldReferenceValue.CATEGORY -> CategoryReference::class.asClassName()
         CustomFieldReferenceValue.CHANNEL -> ChannelReference::class.asClassName()
         CustomFieldReferenceValue.CUSTOMER -> CustomerReference::class.asClassName()
+        CustomFieldReferenceValue.KEY_VALUE_DOCUMENT -> CustomObjectReference::class.asClassName()
         CustomFieldReferenceValue.ORDER -> OrderReference::class.asClassName()
         CustomFieldReferenceValue.PRODUCT -> ProductReference::class.asClassName()
         CustomFieldReferenceValue.PRODUCT_TYPE -> ProductTypeReference::class.asClassName()
@@ -194,10 +144,3 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
         CustomFieldReferenceValue.ZONE -> ZoneReference::class.asClassName()
         else -> Reference::class.asClassName()
     }
-
-private fun classNamePrefix(name: String): String =
-    name
-        .split('-', '_')
-        .joinToString("") { part ->
-            part.replaceFirstChar { it.uppercase() }
-        }
