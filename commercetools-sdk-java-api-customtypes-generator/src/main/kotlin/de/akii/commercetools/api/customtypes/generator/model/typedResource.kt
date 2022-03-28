@@ -37,37 +37,56 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 import kotlin.reflect.KClass
 
-data class TypedResourceFile(
-    val type: Type,
+data class TypedResources(
     val resourceInterface: KClass<*>,
     val resourceDefaultImplementation: KClass<*>,
-    val typedResourceClassName: ClassName,
-    val file: FileSpec
+    val packageName: String,
+    val resources: List<TypedResource>
 )
 
-fun typedResourceFiles(config: Configuration): List<TypedResourceFile> =
+data class TypedResource(
+    val type: Type,
+    val typedResourceClassName: ClassName,
+    val typedResourceSpec: TypeSpec
+)
+
+fun typedResourceFiles(typedResource: List<TypedResources>): List<FileSpec> =
+    typedResource.flatMap { typedResources ->
+        typedResources.resources.map {
+            FileSpec
+                .builder(typedResources.packageName, it.typedResourceClassName.simpleName)
+                .addType(it.typedResourceSpec)
+                .build()
+        }
+    }
+
+fun typedResources(config: Configuration): List<TypedResources> =
     config.customTypes
-        .flatMap { type ->
-            type.resourceTypeIds.flatMap {
-                typedResourceFiles(type, it, config)
-            }
+        .flatMap { it.resourceTypeIds }
+        .toSet()
+        .flatMap { resourceTypeId ->
+            typedResources(
+                resourceTypeId,
+                config.customTypes.filter { it.resourceTypeIds.contains(resourceTypeId) },
+                config
+            )
         }
 
-private fun typedResourceFiles(
-    type: Type,
+private fun typedResources(
     resourceTypeId: ResourceTypeId,
+    types: List<Type>,
     config: Configuration
-): List<TypedResourceFile> =
+): List<TypedResources> =
     when (resourceTypeId) {
         ResourceTypeId.ORDER -> listOf(
-            typedResourceFile(type, "order", OrderImpl::class, Order::class, config),
-            typedResourceFile(type, "cart", CartImpl::class, Cart::class, config),
-            typedResourceFile(type, "return-item", ReturnItemImpl::class, ReturnItem::class, config),
+            typedResources("order", types, OrderImpl::class, Order::class, config),
+            typedResources("cart", types, CartImpl::class, Cart::class, config),
+            typedResources("return-item", types, ReturnItemImpl::class, ReturnItem::class, config),
         )
         else -> listOf(
-            typedResourceFile(
-                type,
+            typedResources(
                 resourceTypeId.jsonName,
+                types,
                 resourceTypeIdToClasses(resourceTypeId).first,
                 resourceTypeIdToClasses(resourceTypeId).second,
                 config
@@ -75,67 +94,82 @@ private fun typedResourceFiles(
         )
     }
 
-private fun typedResourceFile(
-    type: Type,
+private fun typedResources(
     resourceTypeName: String,
+    types: List<Type>,
     resourceTypeDefaultImplementation: KClass<*>,
     resourceInterface: KClass<*>,
     config: Configuration
-): TypedResourceFile {
+): TypedResources =
+    TypedResources(
+        resourceInterface,
+        resourceTypeDefaultImplementation,
+        "${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}",
+        types.map {
+            typedResource(
+                resourceTypeName,
+                it,
+                resourceTypeDefaultImplementation,
+                resourceInterface,
+                config
+            )
+        }
+    )
+
+private fun typedResource(
+    resourceTypeName: String,
+    type: Type,
+    resourceTypeDefaultImplementation: KClass<*>,
+    resourceInterface: KClass<*>,
+    config: Configuration
+): TypedResource {
     val customFieldType = TypedCustomFields(type, config).className
     val className = TypedResource(type, resourceTypeName, config).className
 
-    val file = FileSpec
-        .builder(className.packageName, className.simpleName)
-        .addType(
-            TypeSpec
-                .classBuilder(className)
-                .addAnnotation(Generated::class)
-                .addAnnotation(deserializeAs(className))
-                .primaryConstructor(
-                    FunSpec
-                        .constructorBuilder()
-                        .addAnnotation(jsonCreator)
-                        .addParameter(
-                            ParameterSpec
-                                .builder("delegate", resourceTypeDefaultImplementation)
-                                .addAnnotation(jsonProperty("delegate"))
-                                .build()
-                        )
-                        .addParameter(
-                            ParameterSpec
-                                .builder("custom", customFieldType.copy(nullable = true))
-                                .addAnnotation(jsonProperty("custom"))
-                                .build()
-                        )
+    val resourceType = TypeSpec
+        .classBuilder(className)
+        .addAnnotation(Generated::class)
+        .addAnnotation(deserializeAs(className))
+        .primaryConstructor(
+            FunSpec
+                .constructorBuilder()
+                .addAnnotation(jsonCreator)
+                .addParameter(
+                    ParameterSpec
+                        .builder("delegate", resourceTypeDefaultImplementation)
+                        .addAnnotation(jsonProperty("delegate"))
                         .build()
                 )
-                .addSuperinterface(resourceInterface, "delegate")
-                .addProperty(
-                    PropertySpec
+                .addParameter(
+                    ParameterSpec
                         .builder("custom", customFieldType.copy(nullable = true))
-                        .initializer("custom")
-                        .addModifiers(KModifier.PRIVATE)
-                        .build()
-                )
-                .addFunction(
-                    FunSpec
-                        .builder("getCustom")
-                        .returns(customFieldType.copy(nullable = true))
-                        .addStatement("return this.custom")
-                        .addModifiers(KModifier.OVERRIDE)
+                        .addAnnotation(jsonProperty("custom"))
                         .build()
                 )
                 .build()
         )
+        .addSuperinterface(resourceInterface, "delegate")
+        .addProperty(
+            PropertySpec
+                .builder("custom", customFieldType.copy(nullable = true))
+                .initializer("custom")
+                .addModifiers(KModifier.PRIVATE)
+                .build()
+        )
+        .addFunction(
+            FunSpec
+                .builder("getCustom")
+                .returns(customFieldType.copy(nullable = true))
+                .addStatement("return this.custom")
+                .addModifiers(KModifier.OVERRIDE)
+                .build()
+        )
         .build()
 
-    return TypedResourceFile(
+    return TypedResource(
         type,
-        resourceInterface,
-        resourceTypeDefaultImplementation,
         className,
-        file
+        resourceType
     )
 }
 

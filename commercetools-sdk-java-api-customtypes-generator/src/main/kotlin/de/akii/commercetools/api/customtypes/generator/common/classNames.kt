@@ -1,10 +1,9 @@
 package de.akii.commercetools.api.customtypes.generator.common
 
 import com.commercetools.api.models.product_type.ProductType
-import com.commercetools.api.models.type.ResourceTypeId
 import com.commercetools.api.models.type.Type
 import com.squareup.kotlinpoet.ClassName
-import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
+import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 
 sealed class CTClassName(private val packageName: String, private val ctClassName: String) {
     val className: ClassName
@@ -31,28 +30,23 @@ class CustomProductVariantAttributes(config: Configuration) :
 
 class Product(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product",
-    config.productTypeToClassName(productType, ProductClassType.Product)
-)
+    config.productTypeToClassName(productType, ProductClassType.Product))
 
 class ProductCatalogData(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product",
-    config.productTypeToClassName(productType, ProductClassType.ProductCatalogData)
-)
+    config.productTypeToClassName(productType, ProductClassType.ProductCatalogData))
 
 class ProductData(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product",
-    config.productTypeToClassName(productType, ProductClassType.ProductData)
-)
+    config.productTypeToClassName(productType, ProductClassType.ProductData))
 
 class ProductVariant(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product",
-    config.productTypeToClassName(productType, ProductClassType.ProductVariant)
-)
+    config.productTypeToClassName(productType, ProductClassType.ProductVariant))
 
 class ProductVariantAttributes(productType: ProductType, config: Configuration) : CTClassName(
     "${config.packageName}.product",
-    config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes)
-)
+    config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes))
 
 class TypedCustomFields(type: Type, config: Configuration) :
     CTClassName("${config.packageName}.custom_fields", "${classNamePrefix(type.key)}CustomFields")
@@ -63,9 +57,5 @@ class TypedResource(type: Type, resourceTypeName: String, config: Configuration)
 class CustomTypeResolver(config: Configuration) :
     CTClassName("${config.packageName}.custom_fields", "CustomTypeResolver")
 
-class TypedResourceDeserializer(typedResourceFile: TypedResourceFile) :
-    CTClassName(typedResourceFile.typedResourceClassName.packageName, "Typed${typedResourceFile.resourceInterface.simpleName}Deserializer")
-
-private val resourceTypeNameToSubPackage: (String) -> String = {
-    it.split('-').joinToString("_")
-}
+class TypedResourceDeserializer(typedResources: TypedResources) :
+    CTClassName(typedResources.packageName, "Typed${typedResources.resourceInterface.simpleName}Deserializer")

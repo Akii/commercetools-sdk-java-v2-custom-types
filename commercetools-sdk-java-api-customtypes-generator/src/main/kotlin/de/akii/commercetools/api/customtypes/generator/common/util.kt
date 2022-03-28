@@ -1,6 +1,5 @@
 package de.akii.commercetools.api.customtypes.generator.common
 
-import com.commercetools.api.models.type.ResourceTypeId
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
@@ -31,3 +30,7 @@ fun classNamePrefix(name: String): String =
         .joinToString("") { part ->
             part.replaceFirstChar { it.uppercase() }
         }
+
+val resourceTypeNameToSubPackage: (String) -> String = {
+    it.split('-').joinToString("_")
+}

@@ -21,7 +21,7 @@ internal class TypedResourceKtTest {
     @Test
     fun `generates typed resources`() {
         val config = Configuration("test.package", listOf(), types)
-        val files = typedResourceFiles(config).map { it.file } + customFieldsFile(config)
+        val files = typedResourceFiles(typedResources(config)) + customFieldsFile(config)
 
         val sourceFiles = files.map {
             SourceFile.kotlin("${it.name}.kt", it.toString())

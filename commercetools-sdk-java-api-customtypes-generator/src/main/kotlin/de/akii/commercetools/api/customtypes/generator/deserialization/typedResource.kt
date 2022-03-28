@@ -10,17 +10,16 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
+import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 import io.vrap.rmf.base.client.utils.Generated
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
-fun typedResourceDeserializerFile(typedResourceFiles: List<TypedResourceFile>, config: Configuration): List<FileSpec> =
-    typedResourceFiles
-        .groupBy { it.resourceInterface }
-        .map { (_, values) ->
+fun typedResourceDeserializerFile(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
+    typedResources
+        .map {
             FileSpec
-                .builder(values[0].typedResourceClassName.packageName, "deserializer")
-                .addType(typedResourceDeserializer(values[0], values, config))
+                .builder(it.packageName, "deserializer")
+                .addType(typedResourceDeserializer(it, config))
                 .build()
         }
 
@@ -102,11 +101,11 @@ fun customTypeResolver(config: Configuration): TypeSpec =
             .build())
         .build()
 
-fun typedResourceDeserializer(typedResourceFile: TypedResourceFile, typedResourceFiles: List<TypedResourceFile>, config: Configuration): TypeSpec =
+fun typedResourceDeserializer(typedResources: TypedResources, config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(TypedResourceDeserializer(typedResourceFile).className)
+        .classBuilder(TypedResourceDeserializer(typedResources).className)
         .addAnnotation(Generated::class)
-        .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(typedResourceFile.resourceInterface.asClassName()))
+        .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(typedResources.resourceInterface.asClassName()))
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter(ParameterSpec
@@ -121,13 +120,13 @@ fun typedResourceDeserializer(typedResourceFile: TypedResourceFile, typedResourc
             .initializer("typeResolver")
             .build()
         )
-        .addFunction(deserialize(typedResourceFile, typedResourceFiles, config))
+        .addFunction(deserialize(typedResources, config))
         .addFunction(makeParser)
         .addFunction(transformJson)
         .addFunction(transformFieldsJson)
         .build()
 
-private fun deserialize(typedResourceFile: TypedResourceFile, typedResourceFiles: List<TypedResourceFile>, config: Configuration): FunSpec =
+private fun deserialize(typedResources: TypedResources, config: Configuration): FunSpec =
     FunSpec
         .builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
@@ -139,17 +138,17 @@ private fun deserialize(typedResourceFile: TypedResourceFile, typedResourceFiles
             val typeId: String? = typeResolver.resolveTypeKey(node?.path("custom")?.path("type")?.path("id")?.asText() ?: "")
 
         """.trimIndent())
-        .addCode(generateTypeToIdMap(typedResourceFile, typedResourceFiles, config))
-        .returns(typedResourceFile.resourceInterface.asTypeName().copy(nullable = true))
+        .addCode(generateTypeToIdMap(typedResources))
+        .returns(typedResources.resourceInterface.asTypeName().copy(nullable = true))
         .build()
 
-private fun generateTypeToIdMap(typedResourceFile: TypedResourceFile, typedResourceFiles: List<TypedResourceFile>, config: Configuration): CodeBlock {
+private fun generateTypeToIdMap(typedResources: TypedResources): CodeBlock {
     val whenExpression = CodeBlock
         .builder()
         .add("return when (typeId) {\n")
         .add("⇥")
 
-    typedResourceFiles.forEach {
+    typedResources.resources.forEach {
         whenExpression.add(
             "%1S -> ctxt?.readValue(transformJson(node, codec), %2T::class.java)\n",
             it.type.key!!,
@@ -158,7 +157,7 @@ private fun generateTypeToIdMap(typedResourceFile: TypedResourceFile, typedResou
     }
 
     return whenExpression
-        .add("else -> ctxt?.readValue(makeParser(node, codec), %T::class.java)\n", typedResourceFile.resourceDefaultImplementation)
+        .add("else -> ctxt?.readValue(makeParser(node, codec), %T::class.java)\n", typedResources.resourceDefaultImplementation)
         .add("⇤")
         .add("}")
         .build()

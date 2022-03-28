@@ -8,15 +8,13 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.model.TypedResourceFile
+import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 import io.vrap.rmf.base.client.utils.Generated
 
-fun apiModulesFile(typedResourceFiles: List<TypedResourceFile>, config: Configuration): FileSpec {
+fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configuration): FileSpec {
     val file = FileSpec
         .builder(config.packageName, "apiModules")
         .addType(typeResolver(config))
-
-    val distinctResourceFiles = packageDistinct(typedResourceFiles)
 
     if (config.productTypes.isNotEmpty()) {
         file
@@ -26,11 +24,11 @@ fun apiModulesFile(typedResourceFiles: List<TypedResourceFile>, config: Configur
     }
 
     if (config.customTypes.isNotEmpty()) {
-        distinctResourceFiles.forEach {
+        typedResourceFiles.forEach {
             file.addType(typedResourceInterface(it, config))
             file.addType(fallbackResourceInterface(it, config))
         }
-        file.addType(typedCustomFieldsApiModule(distinctResourceFiles, config))
+        file.addType(typedCustomFieldsApiModule(typedResourceFiles, config))
     }
 
     return file.build()
@@ -86,7 +84,7 @@ private fun customProductApiModule(config: Configuration): TypeSpec =
         })
         .build()
 
-private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResourceFile>, config: Configuration): TypeSpec =
+private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResources>, config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(ClassName(config.packageName, "TypedCustomFieldsApiModule"))
         .addAnnotation(Generated::class)
@@ -135,19 +133,16 @@ private fun fallbackProductInterface(config: Configuration) =
         .addAnnotation(deserializeAs(ProductImpl::class.asClassName()))
         .build()
 
-private fun typedResourceInterface(typedResourceFile: TypedResourceFile, config: Configuration) =
+private fun typedResourceInterface(typedResourceFile: TypedResources, config: Configuration) =
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "Custom${typedResourceFile.resourceInterface.simpleName}"))
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(typedResourceFile.resourceInterface.asClassName()))
         .build()
 
-private fun fallbackResourceInterface(typedResourceFile: TypedResourceFile, config: Configuration) =
+private fun fallbackResourceInterface(typedResourceFile: TypedResources, config: Configuration) =
     TypeSpec
         .interfaceBuilder(ClassName(config.packageName, "Fallback${typedResourceFile.resourceInterface.simpleName}"))
         .addAnnotation(Generated::class)
         .addAnnotation(deserializeAs(typedResourceFile.resourceDefaultImplementation.asClassName()))
         .build()
-
-private fun packageDistinct(a: List<TypedResourceFile>): List<TypedResourceFile> =
-    mapOf(*(a.map { it.typedResourceClassName.packageName to it}).toTypedArray()).values.toList()
