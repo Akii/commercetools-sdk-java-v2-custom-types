@@ -2,11 +2,10 @@ package de.akii.commercetools.api.customtypes.generator.deserialization
 
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier
+import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
@@ -14,25 +13,10 @@ import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 import io.vrap.rmf.base.client.utils.Generated
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
-fun typedResourceDeserializerFile(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
-    typedResources
-        .map {
-            FileSpec
-                .builder(it.packageName, "deserializer")
-                .addType(typedResourceDeserializer(it, config))
-                .build()
-        }
-
-fun customTypeResolverFile(config: Configuration): FileSpec =
-    FileSpec
-        .builder("${config.packageName}.custom_fields", "typeResolver")
-        .addType(customTypeResolver(config))
-        .build()
-
-fun customTypeResolver(config: Configuration): TypeSpec =
+fun typedResourceTypeResolver(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(CustomTypeResolver(config).className)
-        .addAnnotation(Generated::class)
+        .classBuilder(TypedResourceTypeResolver(config).className)
+        .addAnnotation(generated)
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter(ParameterSpec
@@ -104,13 +88,13 @@ fun customTypeResolver(config: Configuration): TypeSpec =
 fun typedResourceDeserializer(typedResources: TypedResources, config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(TypedResourceDeserializer(typedResources).className)
-        .addAnnotation(Generated::class)
+        .addAnnotation(generated)
         .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(typedResources.resourceInterface.asClassName()))
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter(ParameterSpec
                 .builder("typeResolver", TypeResolver(config).className.parameterizedBy(Type::class.asTypeName()))
-                .defaultValue("%T()", CustomTypeResolver(config).className)
+                .defaultValue("%T()", TypedResourceTypeResolver(config).className)
                 .build()
             )
             .build()
@@ -120,13 +104,53 @@ fun typedResourceDeserializer(typedResources: TypedResources, config: Configurat
             .initializer("typeResolver")
             .build()
         )
-        .addFunction(deserialize(typedResources, config))
+        .addFunction(deserialize(typedResources))
         .addFunction(makeParser)
-        .addFunction(transformJson)
-        .addFunction(transformFieldsJson)
         .build()
 
-private fun deserialize(typedResources: TypedResources, config: Configuration): FunSpec =
+fun typedResourceBeanDeserializerModifier(config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(TypedResourceBeanDeserializerModifier(config).className)
+        .addAnnotation(generated)
+        .superclass(BeanDeserializerModifier::class)
+        .addFunction(FunSpec
+            .builder("modifyDeserializer")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("config", DeserializationConfig::class.asTypeName().copy(nullable = true))
+            .addParameter("beanDesc", BeanDescription::class.asTypeName().copy(nullable = true))
+            .addParameter("deserializer", jsonDeserializerType)
+            .addCode("""
+                    return if (beanDesc?.type?.isTypeOrSubTypeOf(%1T::class.java) == true)
+                        super.modifyDeserializer(config, beanDesc, %2T(deserializer))
+                    else
+                        super.modifyDeserializer(config, beanDesc, deserializer)
+                """.trimIndent(),
+                TypedResourceInterface(config).className,
+                TypedResourceDelegatingDeserializer(config).className,
+            )
+            .returns(jsonDeserializerType)
+            .build()
+        )
+        .build()
+
+fun typedResourceDelegatingDeserializer(config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(TypedResourceDelegatingDeserializer(config).className)
+        .addAnnotation(generated)
+        .primaryConstructor(FunSpec
+            .constructorBuilder()
+            .addParameter("d", jsonDeserializerType)
+            .build()
+        )
+        .superclass(DelegatingDeserializer::class)
+        .addSuperclassConstructorParameter("d")
+        .addFunction(newDelegatingInstance(config))
+        .addFunction(transformJson)
+        .addFunction(transformFieldsJson)
+        .addFunction(makeParser)
+        .build()
+
+private fun deserialize(typedResources: TypedResources): FunSpec =
     FunSpec
         .builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
@@ -150,7 +174,7 @@ private fun generateTypeToIdMap(typedResources: TypedResources): CodeBlock {
 
     typedResources.resources.forEach {
         whenExpression.add(
-            "%1S -> ctxt?.readValue(transformJson(node, codec), %2T::class.java)\n",
+            "%1S -> ctxt?.readValue(makeParser(node, codec), %2T::class.java)\n",
             it.type.key!!,
             it.typedResourceClassName
         )
@@ -163,22 +187,36 @@ private fun generateTypeToIdMap(typedResources: TypedResources): CodeBlock {
         .build()
 }
 
+private fun newDelegatingInstance(config: Configuration) =
+    FunSpec
+        .builder("newDelegatingInstance")
+        .addModifiers(KModifier.OVERRIDE)
+        .addParameter("newDelegatee", jsonDeserializerType)
+        .addStatement(
+            "return %1T(newDelegatee)",
+            TypedResourceDelegatingDeserializer(config).className
+        )
+        .returns(jsonDeserializerType)
+        .build()
+
 private val transformJson =
     FunSpec
-        .builder("transformJson")
-        .addModifiers(KModifier.PRIVATE)
-        .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
-        .addParameter("codec", ObjectCodec::class.asTypeName().copy(nullable = true))
+        .builder("deserialize")
+        .addModifiers(KModifier.OVERRIDE)
+        .addParameter("p", JsonParser::class.asTypeName().copy(true))
+        .addParameter("ctxt", DeserializationContext::class.asTypeName().copy(true))
         .addCode("""
-            val objectNode = json as com.fasterxml.jackson.databind.node.ObjectNode
+            val codec = p?.codec
+            val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
+            val objectNode = node as com.fasterxml.jackson.databind.node.ObjectNode
             val wrapperObject = objectNode.objectNode()
 
             wrapperObject.set<JsonNode>("delegate", objectNode)
             wrapperObject.set<JsonNode>("custom", transformFieldsJson(objectNode.get("custom")))
 
-            return makeParser(wrapperObject, codec)
+            return super.deserialize(makeParser(wrapperObject, codec), ctxt)
         """.trimIndent())
-        .returns(JsonParser::class.asTypeName().copy(nullable = true))
+        .returns(Any::class)
         .build()
 
 private val transformFieldsJson =

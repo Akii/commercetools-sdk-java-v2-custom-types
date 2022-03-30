@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import io.vrap.rmf.base.client.utils.Generated
 
 val jsonCreator =
     AnnotationSpec
@@ -34,3 +35,9 @@ fun classNamePrefix(name: String): String =
 val resourceTypeNameToSubPackage: (String) -> String = {
     it.split('-').joinToString("_")
 }
+
+val generated =
+    AnnotationSpec
+        .builder(Generated::class)
+        .addMember("comments = %S", "https://github.com/Akii/commercetools-sdk-java-v2-custom-types")
+        .build()

@@ -41,10 +41,19 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     val productTypeToClassName: Property<(ProductType, ProductClassType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, ProductClassType) -> String>
 
     @Input
-    val productTypeAttributeToPropertyName: Property<(ProductType, AttributeDefinition) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> String>
+    val attributeToPropertyName: Property<(ProductType, AttributeDefinition) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> String>
 
     @Input
-    val fieldDefinitionToPropertyName: Property<(Type, FieldDefinition) -> String> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> String>
+    val isAttributeRequired: Property<(ProductType, AttributeDefinition) -> Boolean> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> Boolean>
+
+    @Input
+    val typeToClassName: Property<(Type, String) -> String> = project.objects.property(Any::class.java) as Property<(Type, String) -> String>
+
+    @Input
+    val fieldToPropertyName: Property<(Type, FieldDefinition) -> String> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> String>
+
+    @Input
+    val isFieldRequired: Property<(Type, FieldDefinition) -> Boolean> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> Boolean>
 
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
@@ -85,8 +94,11 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             productTypes,
             types,
             productTypeToClassName = { type, classType -> productTypeToClassName.get()(type, classType) },
-            productTypeAttributeToPropertyName = { type, attribute -> productTypeAttributeToPropertyName.get()(type, attribute) },
-            fieldDefinitionToPropertyName = { type, field -> fieldDefinitionToPropertyName.get()(type, field) }
+            attributeToPropertyName = { type, attribute -> attributeToPropertyName.get()(type, attribute) },
+            isAttributeRequired = { type, attribute -> isAttributeRequired.get()(type, attribute) },
+            typeToClassName = { type, resourceName -> typeToClassName.get()(type, resourceName) },
+            fieldToPropertyName = { type, field -> fieldToPropertyName.get()(type, field) },
+            isFieldRequired = { type, field -> isFieldRequired.get()(type, field) }
         )
 
         val files = generate(config)
@@ -95,4 +107,11 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             it.writeTo(targetDirectory)
         }
     }
+
+    fun getIsAttributeRequired(): Property<(ProductType, AttributeDefinition) -> Boolean> =
+        isAttributeRequired
+
+    fun getIsFieldRequired(): Property<(Type, FieldDefinition) -> Boolean> =
+        isFieldRequired
+
 }

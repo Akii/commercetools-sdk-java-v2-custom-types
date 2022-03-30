@@ -6,12 +6,12 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 
 fun productCatalogData(
-    productCatalogDataClassName: ProductCatalogData,
-    productDataClassName: ProductData
+    typedProductCatalogDataClassName: TypedProductCatalogData,
+    typedProductDataClassName: TypedProductData
 ): TypeSpec = TypeSpec
-    .classBuilder(productCatalogDataClassName.className)
-    .addAnnotation(Generated::class)
-    .addAnnotation(deserializeAs(productCatalogDataClassName.className))
+    .classBuilder(typedProductCatalogDataClassName.className)
+    .addAnnotation(generated)
+    .addAnnotation(deserializeAs(typedProductCatalogDataClassName.className))
     .primaryConstructor(
         FunSpec
         .constructorBuilder()
@@ -24,13 +24,13 @@ fun productCatalogData(
         )
         .addParameter(
             ParameterSpec
-            .builder("current", productDataClassName.className)
+            .builder("current", typedProductDataClassName.className)
             .addAnnotation(jsonProperty("current"))
             .build()
         )
         .addParameter(
             ParameterSpec
-            .builder("staged", productDataClassName.className)
+            .builder("staged", typedProductDataClassName.className)
             .addAnnotation(jsonProperty("staged"))
             .build()
         )
@@ -39,14 +39,14 @@ fun productCatalogData(
     .addSuperinterface(com.commercetools.api.models.product.ProductCatalogData::class, "delegate")
     .addProperty(
         PropertySpec
-            .builder("current", productDataClassName.className)
+            .builder("current", typedProductDataClassName.className)
             .initializer("current")
             .addModifiers(KModifier.PRIVATE)
             .build()
     )
     .addProperty(
         PropertySpec
-            .builder("staged", productDataClassName.className)
+            .builder("staged", typedProductDataClassName.className)
             .initializer("staged")
             .addModifiers(KModifier.PRIVATE)
             .build()
@@ -54,7 +54,7 @@ fun productCatalogData(
     .addFunction(
         FunSpec
             .builder("getCurrent")
-            .returns(productDataClassName.className)
+            .returns(typedProductDataClassName.className)
             .addStatement("return this.current")
             .addModifiers(KModifier.OVERRIDE)
             .build()
@@ -62,7 +62,7 @@ fun productCatalogData(
     .addFunction(
         FunSpec
             .builder("getStaged")
-            .returns(productDataClassName.className)
+            .returns(typedProductDataClassName.className)
             .addStatement("return this.staged")
             .addModifiers(KModifier.OVERRIDE)
             .build()

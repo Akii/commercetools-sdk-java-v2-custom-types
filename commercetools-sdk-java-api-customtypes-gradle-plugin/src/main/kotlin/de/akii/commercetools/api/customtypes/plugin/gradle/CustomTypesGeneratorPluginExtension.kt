@@ -28,6 +28,7 @@ open class CustomTypesGeneratorPluginExtension {
         CustomTypesGeneratorConfiguration()
     }
 
+    /** Name of the package for all generated classes */
     var packageName: String? = null
 
     fun credentials(action: Action<Credentials>) {
@@ -47,6 +48,10 @@ open class CustomTypesGeneratorPluginExtension {
     internal fun typesGeneratorConfigured(): Boolean = typesGeneratorConfigured
 }
 
+/**
+ * Credentials of the commercetools API client.
+ * The scopes `view_types` and `view_products` are required.
+ */
 open class Credentials {
     var clientId: String? = null
     var clientSecret: String? = null
@@ -55,12 +60,71 @@ open class Credentials {
 }
 
 open class CustomProductTypesGeneratorConfiguration {
+
+    /**
+     * Path to the product types JSON file.
+     * If given, the plugin will not attempt to fetch the types from commercetools.
+     */
     var productTypesFile: File? = null
+
+    /**
+     * This function defines how class names are computed from commercetools product types.
+     *
+     * The library assumes the class names are unique for every product type.
+     * Anything else will likely result in a compilation error.
+     */
     var productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName
-    var productTypeAttributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::productTypeAttributeToPropertyName
+
+    /**
+     * This function defines how property names are computed from commercetools attribute definitions.
+     *
+     * The library assumes that camel case property names starting with a lowercase letter are computed.
+     * Anything else will likely result in a compilation error.
+     */
+    var attributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::attributeToPropertyName
+
+    /**
+     * This function defines whether an attribute is required or not.
+     * Required attributes are marked as non-nullable.
+     *
+     * Use this with caution because JSON deserialization will fail when the runtime attribute is null.
+     *
+     * The default implementation marks all attributes as not required because the commercetools platform cannot guarantee attributes are set.
+     */
+    var isAttributeRequired: (productType: ProductType, attribute: AttributeDefinition) -> Boolean = ::isAttributeRequired
 }
 
 open class CustomTypesGeneratorConfiguration {
+
+    /**
+     * Path to the custom field types JSON file.
+     * If given, the plugin will not attempt to fetch the types from commercetools.
+     */
     var typesFile: File? = null
-    var fieldDefinitionToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldDefinitionToPropertyName
+
+    /**
+     * This function defines how class names are computed from commercetools resource types.
+     *
+     * The library assumes the class names are unique for every resource type.
+     * Anything else will likely result in a compilation error.
+     */
+    var typeToClassName: (type: Type, referenceTypeName: String) -> String = ::typeToClassName
+
+    /**
+     * This function defines how property names are computed from commercetools field definitions.
+     *
+     * The library assumes that camel case property names starting with a lowercase letter are computed.
+     * Anything else will likely result in a compilation error.
+     */
+    var fieldToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldToPropertyName
+
+    /**
+     * This function defines whether a field is required or not.
+     * Required fields are marked as non-nullable.
+     *
+     * Use this with caution because JSON deserialization will fail when the runtime field is null.
+     *
+     * The default implementation marks all fields as not required because the commercetools platform cannot guarantee fields are set.
+     */
+    var isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired
 }

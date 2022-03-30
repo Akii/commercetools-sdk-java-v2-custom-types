@@ -4,28 +4,20 @@ import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier
+import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
-fun productDeserializerFile(config: Configuration): FileSpec =
-    FileSpec
-        .builder("${config.packageName}.product", "deserializer")
-        .addType(productTypeResolver(config))
-        .addType(customProductDeserializer(config))
-        .addType(customProductVariantAttributesModifier(config))
-        .addType(customProductVariantAttributesDelegatingDeserializer(config))
-        .build()
-
-private fun productTypeResolver(config: Configuration): TypeSpec =
+fun productTypeResolver(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(ProductTypeResolver(config).className)
-        .addAnnotation(Generated::class)
+        .addAnnotation(generated)
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter(ParameterSpec
@@ -94,10 +86,10 @@ private fun productTypeResolver(config: Configuration): TypeSpec =
             .build())
         .build()
 
-private fun customProductDeserializer(config: Configuration): TypeSpec =
+fun typedProductDeserializer(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(CustomProductDeserializer(config).className)
-        .addAnnotation(Generated::class)
+        .classBuilder(TypedProductDeserializer(config).className)
+        .addAnnotation(generated)
         .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(Product::class.asTypeName()))
         .primaryConstructor(FunSpec
             .constructorBuilder()
@@ -115,10 +107,54 @@ private fun customProductDeserializer(config: Configuration): TypeSpec =
         )
         .addFunction(deserialize(config))
         .addFunction(makeParser)
+        .build()
+
+fun typedProductBeanDeserializerModifier(config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(TypedProductBeanDeserializerModifier(config).className)
+        .addAnnotation(generated)
+        .superclass(BeanDeserializerModifier::class)
+        .addFunction(FunSpec
+            .builder("modifyDeserializer")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("config", DeserializationConfig::class.asTypeName().copy(nullable = true))
+            .addParameter("beanDesc", BeanDescription::class.asTypeName().copy(nullable = true))
+            .addParameter("deserializer", jsonDeserializerType)
+            .addCode("""
+                    return if (beanDesc?.type?.isTypeOrSubTypeOf(%1T::class.java) == true)
+                        super.modifyDeserializer(config, beanDesc, %2T(deserializer))
+                    else if (beanDesc?.type?.isTypeOrSubTypeOf(%3T::class.java) == true)
+                        super.modifyDeserializer(config, beanDesc, %4T(deserializer))
+                    else
+                        super.modifyDeserializer(config, beanDesc, deserializer)
+                """.trimIndent(),
+                TypedProductInterface(config).className,
+                TypedProductDelegatingDeserializer(config).className,
+                TypedProductVariantAttributesInterface(config).className,
+                TypedProductVariantAttributesDelegatingDeserializer(config).className
+            )
+            .returns(jsonDeserializerType)
+            .build()
+        )
+        .build()
+
+fun typedProductDelegatingDeserializer(config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(TypedProductDelegatingDeserializer(config).className)
+        .addAnnotation(generated)
+        .primaryConstructor(FunSpec
+            .constructorBuilder()
+            .addParameter("d", jsonDeserializerType)
+            .build()
+        )
+        .superclass(DelegatingDeserializer::class)
+        .addSuperclassConstructorParameter("d")
+        .addFunction(newDelegatingInstance(config))
         .addFunction(transformJson)
         .addFunction(transformProductCatalogDataJson)
         .addFunction(transformProductDataJson)
         .addFunction(transformProductVariantJson)
+        .addFunction(makeParser)
         .build()
 
 private fun deserialize(config: Configuration): FunSpec =
@@ -145,9 +181,9 @@ private fun generateProductTypeToIdMap(config: Configuration): CodeBlock {
 
     config.productTypes.forEach {
         whenExpression.add(
-            "%1S -> ctxt?.readValue(transformJson(node, codec), %2T::class.java)\n",
+            "%1S -> ctxt?.readValue(makeParser(node, codec), %2T::class.java)\n",
             it.key!!,
-            Product(it, config).className
+            TypedProduct(it, config).className
         )
     }
 
@@ -158,22 +194,36 @@ private fun generateProductTypeToIdMap(config: Configuration): CodeBlock {
         .build()
 }
 
+private fun newDelegatingInstance(config: Configuration) =
+    FunSpec
+        .builder("newDelegatingInstance")
+        .addModifiers(KModifier.OVERRIDE)
+        .addParameter("newDelegatee", jsonDeserializerType)
+        .addStatement(
+            "return %1T(newDelegatee)",
+            TypedProductDelegatingDeserializer(config).className
+        )
+        .returns(jsonDeserializerType)
+        .build()
+
 private val transformJson =
     FunSpec
-        .builder("transformJson")
-        .addModifiers(KModifier.PRIVATE)
-        .addParameter("json", JsonNode::class.asTypeName().copy(nullable = true))
-        .addParameter("codec", ObjectCodec::class.asTypeName().copy(nullable = true))
+        .builder("deserialize")
+        .addModifiers(KModifier.OVERRIDE)
+        .addParameter("p", JsonParser::class.asTypeName().copy(true))
+        .addParameter("ctxt", DeserializationContext::class.asTypeName().copy(true))
         .addCode("""
-            val objectNode = json as com.fasterxml.jackson.databind.node.ObjectNode
+            val codec = p?.codec
+            val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
+            val objectNode = node as com.fasterxml.jackson.databind.node.ObjectNode
             val wrapperObject = objectNode.objectNode()
 
             wrapperObject.set<JsonNode>("delegate", objectNode)
             wrapperObject.set<JsonNode>("masterData", transformProductCatalogDataJson(objectNode.get("masterData")))
 
-            return makeParser(wrapperObject, codec)
+            return super.deserialize(makeParser(wrapperObject, codec), ctxt)
         """.trimIndent())
-        .returns(JsonParser::class.asTypeName().copy(nullable = true))
+        .returns(Any::class)
         .build()
 
 private val transformProductCatalogDataJson =

@@ -73,34 +73,69 @@ data class TestProductVariantAttributes (
 Instead of dealing with attributes like this:
 
 ```kotlin
-fun fetchProduct(productId: String): Product
+val product =
+    apiRoot.products()
+        .withKey("some-key")
+        .get()
+        .executeBlocking()
 
 val productVariant =
-    fetchProduct("some-id")
+    product
         .masterData
         .current
         .masterVariant
 
-// as of v8 beta 1
 print(productVariant.withProductVariant(AttributesAccessor::of).asBoolean("a-boolean"))
 ```
 
 you can now use typed attributes:
 
 ```kotlin
-fun fetchProduct(productId: String): Product
+val product =
+    apiRoot.products()
+        .withKey("some-key")
+        .get()
+        .executeBlocking()
 
 val productVariant =
-    fetchProduct("some-id")
+    product
         .masterData
         .current
         .masterVariant
 
 when (productVariant) {
     is TestProductVariant -> print(productVariant.typedAttributes.aBoolean)
-    else -> TODO()
+    else -> …
 }
 ```
+
+Alternatively, if you know the expected type in advance, you can narrow the type like this:
+
+```kotlin
+val product =
+    apiRoot.products()
+        .withKey("some-key")
+        .get()
+        .executeBlocking(TestProduct::class.java)
+
+val productVariant =
+    product
+        .masterData
+        .current
+        .masterVariant
+
+print(productVariant.typedAttributes.aBoolean)
+```
+
+In order to make attribute updates more type-safe, constants for property names are generated.
+
+````kotlin
+ProductSetAttributeAction
+    .builder()
+    .name(TestProductVariantAttributes.A_BOOLEAN)
+    .value(true)
+    .build()
+````
 
 Since the library generates classes conforming to all API interfaces, you can start using it without the need to refactor all your existing code.
 
@@ -166,7 +201,7 @@ The plugin will now automatically generate custom types based on your type defin
 ### commercetools SDK
 
 Once you've generated your custom types, you can configure the official commercetools SDK API to use them.
-To do so, you need to register the generated Jackson module `CustomProductApiModule` and/or `TypedCustomFieldsApiModule`.
+To do so, you need to register the generated Jackson module `TypedProductApiModule` and/or `TypedResourcesApiModule`.
 
 ```kotlin
 import com.commercetools.api.defaultconfig.ApiRootBuilder
@@ -174,16 +209,16 @@ import com.commercetools.api.defaultconfig.ServiceRegion
 import io.vrap.rmf.base.client.ResponseSerializer
 import io.vrap.rmf.base.client.oauth2.ClientCredentials
 import io.vrap.rmf.base.client.utils.json.JsonUtils
-import your.types.go.here.CustomProductApiModule
-import your.types.go.here.TypedCustomFieldsApiModule
+import your.types.go.here.TypedProductApiModule
+import your.types.go.here.TypedResourcesApiModule
 
 val objectMapper =
     JsonUtils
         .createObjectMapper()
-        .registerModule(CustomProductApiModule())
-        .registerModule(TypedCustomFieldsApiModule())
+        .registerModule(TypedProductApiModule())
+        .registerModule(TypedResourcesApiModule())
 
-val ctApi =
+val apiRoot =
     ApiRootBuilder.of()
         .defaultClient(
             ClientCredentials.of()

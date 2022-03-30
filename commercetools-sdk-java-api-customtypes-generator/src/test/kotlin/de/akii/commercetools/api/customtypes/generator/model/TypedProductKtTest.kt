@@ -9,11 +9,14 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
+import de.akii.commercetools.api.customtypes.generator.productCommonFile
+import de.akii.commercetools.api.customtypes.generator.productFiles
+import de.akii.commercetools.api.customtypes.generator.typedProductDeserializerFile
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-internal class ProductKtTest {
+internal class TypedProductKtTest {
 
     private val productType =
         JsonUtils
@@ -25,7 +28,10 @@ internal class ProductKtTest {
     @Test
     fun `generates custom product classes`() {
         val config = Configuration("test.package", listOf(productType), emptyList())
-        val sourceFiles = productFiles(config).map {
+        val files = listOf(
+            productCommonFile(config)
+        ) + productFiles(config)
+        val sourceFiles = files.map {
             SourceFile.kotlin("${it.name}.kt", it.toString())
         }
 

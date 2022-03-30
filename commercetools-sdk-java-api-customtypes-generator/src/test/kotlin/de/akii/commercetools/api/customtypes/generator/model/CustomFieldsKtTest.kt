@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
+import de.akii.commercetools.api.customtypes.generator.customFieldsFile
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test

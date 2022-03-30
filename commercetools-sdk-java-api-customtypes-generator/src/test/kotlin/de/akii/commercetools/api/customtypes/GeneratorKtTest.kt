@@ -39,7 +39,11 @@ internal class GeneratorKtTest {
 
     private val testProducts = javaClass.getResource("/products/testProducts.json")
 
+    private val testProduct = javaClass.getResource("/products/testProduct.json")
+
     private val testCategories = javaClass.getResource("/categories/testCategories.json")
+
+    private val testCategory = javaClass.getResource("/categories/testCategory.json")
 
     @Test
     fun `it compiles without any product-types or custom field types`() {
@@ -71,7 +75,7 @@ internal class GeneratorKtTest {
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
 
         val apiModule = result.classLoader
-            .loadClass("test.package.CustomProductApiModule")
+            .loadClass("test.package.TypedProductApiModule")
             .getDeclaredConstructor()
             .newInstance() as SimpleModule
 
@@ -108,6 +112,35 @@ internal class GeneratorKtTest {
     }
 
     @Test
+    fun `api module can deserialize specific custom product classes`() {
+        val sourceFiles = generate(config).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
+        }
+
+        val result = KotlinCompilation().apply {
+            sources = sourceFiles
+            inheritClassPath = true
+            messageOutputStream = System.out
+        }.compile()
+
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+
+        val apiModule = result.classLoader
+            .loadClass("test.package.TypedProductApiModule")
+            .getDeclaredConstructor()
+            .newInstance() as SimpleModule
+
+        val testProductClass = result.classLoader.loadClass("test.package.product.TestProduct")
+
+        val product = JsonUtils
+            .createObjectMapper()
+            .registerModule(apiModule)
+            .readValue(testProduct, testProductClass)
+
+        assertThat(testProductClass.isInstance(product))
+    }
+
+    @Test
     fun `api module can deserialize typed custom fields`() {
         val sourceFiles = generate(config).map {
             SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
@@ -122,7 +155,7 @@ internal class GeneratorKtTest {
         assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
 
         val apiModule = result.classLoader
-            .loadClass("test.package.TypedCustomFieldsApiModule")
+            .loadClass("test.package.TypedResourcesApiModule")
             .getDeclaredConstructor()
             .newInstance() as SimpleModule
 
@@ -144,6 +177,35 @@ internal class GeneratorKtTest {
         val custom2 = invokeMethod("getTypedFields", category2.custom)!!
 
         assertThat(invokeMethod("getABoolean", custom2) as Boolean).isFalse
+    }
+
+    @Test
+    fun `api module can deserialize specific typed custom fields classes`() {
+        val sourceFiles = generate(config).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
+        }
+
+        val result = KotlinCompilation().apply {
+            sources = sourceFiles
+            inheritClassPath = true
+            messageOutputStream = System.out
+        }.compile()
+
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+
+        val apiModule = result.classLoader
+            .loadClass("test.package.TypedResourcesApiModule")
+            .getDeclaredConstructor()
+            .newInstance() as SimpleModule
+
+        val typeACategoryClass = result.classLoader.loadClass("test.package.category.TypeACategory")
+
+        val category = JsonUtils
+            .createObjectMapper()
+            .registerModule(apiModule)
+            .readValue(testCategory, typeACategoryClass)
+
+        assertThat(typeACategoryClass.isInstance(category))
     }
 
     private fun invokeMethod(name: String, obj: Any): Any? =

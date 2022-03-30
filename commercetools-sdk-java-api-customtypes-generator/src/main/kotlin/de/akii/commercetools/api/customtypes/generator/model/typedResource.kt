@@ -50,15 +50,11 @@ data class TypedResource(
     val typedResourceSpec: TypeSpec
 )
 
-fun typedResourceFiles(typedResource: List<TypedResources>): List<FileSpec> =
-    typedResource.flatMap { typedResources ->
-        typedResources.resources.map {
-            FileSpec
-                .builder(typedResources.packageName, it.typedResourceClassName.simpleName)
-                .addType(it.typedResourceSpec)
-                .build()
-        }
-    }
+fun typedResourceInterface(config: Configuration): TypeSpec =
+    TypeSpec
+        .interfaceBuilder(TypedResourceInterface(config).className)
+        .addAnnotation(generated)
+        .build()
 
 fun typedResources(config: Configuration): List<TypedResources> =
     config.customTypes
@@ -128,7 +124,7 @@ private fun typedResource(
 
     val resourceType = TypeSpec
         .classBuilder(className)
-        .addAnnotation(Generated::class)
+        .addAnnotation(generated)
         .addAnnotation(deserializeAs(className))
         .primaryConstructor(
             FunSpec
@@ -142,16 +138,17 @@ private fun typedResource(
                 )
                 .addParameter(
                     ParameterSpec
-                        .builder("custom", customFieldType.copy(nullable = true))
+                        .builder("custom", customFieldType)
                         .addAnnotation(jsonProperty("custom"))
                         .build()
                 )
                 .build()
         )
         .addSuperinterface(resourceInterface, "delegate")
+        .addSuperinterface(TypedResourceInterface(config).className)
         .addProperty(
             PropertySpec
-                .builder("custom", customFieldType.copy(nullable = true))
+                .builder("custom", customFieldType)
                 .initializer("custom")
                 .addModifiers(KModifier.PRIVATE)
                 .build()
@@ -159,7 +156,7 @@ private fun typedResource(
         .addFunction(
             FunSpec
                 .builder("getCustom")
-                .returns(customFieldType.copy(nullable = true))
+                .returns(customFieldType)
                 .addStatement("return this.custom")
                 .addModifiers(KModifier.OVERRIDE)
                 .build()

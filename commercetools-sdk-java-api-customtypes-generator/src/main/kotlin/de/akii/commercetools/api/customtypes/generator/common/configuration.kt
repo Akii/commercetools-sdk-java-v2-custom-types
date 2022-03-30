@@ -15,10 +15,12 @@ data class Configuration(
     val customTypes: List<Type>,
 
     val productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName,
-    val productTypeAttributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::productTypeAttributeToPropertyName,
+    val attributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::attributeToPropertyName,
+    val isAttributeRequired: (productType: ProductType, attribute: AttributeDefinition) -> Boolean = ::isAttributeRequired,
 
     val typeToClassName: (type: Type, referenceTypeName: String) -> String = ::typeToClassName,
-    val fieldDefinitionToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldDefinitionToPropertyName
+    val fieldToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldToPropertyName,
+    val isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired
 )
 
 fun productTypeToClassName(productType: ProductType, productClassType: ProductClassType): String =
@@ -29,7 +31,7 @@ fun productTypeToClassName(productType: ProductType, productClassType: ProductCl
             part.replaceFirstChar { it.uppercase() }
         } + productClassType.name
 
-fun productTypeAttributeToPropertyName(@Suppress("UNUSED_PARAMETER") productType: ProductType, attribute: AttributeDefinition): String =
+fun attributeToPropertyName(@Suppress("UNUSED_PARAMETER") productType: ProductType, attribute: AttributeDefinition): String =
     attribute
         .name
         .split('-', '_')
@@ -38,10 +40,14 @@ fun productTypeAttributeToPropertyName(@Suppress("UNUSED_PARAMETER") productType
         }
         .replaceFirstChar { it.lowercase() }
 
+fun isAttributeRequired(
+    @Suppress("UNUSED_PARAMETER") productType: ProductType,
+    @Suppress("UNUSED_PARAMETER") attribute: AttributeDefinition): Boolean = false
+
 fun typeToClassName(type: Type, referenceTypeName: String): String =
     "${classNamePrefix(type.key)}${classNamePrefix(referenceTypeName)}"
 
-fun fieldDefinitionToPropertyName(@Suppress("UNUSED_PARAMETER") type: Type, fieldDefinition: FieldDefinition): String =
+fun fieldToPropertyName(@Suppress("UNUSED_PARAMETER") type: Type, fieldDefinition: FieldDefinition): String =
     fieldDefinition
         .name
         .split('-', '_')
@@ -49,3 +55,7 @@ fun fieldDefinitionToPropertyName(@Suppress("UNUSED_PARAMETER") type: Type, fiel
             part.replaceFirstChar { it.uppercase() }
         }
         .replaceFirstChar { it.lowercase() }
+
+fun isFieldRequired(
+    @Suppress("UNUSED_PARAMETER") type: Type,
+    @Suppress("UNUSED_PARAMETER") fieldDefinition: FieldDefinition): Boolean = false

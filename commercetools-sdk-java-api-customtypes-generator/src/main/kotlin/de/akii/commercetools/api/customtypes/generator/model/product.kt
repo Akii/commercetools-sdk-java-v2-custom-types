@@ -4,63 +4,25 @@ import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import de.akii.commercetools.api.customtypes.generator.model.product.productCatalogData
-import de.akii.commercetools.api.customtypes.generator.model.product.productData
-import de.akii.commercetools.api.customtypes.generator.model.product.productVariant
-import de.akii.commercetools.api.customtypes.generator.model.product.productVariantAttributes
 import io.vrap.rmf.base.client.utils.Generated
 
-fun productFiles(config: Configuration): List<FileSpec> =
-    config.productTypes.map { productFiles(it, config) } + customProductVariantAttributesInterface(config)
-
-private fun customProductVariantAttributesInterface(config: Configuration) =
-    FileSpec
-        .builder("${config.packageName}.product", "CustomProductVariantAttributes")
-        .addType(
-            TypeSpec
-                .interfaceBuilder(CustomProductVariantAttributes(config).className)
-                .addAnnotation(Generated::class)
-                .build()
-        )
+fun typedProductInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(TypedProductInterface(config).className)
+        .addAnnotation(generated)
         .build()
 
-private fun productFiles(
-    productType: ProductType,
-    config: Configuration
-): FileSpec {
-    val productClassName = Product(productType, config)
-    val productCatalogDataClassName = ProductCatalogData(productType, config)
-    val productDataClassName = ProductData(productType, config)
-    val productVariantClassName = ProductVariant(productType, config)
-    val productVariantAttributesClassName = ProductVariantAttributes(productType, config)
-    val customProductVariantAttributesClassName = CustomProductVariantAttributes(config)
+fun typedProductVariantAttributesInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(TypedProductVariantAttributesInterface(config).className)
+        .addAnnotation(generated)
+        .build()
 
-    val attributeTypeSpec = productVariantAttributes(
-        productVariantAttributesClassName,
-        customProductVariantAttributesClassName,
-        productType,
-        config
-    )
-
-    val variantTypeSpec = productVariant(
-        productVariantClassName,
-        productVariantAttributesClassName
-    )
-
-    val productDataTypeSpec = productData(
-        productDataClassName,
-        productVariantClassName
-    )
-
-    val masterDataTypeSpec = productCatalogData(
-        productCatalogDataClassName,
-        productDataClassName
-    )
-
-    val product = TypeSpec
-        .classBuilder(productClassName.className)
-        .addAnnotation(Generated::class)
-        .addAnnotation(deserializeAs(productClassName.className))
+fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(TypedProduct(productType, config).className)
+        .addAnnotation(generated)
+        .addAnnotation(deserializeAs(TypedProduct(productType, config).className))
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addAnnotation(jsonCreator)
@@ -70,16 +32,17 @@ private fun productFiles(
                 .build()
             )
             .addParameter(ParameterSpec
-                .builder("masterData", productCatalogDataClassName.className)
+                .builder("masterData", TypedProductCatalogData(productType, config).className)
                 .addAnnotation(jsonProperty("masterData"))
                 .build()
             )
             .build()
         )
         .addSuperinterface(com.commercetools.api.models.product.Product::class, "delegate")
+        .addSuperinterface(TypedProductInterface(config).className)
         .addProperty(
             PropertySpec
-                .builder("masterData", productCatalogDataClassName.className)
+                .builder("masterData", TypedProductCatalogData(productType, config).className)
                 .initializer("masterData")
                 .addModifiers(KModifier.PRIVATE)
                 .build()
@@ -87,19 +50,9 @@ private fun productFiles(
         .addFunction(
             FunSpec
                 .builder("getMasterData")
-                .returns(productCatalogDataClassName.className)
+                .returns(TypedProductCatalogData(productType, config).className)
                 .addStatement("return this.masterData")
                 .addModifiers(KModifier.OVERRIDE)
                 .build()
         )
         .build()
-
-    return FileSpec
-        .builder(productClassName.className.packageName, productClassName.className.simpleName)
-        .addType(product)
-        .addType(masterDataTypeSpec)
-        .addType(productDataTypeSpec)
-        .addType(variantTypeSpec)
-        .addType(attributeTypeSpec)
-        .build()
-}

@@ -2,25 +2,16 @@ package de.akii.commercetools.api.customtypes.generator.deserialization
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier
 import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 
-fun customProductVariantAttributesModifier(config: Configuration): TypeSpec =
+fun typedProductVariantAttributesDelegatingDeserializer(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(CustomProductVariantAttributesModifier(config).className)
-        .addAnnotation(Generated::class)
-        .superclass(BeanDeserializerModifier::class)
-        .addFunction(modifyDeserializer)
-        .build()
-
-fun customProductVariantAttributesDelegatingDeserializer(config: Configuration): TypeSpec =
-    TypeSpec
-        .classBuilder(CustomProductVariantAttributesDelegatingDeserializer(config).className)
-        .addAnnotation(Generated::class)
+        .classBuilder(TypedProductVariantAttributesDelegatingDeserializer(config).className)
+        .addAnnotation(generated)
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter("d", jsonDeserializerType)
@@ -28,35 +19,21 @@ fun customProductVariantAttributesDelegatingDeserializer(config: Configuration):
         )
         .superclass(DelegatingDeserializer::class)
         .addSuperclassConstructorParameter("d")
-        .addFunction(newDelegatingInstance)
+        .addFunction(newDelegatingInstance(config))
         .addFunction(deserialize)
         .addFunction(makeParser)
         .addFunction(transformProductVariantAttributesJson)
-        .addFunction(attributeNameToPropertyName(config))
         .build()
 
-private val modifyDeserializer =
-    FunSpec
-        .builder("modifyDeserializer")
-        .addModifiers(KModifier.OVERRIDE)
-        .addParameter("config", DeserializationConfig::class.asTypeName().copy(nullable = true))
-        .addParameter("beanDesc", BeanDescription::class.asTypeName().copy(nullable = true))
-        .addParameter("deserializer", jsonDeserializerType)
-        .addCode("""
-            return if (beanDesc?.type?.isTypeOrSubTypeOf(CustomProductVariantAttributes::class.java) == true)
-                super.modifyDeserializer(config, beanDesc, CustomProductVariantAttributesDelegatingDeserializer(deserializer))
-            else
-                super.modifyDeserializer(config, beanDesc, deserializer)
-        """.trimIndent())
-        .returns(jsonDeserializerType)
-        .build()
-
-private val newDelegatingInstance =
+private fun newDelegatingInstance(config: Configuration) =
     FunSpec
         .builder("newDelegatingInstance")
         .addModifiers(KModifier.OVERRIDE)
         .addParameter("newDelegatee", jsonDeserializerType)
-        .addStatement("return CustomProductVariantAttributesDelegatingDeserializer(newDelegatee)")
+        .addStatement(
+            "return %1T(newDelegatee)",
+            TypedProductVariantAttributesDelegatingDeserializer(config).className
+        )
         .returns(jsonDeserializerType)
         .build()
 
@@ -91,7 +68,7 @@ private val transformProductVariantAttributesJson =
                 val attributeValue = it.get("value")
                 
                 typedAttributes.set<JsonNode>(
-                    attributeNameToPropertyName(attributeName),
+                    attributeName,
                     attributeValue
                 )
             }
@@ -100,37 +77,3 @@ private val transformProductVariantAttributesJson =
         """.trimIndent())
         .returns(JsonNode::class)
         .build()
-
-private fun attributeNameToPropertyName(config: Configuration) =
-    FunSpec
-        .builder("attributeNameToPropertyName")
-        .addModifiers(KModifier.PRIVATE)
-        .addParameter("attributeName", String::class)
-        .addCode(generateAttributeNameToPropertyNameMap(config))
-        .returns(String::class)
-        .build()
-
-private fun generateAttributeNameToPropertyNameMap(config: Configuration): CodeBlock {
-    val whenExpression = CodeBlock
-        .builder()
-        .add("return when(attributeName) {\n")
-        .add("⇥")
-
-    config
-        .productTypes
-        .flatMap { productType ->
-            productType.attributes.map {
-                it.name to config.productTypeAttributeToPropertyName(productType, it)
-            }
-        }
-        .toSet()
-        .forEach {
-            whenExpression.add("%1S -> %2S\n", it.first, it.second)
-        }
-
-    return whenExpression
-        .add("else -> attributeName\n")
-        .add("⇤")
-        .add("}")
-        .build()
-}

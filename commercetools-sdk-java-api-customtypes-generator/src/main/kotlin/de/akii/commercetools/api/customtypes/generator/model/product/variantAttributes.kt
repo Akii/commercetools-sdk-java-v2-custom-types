@@ -37,24 +37,25 @@ import java.time.LocalTime
 import java.time.ZonedDateTime
 
 fun productVariantAttributes(
-    productVariantAttributesClassName: ProductVariantAttributes,
-    customProductVariantAttributesClassName: CustomProductVariantAttributes,
+    typedProductVariantAttributesClassName: TypedProductVariantAttributes,
+    typedProductVariantAttributesInterfaceClassName: TypedProductVariantAttributesInterface,
     productType: ProductType,
     config: Configuration
 ): TypeSpec {
     return TypeSpec
-        .classBuilder(productVariantAttributesClassName.className)
+        .classBuilder(typedProductVariantAttributesClassName.className)
         .addModifiers(
             if (productType.attributes.isEmpty())
                 emptyList()
             else
                 listOf(KModifier.DATA)
         )
-        .addSuperinterface(customProductVariantAttributesClassName.className)
-        .addAnnotation(Generated::class)
-        .addAnnotation(deserializeAs(productVariantAttributesClassName.className))
+        .addSuperinterface(typedProductVariantAttributesInterfaceClassName.className)
+        .addAnnotation(generated)
+        .addAnnotation(deserializeAs(typedProductVariantAttributesClassName.className))
         .primaryConstructor(constructor(productType, config))
         .addProperties(productType.attributes.map { attribute(productType, it, config) })
+        .addType(productVariantAttributesCompanionObject(productType, productType.attributes, config))
         .build()
 }
 
@@ -67,22 +68,22 @@ private fun constructor(productType: ProductType, config: Configuration): FunSpe
 private fun parameter(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): ParameterSpec =
     ParameterSpec
         .builder(
-            config.productTypeAttributeToPropertyName(productType, attributeDefinition),
-            typeNameForAttributeType(attributeDefinition.type, config)
+            config.attributeToPropertyName(productType, attributeDefinition),
+            typeNameForAttributeType(attributeDefinition.type, isAttributeRequired(productType, attributeDefinition, config), config)
         )
-        .addAnnotation(jsonProperty(config.productTypeAttributeToPropertyName(productType, attributeDefinition)))
+        .addAnnotation(jsonProperty(attributeDefinition.name))
         .build()
 
 private fun attribute(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): PropertySpec =
     PropertySpec
         .builder(
-            config.productTypeAttributeToPropertyName(productType, attributeDefinition),
-            typeNameForAttributeType(attributeDefinition.type, config)
+            config.attributeToPropertyName(productType, attributeDefinition),
+            typeNameForAttributeType(attributeDefinition.type, isAttributeRequired(productType, attributeDefinition, config), config)
         )
-        .initializer(config.productTypeAttributeToPropertyName(productType, attributeDefinition))
+        .initializer(config.attributeToPropertyName(productType, attributeDefinition))
         .build()
 
-private fun typeNameForAttributeType(attributeType: AttributeType, config: Configuration): TypeName =
+private fun typeNameForAttributeType(attributeType: AttributeType, isRequired: Boolean, config: Configuration): TypeName =
     when (attributeType) {
         is AttributeBooleanType -> Boolean::class.asTypeName()
         is AttributeTextType -> String::class.asTypeName()
@@ -95,10 +96,10 @@ private fun typeNameForAttributeType(attributeType: AttributeType, config: Confi
         is AttributeTimeType -> LocalTime::class.asTypeName()
         is AttributeDateTimeType -> ZonedDateTime::class.asTypeName()
         is AttributeReferenceType -> referenceTypeIdToClassName(attributeType.referenceTypeId)
-        is AttributeSetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, config))
+        is AttributeSetType -> SET.parameterizedBy(typeNameForAttributeType(attributeType.elementType, isRequired, config))
         is AttributeNestedType -> findProductVariantAttributesTypeByProductTypeId(attributeType.typeReference.id, config)
         else -> Any::class.asTypeName()
-    }.copy(nullable = true)
+    }.copy(nullable = !isRequired)
 
 private fun referenceTypeIdToClassName(referenceTypeId: ReferenceTypeId): ClassName =
     when (referenceTypeId) {
@@ -130,6 +131,27 @@ private fun referenceTypeIdToClassName(referenceTypeId: ReferenceTypeId): ClassN
 
 private fun findProductVariantAttributesTypeByProductTypeId(productTypeId: String, config: Configuration): TypeName =
     when (val productType = config.productTypes.find { it.id == productTypeId }) {
-        is ProductType -> ProductVariantAttributes(productType, config).className
+        is ProductType -> TypedProductVariantAttributes(productType, config).className
         else -> MUTABLE_LIST.parameterizedBy(Attribute::class.asTypeName())
     }
+
+private fun productVariantAttributesCompanionObject(productType: ProductType, attributes: List<AttributeDefinition>, config: Configuration): TypeSpec =
+    TypeSpec
+        .companionObjectBuilder()
+        .addAnnotation(generated)
+        .addProperties(attributes.map {
+            PropertySpec
+                .builder(attributeToConstantName(productType, it, config), String::class)
+                .addModifiers(KModifier.CONST)
+                .initializer("%S", it.name)
+                .build()
+        })
+        .build()
+
+private fun isAttributeRequired(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration): Boolean =
+    config.isAttributeRequired(productType, attributeDefinition)
+
+private fun attributeToConstantName(productType: ProductType, attributeDefinition: AttributeDefinition, config: Configuration) =
+    config.attributeToPropertyName(productType, attributeDefinition)
+        .split(Regex("(?=\\p{Upper})"))
+        .joinToString("_") { it.uppercase() }

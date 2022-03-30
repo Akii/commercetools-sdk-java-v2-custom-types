@@ -77,8 +77,11 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
 
         generateCustomTypesTask.packageName.convention(project.provider { extension.packageName })
         generateCustomTypesTask.productTypeToClassName.convention(project.provider { productTypesGeneratorExtension.productTypeToClassName })
-        generateCustomTypesTask.productTypeAttributeToPropertyName.convention(project.provider { productTypesGeneratorExtension.productTypeAttributeToPropertyName })
-        generateCustomTypesTask.fieldDefinitionToPropertyName.convention(project.provider { typesGeneratorExtension.fieldDefinitionToPropertyName })
+        generateCustomTypesTask.attributeToPropertyName.convention(project.provider { productTypesGeneratorExtension.attributeToPropertyName })
+        generateCustomTypesTask.isAttributeRequired.convention(project.provider { productTypesGeneratorExtension.isAttributeRequired })
+        generateCustomTypesTask.typeToClassName.convention(project.provider { typesGeneratorExtension.typeToClassName })
+        generateCustomTypesTask.fieldToPropertyName.convention(project.provider { typesGeneratorExtension.fieldToPropertyName })
+        generateCustomTypesTask.isFieldRequired.convention(project.provider { typesGeneratorExtension.isFieldRequired })
         generateCustomTypesTask.productTypesFile.set(productTypesGeneratorExtension.productTypesFile)
         configureDefaultProjectSourceSet(project, generateCustomTypesTask.outputDirectory)
 

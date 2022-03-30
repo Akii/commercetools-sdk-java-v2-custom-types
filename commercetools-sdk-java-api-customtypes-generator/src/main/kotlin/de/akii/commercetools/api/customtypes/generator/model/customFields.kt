@@ -24,24 +24,13 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-fun customFieldsFile(config: Configuration): FileSpec {
-    val customFieldsFile = FileSpec
-        .builder("${config.packageName}.custom_fields", "typedCustomFields")
-
-    config.customTypes.forEach {
-        customFieldsFile.addType(typedCustomField(it, config))
-    }
-
-    return customFieldsFile.build()
-}
-
-private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
+fun typedCustomField(type: Type, config: Configuration): TypeSpec {
     val className = TypedCustomFields(type, config).className
     val fields = typedFields(type, config)
 
     return TypeSpec
         .classBuilder(className)
-        .addAnnotation(Generated::class)
+        .addAnnotation(generated)
         .addAnnotation(deserializeAs(className))
         .primaryConstructor(
             FunSpec
@@ -63,6 +52,7 @@ private fun typedCustomField(type: Type, config: Configuration): TypeSpec {
         )
         .addSuperinterface(CustomFields::class, "fields")
         .addType(fields)
+        .addType(customFieldCompanionObject(type, type.fieldDefinitions, config))
         .addProperty(
             PropertySpec
                 .builder("typedFields", ClassName("", "Fields"))
@@ -81,7 +71,7 @@ private fun typedFields(type: Type, config: Configuration): TypeSpec =
             else
                 listOf(KModifier.DATA)
         )
-        .addAnnotation(Generated::class)
+        .addAnnotation(generated)
         .primaryConstructor(constructor(type, config))
         .addProperties(type.fieldDefinitions.map { attribute(type, it, config) })
         .build()
@@ -96,8 +86,8 @@ private fun constructor(type: Type, config: Configuration): FunSpec =
 private fun parameter(type: Type, fieldDefinition: FieldDefinition, config: Configuration): ParameterSpec =
     ParameterSpec
         .builder(
-            config.fieldDefinitionToPropertyName(type, fieldDefinition),
-            typeNameForFieldType(fieldDefinition.type, config)
+            config.fieldToPropertyName(type, fieldDefinition),
+            typeNameForFieldType(fieldDefinition.type, isFieldRequired(type, fieldDefinition, config), config)
         )
         .addAnnotation(jsonProperty(fieldDefinition.name))
         .build()
@@ -105,13 +95,13 @@ private fun parameter(type: Type, fieldDefinition: FieldDefinition, config: Conf
 private fun attribute(type: Type, fieldDefinition: FieldDefinition, config: Configuration): PropertySpec =
     PropertySpec
         .builder(
-            config.fieldDefinitionToPropertyName(type, fieldDefinition),
-            typeNameForFieldType(fieldDefinition.type, config)
+            config.fieldToPropertyName(type, fieldDefinition),
+            typeNameForFieldType(fieldDefinition.type, isFieldRequired(type, fieldDefinition, config), config)
         )
-        .initializer(config.fieldDefinitionToPropertyName(type, fieldDefinition))
+        .initializer(config.fieldToPropertyName(type, fieldDefinition))
         .build()
 
-private fun typeNameForFieldType(fieldType: FieldType, config: Configuration): TypeName =
+private fun typeNameForFieldType(fieldType: FieldType, isRequired: Boolean, config: Configuration): TypeName =
     when (fieldType) {
         is CustomFieldBooleanType -> Boolean::class.asTypeName()
         is CustomFieldStringType -> String::class.asTypeName()
@@ -124,9 +114,9 @@ private fun typeNameForFieldType(fieldType: FieldType, config: Configuration): T
         is CustomFieldTimeType -> LocalTime::class.asTypeName()
         is CustomFieldDateTimeType -> ZonedDateTime::class.asTypeName()
         is CustomFieldReferenceType -> customFieldReferenceTypeIdToClassName(fieldType.referenceTypeId)
-        is CustomFieldSetType -> SET.parameterizedBy(typeNameForFieldType(fieldType.elementType, config))
+        is CustomFieldSetType -> SET.parameterizedBy(typeNameForFieldType(fieldType.elementType, isRequired, config))
         else -> Any::class.asTypeName()
-    }.copy(nullable = true)
+    }.copy(nullable = !isRequired)
 
 private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldReferenceValue): ClassName =
     when (referenceTypeId) {
@@ -144,3 +134,24 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
         CustomFieldReferenceValue.ZONE -> ZoneReference::class.asClassName()
         else -> Reference::class.asClassName()
     }
+
+private fun customFieldCompanionObject(type: Type, fieldDefinitions: List<FieldDefinition>, config: Configuration): TypeSpec =
+    TypeSpec
+        .companionObjectBuilder()
+        .addAnnotation(generated)
+        .addProperties(fieldDefinitions.map {
+            PropertySpec
+                .builder(fieldToConstantName(type, it, config), String::class)
+                .addModifiers(KModifier.CONST)
+                .initializer("%S", it.name)
+                .build()
+        })
+        .build()
+
+private fun isFieldRequired(type: Type, fieldDefinition: FieldDefinition, config: Configuration): Boolean =
+    config.isFieldRequired(type, fieldDefinition)
+
+private fun fieldToConstantName(type: Type, fieldDefinition: FieldDefinition, config: Configuration) =
+    config.fieldToPropertyName(type, fieldDefinition)
+        .split(Regex("(?=\\p{Upper})"))
+        .joinToString("_") { it.uppercase() }

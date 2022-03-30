@@ -11,30 +11,7 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 import io.vrap.rmf.base.client.utils.Generated
 
-fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configuration): FileSpec {
-    val file = FileSpec
-        .builder(config.packageName, "apiModules")
-        .addType(typeResolver(config))
-
-    if (config.productTypes.isNotEmpty()) {
-        file
-            .addType(customProductInterface(config))
-            .addType(fallbackProductInterface(config))
-            .addType(customProductApiModule(config))
-    }
-
-    if (config.customTypes.isNotEmpty()) {
-        typedResourceFiles.forEach {
-            file.addType(typedResourceInterface(it, config))
-            file.addType(fallbackResourceInterface(it, config))
-        }
-        file.addType(typedCustomFieldsApiModule(typedResourceFiles, config))
-    }
-
-    return file.build()
-}
-
-private fun typeResolver(config: Configuration) =
+fun typeResolverInterface(config: Configuration) =
     TypeSpec
         .interfaceBuilder(TypeResolver(config).className)
         .addTypeVariable(TypeVariableName.invoke("A"))
@@ -47,10 +24,10 @@ private fun typeResolver(config: Configuration) =
         )
         .build()
 
-private fun customProductApiModule(config: Configuration): TypeSpec =
+fun typedProductApiModule(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(ClassName(config.packageName, "CustomProductApiModule"))
-        .addAnnotation(Generated::class)
+        .classBuilder(ClassName(config.packageName, "TypedProductApiModule"))
+        .addAnnotation(generated)
         .superclass(SimpleModule::class)
         .primaryConstructor(FunSpec
             .constructorBuilder()
@@ -65,35 +42,35 @@ private fun customProductApiModule(config: Configuration): TypeSpec =
             add(
                 "addDeserializer(%1T::class.java, %2T(typeResolver))\n",
                 Product::class,
-                CustomProductDeserializer(config).className
+                TypedProductDeserializer(config).className
             )
             add(
                 "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                 Product::class,
-                "CustomProduct"
+                "ProductMixIn"
             )
             add(
                 "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                 ProductImpl::class,
-                "FallbackProduct"
+                "FallbackProductMixIn"
             )
             add(
                 "setDeserializerModifier(%1T())\n",
-                CustomProductVariantAttributesModifier(config).className,
+                TypedProductBeanDeserializerModifier(config).className,
             )
         })
         .build()
 
-private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResources>, config: Configuration): TypeSpec =
+fun typedResourcesApiModule(typedResourceFiles: List<TypedResources>, config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(ClassName(config.packageName, "TypedCustomFieldsApiModule"))
-        .addAnnotation(Generated::class)
+        .classBuilder(ClassName(config.packageName, "TypedResourcesApiModule"))
+        .addAnnotation(generated)
         .superclass(SimpleModule::class)
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addParameter(ParameterSpec
                 .builder("typeResolver", TypeResolver(config).className.parameterizedBy(Type::class.asTypeName()))
-                .defaultValue("%T()", CustomTypeResolver(config).className)
+                .defaultValue("%T()", TypedResourceTypeResolver(config).className)
                 .build()
             )
             .build()
@@ -108,41 +85,45 @@ private fun typedCustomFieldsApiModule(typedResourceFiles: List<TypedResources>,
                 add(
                     "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                     it.resourceInterface,
-                    "Custom${it.resourceInterface.simpleName}"
+                    "${it.resourceInterface.simpleName}MixIn"
                 )
                 add(
                     "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                     it.resourceDefaultImplementation,
-                    "Fallback${it.resourceInterface.simpleName}"
+                    "Fallback${it.resourceInterface.simpleName}MixIn"
                 )
             }
+            add(
+                "setDeserializerModifier(%1T())\n",
+                TypedResourceBeanDeserializerModifier(config).className,
+            )
         })
         .build()
 
-private fun customProductInterface(config: Configuration): TypeSpec =
+fun productMixInInterface(config: Configuration): TypeSpec =
     TypeSpec
-        .interfaceBuilder(ClassName(config.packageName, "CustomProduct"))
-        .addAnnotation(Generated::class)
+        .interfaceBuilder(ClassName(config.packageName, "ProductMixIn"))
+        .addAnnotation(generated)
         .addAnnotation(deserializeAs(Product::class.asClassName()))
         .build()
 
-private fun fallbackProductInterface(config: Configuration) =
+fun fallbackProductInterface(config: Configuration) =
     TypeSpec
-        .interfaceBuilder(ClassName(config.packageName, "FallbackProduct"))
-        .addAnnotation(Generated::class)
+        .interfaceBuilder(ClassName(config.packageName, "FallbackProductMixIn"))
+        .addAnnotation(generated)
         .addAnnotation(deserializeAs(ProductImpl::class.asClassName()))
         .build()
 
-private fun typedResourceInterface(typedResourceFile: TypedResources, config: Configuration) =
+fun resourceMixInInterface(typedResourceFile: TypedResources, config: Configuration) =
     TypeSpec
-        .interfaceBuilder(ClassName(config.packageName, "Custom${typedResourceFile.resourceInterface.simpleName}"))
-        .addAnnotation(Generated::class)
+        .interfaceBuilder(ClassName(config.packageName, "${typedResourceFile.resourceInterface.simpleName}MixIn"))
+        .addAnnotation(generated)
         .addAnnotation(deserializeAs(typedResourceFile.resourceInterface.asClassName()))
         .build()
 
-private fun fallbackResourceInterface(typedResourceFile: TypedResources, config: Configuration) =
+fun fallbackResourceInterface(typedResourceFile: TypedResources, config: Configuration) =
     TypeSpec
-        .interfaceBuilder(ClassName(config.packageName, "Fallback${typedResourceFile.resourceInterface.simpleName}"))
-        .addAnnotation(Generated::class)
+        .interfaceBuilder(ClassName(config.packageName, "Fallback${typedResourceFile.resourceInterface.simpleName}MixIn"))
+        .addAnnotation(generated)
         .addAnnotation(deserializeAs(typedResourceFile.resourceDefaultImplementation.asClassName()))
         .build()

@@ -7,12 +7,12 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.Generated
 
 fun productData(
-    productDataClassName: ProductData,
-    productVariantClassName: ProductVariant,
+    typedProductDataClassName: TypedProductData,
+    typedProductVariantClassName: TypedProductVariant,
 ): TypeSpec = TypeSpec
-    .classBuilder(productDataClassName.className)
-    .addAnnotation(Generated::class)
-    .addAnnotation(deserializeAs(productDataClassName.className))
+    .classBuilder(typedProductDataClassName.className)
+    .addAnnotation(generated)
+    .addAnnotation(deserializeAs(typedProductDataClassName.className))
     .primaryConstructor(FunSpec
         .constructorBuilder()
         .addAnnotation(jsonCreator)
@@ -22,12 +22,12 @@ fun productData(
             .build()
         )
         .addParameter(ParameterSpec
-            .builder("masterVariant", productVariantClassName.className)
+            .builder("masterVariant", typedProductVariantClassName.className)
             .addAnnotation(jsonProperty("masterVariant"))
             .build()
         )
         .addParameter(ParameterSpec
-            .builder("variants", LIST.parameterizedBy(productVariantClassName.className))
+            .builder("variants", LIST.parameterizedBy(typedProductVariantClassName.className))
             .addAnnotation(jsonProperty("variants"))
             .build()
         )
@@ -36,14 +36,14 @@ fun productData(
     .addSuperinterface(com.commercetools.api.models.product.ProductData::class, "delegate")
     .addProperty(
         PropertySpec
-            .builder("masterVariant", productVariantClassName.className)
+            .builder("masterVariant", typedProductVariantClassName.className)
             .initializer("masterVariant")
             .addModifiers(KModifier.PRIVATE)
             .build()
     )
     .addProperty(
         PropertySpec
-            .builder("variants", LIST.parameterizedBy(productVariantClassName.className))
+            .builder("variants", LIST.parameterizedBy(typedProductVariantClassName.className))
             .initializer("variants")
             .addModifiers(KModifier.PRIVATE)
             .build()
@@ -51,7 +51,7 @@ fun productData(
     .addFunction(
         FunSpec
             .builder("getMasterVariant")
-            .returns(productVariantClassName.className)
+            .returns(typedProductVariantClassName.className)
             .addStatement("return this.masterVariant")
             .addModifiers(KModifier.OVERRIDE)
             .build()
@@ -59,7 +59,7 @@ fun productData(
     .addFunction(
         FunSpec
             .builder("getVariants")
-            .returns(LIST.parameterizedBy(productVariantClassName.className))
+            .returns(LIST.parameterizedBy(typedProductVariantClassName.className))
             .addStatement("return this.variants")
             .addModifiers(KModifier.OVERRIDE)
             .build()
