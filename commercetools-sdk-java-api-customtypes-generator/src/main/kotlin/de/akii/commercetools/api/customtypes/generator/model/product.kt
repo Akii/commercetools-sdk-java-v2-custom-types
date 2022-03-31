@@ -4,7 +4,6 @@ import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 
 fun typedProductInterface(config: Configuration) =
     TypeSpec

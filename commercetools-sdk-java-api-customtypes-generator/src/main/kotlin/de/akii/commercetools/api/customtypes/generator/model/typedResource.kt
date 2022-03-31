@@ -34,7 +34,6 @@ import com.commercetools.api.models.type.ResourceTypeId
 import com.commercetools.api.models.type.Type
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 import kotlin.reflect.KClass
 
 data class TypedResources(

@@ -19,7 +19,6 @@ import com.commercetools.api.models.zone.ZoneReference
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -71,7 +70,6 @@ private fun typedFields(type: Type, config: Configuration): TypeSpec =
             else
                 listOf(KModifier.DATA)
         )
-        .addAnnotation(generated)
         .primaryConstructor(constructor(type, config))
         .addProperties(type.fieldDefinitions.map { attribute(type, it, config) })
         .build()
@@ -138,7 +136,6 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
 private fun customFieldCompanionObject(type: Type, fieldDefinitions: List<FieldDefinition>, config: Configuration): TypeSpec =
     TypeSpec
         .companionObjectBuilder()
-        .addAnnotation(generated)
         .addProperties(fieldDefinitions.map {
             PropertySpec
                 .builder(fieldToConstantName(type, it, config), String::class)

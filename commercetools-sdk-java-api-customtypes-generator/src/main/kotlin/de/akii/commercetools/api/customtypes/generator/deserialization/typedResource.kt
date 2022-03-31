@@ -10,7 +10,6 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.TypedResources
-import io.vrap.rmf.base.client.utils.Generated
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
 fun typedResourceTypeResolver(config: Configuration): TypeSpec =
@@ -74,6 +73,7 @@ fun typedResourceTypeResolver(config: Configuration): TypeSpec =
                         }
                     }
                 }
+
             """.trimIndent())
         )
         .addFunction(FunSpec

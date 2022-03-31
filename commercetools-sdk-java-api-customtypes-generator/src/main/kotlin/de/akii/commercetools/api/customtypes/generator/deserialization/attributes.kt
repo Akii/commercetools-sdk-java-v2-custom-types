@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 
 fun typedProductVariantAttributesDelegatingDeserializer(config: Configuration): TypeSpec =
     TypeSpec

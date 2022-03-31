@@ -4,7 +4,6 @@ import com.commercetools.api.models.product.*
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.common.TypedProductVariant
-import io.vrap.rmf.base.client.utils.Generated
 
 fun productVariant(
     typedProductVariantClassName: TypedProductVariant,

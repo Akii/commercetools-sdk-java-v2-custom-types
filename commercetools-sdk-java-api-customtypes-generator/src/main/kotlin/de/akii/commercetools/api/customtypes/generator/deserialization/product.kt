@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
 fun productTypeResolver(config: Configuration): TypeSpec =
@@ -75,6 +74,7 @@ fun productTypeResolver(config: Configuration): TypeSpec =
                         }
                     }
                 }
+
             """.trimIndent())
         )
         .addFunction(FunSpec

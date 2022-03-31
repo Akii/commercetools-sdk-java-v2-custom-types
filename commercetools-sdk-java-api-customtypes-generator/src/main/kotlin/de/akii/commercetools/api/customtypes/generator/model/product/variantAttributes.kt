@@ -31,7 +31,6 @@ import com.commercetools.api.models.zone.ZoneReference
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -138,7 +137,6 @@ private fun findProductVariantAttributesTypeByProductTypeId(productTypeId: Strin
 private fun productVariantAttributesCompanionObject(productType: ProductType, attributes: List<AttributeDefinition>, config: Configuration): TypeSpec =
     TypeSpec
         .companionObjectBuilder()
-        .addAnnotation(generated)
         .addProperties(attributes.map {
             PropertySpec
                 .builder(attributeToConstantName(productType, it, config), String::class)

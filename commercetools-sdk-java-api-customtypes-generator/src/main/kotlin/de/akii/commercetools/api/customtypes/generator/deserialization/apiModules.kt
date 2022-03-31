@@ -9,11 +9,11 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.TypedResources
-import io.vrap.rmf.base.client.utils.Generated
 
 fun typeResolverInterface(config: Configuration) =
     TypeSpec
         .interfaceBuilder(TypeResolver(config).className)
+        .addAnnotation(generated)
         .addTypeVariable(TypeVariableName.invoke("A"))
         .addFunction(FunSpec
             .builder("resolveTypeKey")

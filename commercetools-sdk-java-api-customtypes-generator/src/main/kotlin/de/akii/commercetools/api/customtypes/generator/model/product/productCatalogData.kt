@@ -3,7 +3,6 @@ package de.akii.commercetools.api.customtypes.generator.model.product
 import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
-import io.vrap.rmf.base.client.utils.Generated
 
 fun productCatalogData(
     typedProductCatalogDataClassName: TypedProductCatalogData,
