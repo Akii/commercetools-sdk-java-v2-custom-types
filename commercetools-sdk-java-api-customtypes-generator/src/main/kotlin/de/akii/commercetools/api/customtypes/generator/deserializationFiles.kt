@@ -6,16 +6,20 @@ import de.akii.commercetools.api.customtypes.generator.deserialization.*
 import de.akii.commercetools.api.customtypes.generator.model.*
 
 fun deserializationFiles(typedResourceFiles: List<TypedResources>, config: Configuration): List<FileSpec> {
-    val apiModuleFile = apiModulesFile(typedResourceFiles, config)
-    val typedProductDeserializerFile = typedProductDeserializerFile(config)
-    val typedResourceDeserializerFiles = typedResourceDeserializerFiles(typedResourceFiles, config)
-    val typedResourcesDeserializerFile = typedResourcesDeserializerFile(config)
+    val files = mutableListOf<FileSpec>()
 
-    return listOf(
-        apiModuleFile,
-        typedProductDeserializerFile,
-        typedResourcesDeserializerFile
-    ) + typedResourceDeserializerFiles
+    files.add(apiModulesFile(typedResourceFiles, config))
+
+    if (config.productTypes.isNotEmpty()) {
+        files.add(typedProductDeserializerFile(config))
+    }
+
+    if (config.customTypes.isNotEmpty()) {
+        files.addAll(typedResourceDeserializerFiles(typedResourceFiles, config))
+        files.add(typedResourcesDeserializerFile(config))
+    }
+
+    return files
 }
 
 fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configuration): FileSpec {
