@@ -38,6 +38,9 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     val packageName: Property<String> = project.objects.property(String::class.java)
 
     @Input
+    val productTypeToKey: Property<(ProductType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType) -> String>
+
+    @Input
     val productTypeToClassName: Property<(ProductType, ProductClassType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, ProductClassType) -> String>
 
     @Input
@@ -45,6 +48,9 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
 
     @Input
     val isAttributeRequired: Property<(ProductType, AttributeDefinition) -> Boolean> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> Boolean>
+
+    @Input
+    val typeToKey: Property<(Type) -> String> = project.objects.property(Any::class.java) as Property<(Type) -> String>
 
     @Input
     val typeToClassName: Property<(Type, String) -> String> = project.objects.property(Any::class.java) as Property<(Type, String) -> String>
@@ -93,9 +99,11 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             packageName.get(),
             productTypes,
             types,
+            productTypeToKey = { type -> productTypeToKey.get()(type) },
             productTypeToClassName = { type, classType -> productTypeToClassName.get()(type, classType) },
             attributeToPropertyName = { type, attribute -> attributeToPropertyName.get()(type, attribute) },
             isAttributeRequired = { type, attribute -> isAttributeRequired.get()(type, attribute) },
+            typeToKey = { type -> typeToKey.get()(type) },
             typeToClassName = { type, resourceName -> typeToClassName.get()(type, resourceName) },
             fieldToPropertyName = { type, field -> fieldToPropertyName.get()(type, field) },
             isFieldRequired = { type, field -> isFieldRequired.get()(type, field) }

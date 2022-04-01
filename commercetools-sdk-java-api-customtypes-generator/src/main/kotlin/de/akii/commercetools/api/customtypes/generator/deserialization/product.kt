@@ -13,6 +13,14 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
+val defaultProductTypeToKey =
+    FunSpec
+        .builder("defaultProductTypeToKey")
+        .addParameter("productType", ProductType::class)
+        .addStatement("return productType.key!!")
+        .returns(String::class)
+        .build()
+
 fun productTypeResolver(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(ProductTypeResolver(config).className)
@@ -22,6 +30,11 @@ fun productTypeResolver(config: Configuration): TypeSpec =
             .addParameter(ParameterSpec
                 .builder("runtimeTypes", LIST.parameterizedBy(ProductType::class.asTypeName()).copy(nullable = true))
                 .defaultValue("null")
+                .build()
+            )
+            .addParameter(ParameterSpec
+                .builder("productTypeToKey", LambdaTypeName.get(null, ProductType::class.asClassName(), returnType = String::class.asTypeName()))
+                .defaultValue("::defaultProductTypeToKey")
                 .build()
             )
             .build()
@@ -53,7 +66,7 @@ fun productTypeResolver(config: Configuration): TypeSpec =
             .builder("typeIdMap", MAP.parameterizedBy(String::class.asTypeName(), String::class.asTypeName()), KModifier.PRIVATE)
             .initializer("""
                 mapOf(
-                    *(runtimeTypes ?: compiledTypes).map { it.id to it.key!! }.toTypedArray()
+                    *(runtimeTypes ?: compiledTypes).map { it.id to productTypeToKey(it) }.toTypedArray()
                 )
             """.trimIndent())
             .build()
@@ -166,7 +179,7 @@ private fun deserialize(config: Configuration): FunSpec =
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            val productTypeId: String? = typeResolver.resolveTypeKey(node?.path("productType")?.path("id")?.asText()!!)
+            val productTypeKey: String? = typeResolver.resolveTypeKey(node?.path("productType")?.path("id")?.asText()!!)
 
         """.trimIndent())
         .addCode(generateProductTypeToIdMap(config))
@@ -176,13 +189,13 @@ private fun deserialize(config: Configuration): FunSpec =
 private fun generateProductTypeToIdMap(config: Configuration): CodeBlock {
     val whenExpression = CodeBlock
         .builder()
-        .add("return when (productTypeId) {\n")
+        .add("return when (productTypeKey) {\n")
         .add("⇥")
 
     config.productTypes.forEach {
         whenExpression.add(
             "%1S -> ctxt?.readValue(makeParser(node, codec), %2T::class.java)\n",
-            it.key!!,
+            config.productTypeToKey(it),
             TypedProduct(it, config).className
         )
     }

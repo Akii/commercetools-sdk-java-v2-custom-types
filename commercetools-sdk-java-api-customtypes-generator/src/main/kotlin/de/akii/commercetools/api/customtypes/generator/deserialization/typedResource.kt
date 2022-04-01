@@ -12,6 +12,14 @@ import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 
+val defaultTypeToKey =
+    FunSpec
+        .builder("defaultTypeToKey")
+        .addParameter("type", Type::class)
+        .addStatement("return type.key")
+        .returns(String::class)
+        .build()
+
 fun typedResourceTypeResolver(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(TypedResourceTypeResolver(config).className)
@@ -21,6 +29,11 @@ fun typedResourceTypeResolver(config: Configuration): TypeSpec =
             .addParameter(ParameterSpec
                 .builder("runtimeTypes", LIST.parameterizedBy(Type::class.asTypeName()).copy(nullable = true))
                 .defaultValue("null")
+                .build()
+            )
+            .addParameter(ParameterSpec
+                .builder("typeToKey", LambdaTypeName.get(null, Type::class.asClassName(), returnType = String::class.asTypeName()))
+                .defaultValue("::defaultTypeToKey")
                 .build()
             )
             .build()
@@ -52,7 +65,7 @@ fun typedResourceTypeResolver(config: Configuration): TypeSpec =
             .builder("typeIdMap", MAP.parameterizedBy(String::class.asTypeName(), String::class.asTypeName()), KModifier.PRIVATE)
             .initializer("""
                 mapOf(
-                    *(runtimeTypes ?: compiledTypes).map { it.id to it.key }.toTypedArray()
+                    *(runtimeTypes ?: compiledTypes).map { it.id to typeToKey(it) }.toTypedArray()
                 )
             """.trimIndent())
             .build()
@@ -104,7 +117,7 @@ fun typedResourceDeserializer(typedResources: TypedResources, config: Configurat
             .initializer("typeResolver")
             .build()
         )
-        .addFunction(deserialize(typedResources))
+        .addFunction(deserialize(typedResources, config))
         .addFunction(makeParser)
         .build()
 
@@ -150,7 +163,7 @@ fun typedResourceDelegatingDeserializer(config: Configuration): TypeSpec =
         .addFunction(makeParser)
         .build()
 
-private fun deserialize(typedResources: TypedResources): FunSpec =
+private fun deserialize(typedResources: TypedResources, config: Configuration): FunSpec =
     FunSpec
         .builder("deserialize")
         .addModifiers(KModifier.OVERRIDE)
@@ -159,23 +172,23 @@ private fun deserialize(typedResources: TypedResources): FunSpec =
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            val typeId: String? = typeResolver.resolveTypeKey(node?.path("custom")?.path("type")?.path("id")?.asText() ?: "")
+            val typeKey: String? = typeResolver.resolveTypeKey(node?.path("custom")?.path("type")?.path("id")?.asText() ?: "")
 
         """.trimIndent())
-        .addCode(generateTypeToIdMap(typedResources))
+        .addCode(generateTypeToIdMap(typedResources, config))
         .returns(typedResources.resourceInterface.asTypeName().copy(nullable = true))
         .build()
 
-private fun generateTypeToIdMap(typedResources: TypedResources): CodeBlock {
+private fun generateTypeToIdMap(typedResources: TypedResources, config: Configuration): CodeBlock {
     val whenExpression = CodeBlock
         .builder()
-        .add("return when (typeId) {\n")
+        .add("return when (typeKey) {\n")
         .add("⇥")
 
     typedResources.resources.forEach {
         whenExpression.add(
             "%1S -> ctxt?.readValue(makeParser(node, codec), %2T::class.java)\n",
-            it.type.key!!,
+            config.typeToKey(it.type),
             it.typedResourceClassName
         )
     }

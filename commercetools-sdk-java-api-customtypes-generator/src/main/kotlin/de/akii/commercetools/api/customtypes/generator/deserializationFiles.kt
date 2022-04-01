@@ -44,6 +44,7 @@ fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configurati
 fun typedProductDeserializerFile(config: Configuration): FileSpec =
     FileSpec
         .builder("${config.packageName}.product", "deserializer")
+        .addFunction(defaultProductTypeToKey)
         .addType(productTypeResolver(config))
         .addType(typedProductDeserializer(config))
         .addType(typedProductBeanDeserializerModifier(config))
@@ -63,6 +64,7 @@ fun typedResourceDeserializerFiles(typedResources: List<TypedResources>, config:
 fun typedResourcesDeserializerFile(config: Configuration) =
     FileSpec
         .builder("${config.packageName}.typed_resources", "deserializer")
+        .addFunction(defaultTypeToKey)
         .addType(typedResourceTypeResolver(config))
         .addType(typedResourceBeanDeserializerModifier(config))
         .addType(typedResourceDelegatingDeserializer(config))

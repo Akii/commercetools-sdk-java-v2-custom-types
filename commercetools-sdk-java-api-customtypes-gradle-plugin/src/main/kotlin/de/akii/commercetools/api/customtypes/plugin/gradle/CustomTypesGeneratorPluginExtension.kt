@@ -68,6 +68,14 @@ open class CustomProductTypesGeneratorConfiguration {
     var productTypesFile: File? = null
 
     /**
+     * This function defines which key is used for product type identification.
+     *
+     * If you configure this function you _must_ also configure the product type resolver with the same
+     * implementation.
+     */
+    var productTypeToKey: (productType: ProductType) -> String = ::productTypeToKey
+
+    /**
      * This function defines how class names are computed from commercetools product types.
      *
      * The library assumes the class names are unique for every product type.
@@ -101,6 +109,14 @@ open class CustomTypesGeneratorConfiguration {
      * If given, the plugin will not attempt to fetch the types from commercetools.
      */
     var typesFile: File? = null
+
+    /**
+     * This function defines which key is used for type identification.
+     *
+     * If you configure this function you _must_ also configure the type resolver with the same
+     * implementation.
+     */
+    var typeToKey: (type: Type) -> String = ::typeToKey
 
     /**
      * This function defines how class names are computed from commercetools resource types.

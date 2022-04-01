@@ -14,14 +14,19 @@ data class Configuration(
     val productTypes: List<ProductType>,
     val customTypes: List<Type>,
 
+    val productTypeToKey: (productType: ProductType) -> String = ::productTypeToKey,
     val productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName,
     val attributeToPropertyName: (productType: ProductType, attribute: AttributeDefinition) -> String = ::attributeToPropertyName,
     val isAttributeRequired: (productType: ProductType, attribute: AttributeDefinition) -> Boolean = ::isAttributeRequired,
 
+    val typeToKey: (type: Type) -> String = ::typeToKey,
     val typeToClassName: (type: Type, referenceTypeName: String) -> String = ::typeToClassName,
     val fieldToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldToPropertyName,
     val isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired
 )
+
+fun productTypeToKey(productType: ProductType): String =
+    productType.key!!
 
 fun productTypeToClassName(productType: ProductType, productClassType: ProductClassType): String =
     productType
@@ -43,6 +48,9 @@ fun attributeToPropertyName(@Suppress("UNUSED_PARAMETER") productType: ProductTy
 fun isAttributeRequired(
     @Suppress("UNUSED_PARAMETER") productType: ProductType,
     @Suppress("UNUSED_PARAMETER") attribute: AttributeDefinition): Boolean = false
+
+fun typeToKey(type: Type): String =
+    type.key
 
 fun typeToClassName(type: Type, referenceTypeName: String): String =
     "${classNamePrefix(type.key)}${classNamePrefix(referenceTypeName)}"
