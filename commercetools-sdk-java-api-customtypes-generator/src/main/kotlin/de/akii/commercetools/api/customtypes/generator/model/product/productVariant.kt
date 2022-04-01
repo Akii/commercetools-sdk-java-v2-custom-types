@@ -32,14 +32,6 @@ fun productVariant(
         PropertySpec
             .builder("typedAttributes", typedProductVariantAttributesClassName.className)
             .initializer("typedAttributes")
-            .addModifiers(KModifier.PRIVATE)
-            .build()
-    )
-    .addFunction(
-        FunSpec
-            .builder("getTypedAttributes")
-            .returns(typedProductVariantAttributesClassName.className)
-            .addStatement("return this.typedAttributes")
             .build()
     )
     .build()
