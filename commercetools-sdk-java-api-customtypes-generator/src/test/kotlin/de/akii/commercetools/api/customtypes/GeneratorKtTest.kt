@@ -101,7 +101,7 @@ internal class GeneratorKtTest {
         assertThat(invokeMethod("getAText", typedAttributes) as String).isEqualTo("Text!")
         assertThat(invokeMethod("getAnEnum", typedAttributes)).isNotNull
         assertThat(invokeMethod("getALocEnum", typedAttributes)).isNotNull
-        assertThat(invokeMethod("getANumber", typedAttributes) as Int).isEqualTo(106)
+        assertThat(invokeMethod("getANumber", typedAttributes) as Double).isEqualTo(106.0)
         assertThat(invokeMethod("getSomeMoney", typedAttributes)).isNotNull
         assertThat(invokeMethod("getADate", typedAttributes)).isEqualTo(LocalDate.parse("2022-02-02"))
         assertThat(invokeMethod("getATime", typedAttributes)).isEqualTo(LocalTime.parse("12:30:00.000"))

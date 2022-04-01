@@ -106,7 +106,7 @@ private fun typeNameForFieldType(fieldType: FieldType, isRequired: Boolean, conf
         is CustomFieldLocalizedStringType -> LocalizedString::class.asTypeName()
         is CustomFieldEnumType -> CustomFieldEnumValue::class.asTypeName()
         is CustomFieldLocalizedEnumValue -> CustomFieldLocalizedEnumValue::class.asTypeName()
-        is CustomFieldNumberType -> Int::class.asTypeName()
+        is CustomFieldNumberType -> Double::class.asTypeName()
         is CustomFieldMoneyType -> TypedMoney::class.asTypeName()
         is CustomFieldDateType -> LocalDate::class.asTypeName()
         is CustomFieldTimeType -> LocalTime::class.asTypeName()
