@@ -39,6 +39,16 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
         )
         .addSuperinterface(com.commercetools.api.models.product.Product::class, "delegate")
         .addSuperinterface(TypedProductInterface(config).className)
+        .addType(TypeSpec
+            .companionObjectBuilder()
+            .addProperty(PropertySpec
+                .builder("_TYPE_KEY", String::class)
+                .addModifiers(KModifier.CONST)
+                .initializer("%S", config.productTypeToKey(productType))
+                .build()
+            )
+            .build()
+        )
         .addProperty(
             PropertySpec
                 .builder("masterData", TypedProductCatalogData(productType, config).className)

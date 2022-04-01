@@ -74,7 +74,7 @@ fun productTypeResolver(config: Configuration): TypeSpec =
         .addInitializerBlock(CodeBlock.of("""
                 if (runtimeTypes != null) {
                     compiledTypes.forEach { compiledType ->
-                        val runtimeType = runtimeTypes.find { it.key == compiledType.key } ?:
+                        val runtimeType = runtimeTypes.find { productTypeToKey(it) == productTypeToKey(compiledType) } ?:
                             throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·product·type·with·name·${'$'}{compiledType.name}")
     
                         compiledType.attributes.forEach { compiledAttribute ->
@@ -91,12 +91,21 @@ fun productTypeResolver(config: Configuration): TypeSpec =
             """.trimIndent())
         )
         .addFunction(FunSpec
-            .builder("resolveTypeKey")
+            .builder("resolveTypeKeyById")
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("typeId", String::class)
             .addCode("return typeIdMap[typeId]")
             .returns(String::class.asTypeName().copy(nullable = true))
-            .build())
+            .build()
+        )
+        .addFunction(FunSpec
+            .builder("resolveTypeIdByKey")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("typeKey", String::class)
+            .addCode("return typeIdMap.filterValues { it == typeKey }.keys.first()")
+            .returns(String::class.asTypeName().copy(nullable = true))
+            .build()
+        )
         .build()
 
 fun typedProductDeserializer(config: Configuration): TypeSpec =
@@ -179,7 +188,7 @@ private fun deserialize(config: Configuration): FunSpec =
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            val productTypeKey: String? = typeResolver.resolveTypeKey(node?.path("productType")?.path("id")?.asText()!!)
+            val productTypeKey: String? = typeResolver.resolveTypeKeyById(node?.path("productType")?.path("id")?.asText()!!)
 
         """.trimIndent())
         .addCode(generateProductTypeToIdMap(config))

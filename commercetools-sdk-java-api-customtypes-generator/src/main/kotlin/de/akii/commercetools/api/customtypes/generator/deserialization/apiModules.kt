@@ -16,9 +16,16 @@ fun typeResolverInterface(config: Configuration) =
         .addAnnotation(generated)
         .addTypeVariable(TypeVariableName.invoke("A"))
         .addFunction(FunSpec
-            .builder("resolveTypeKey")
+            .builder("resolveTypeKeyById")
             .addModifiers(KModifier.ABSTRACT)
             .addParameter("typeId", String::class)
+            .returns(String::class.asTypeName().copy(nullable = true))
+            .build()
+        )
+        .addFunction(FunSpec
+            .builder("resolveTypeIdByKey")
+            .addModifiers(KModifier.ABSTRACT)
+            .addParameter("typeKey", String::class)
             .returns(String::class.asTypeName().copy(nullable = true))
             .build()
         )

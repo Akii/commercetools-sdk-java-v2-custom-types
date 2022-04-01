@@ -73,8 +73,8 @@ fun typedResourceTypeResolver(config: Configuration): TypeSpec =
         .addInitializerBlock(CodeBlock.of("""
                 if (runtimeTypes != null) {
                     compiledTypes.forEach { compiledType ->
-                        val runtimeType = runtimeTypes.find { it.key == compiledType.key } ?:
-                            throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·type·with·key·${'$'}{compiledType.key}")
+                        val runtimeType = runtimeTypes.find { typeToKey(it) == typeToKey(compiledType) } ?:
+                            throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·type·with·key·${'$'}{typeToKey(compiledType)}")
         
                         compiledType.fieldDefinitions.forEach { compiledField ->
                             val runtimeField = runtimeType.fieldDefinitions.find { it.name == compiledField.name } ?:
@@ -90,12 +90,21 @@ fun typedResourceTypeResolver(config: Configuration): TypeSpec =
             """.trimIndent())
         )
         .addFunction(FunSpec
-            .builder("resolveTypeKey")
+            .builder("resolveTypeKeyById")
             .addModifiers(KModifier.OVERRIDE)
             .addParameter("typeId", String::class)
             .addCode("return typeIdMap[typeId]")
             .returns(String::class.asTypeName().copy(nullable = true))
-            .build())
+            .build()
+        )
+        .addFunction(FunSpec
+            .builder("resolveTypeIdByKey")
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter("typeKey", String::class)
+            .addCode("return typeIdMap.filterValues { it == typeKey }.keys.first()")
+            .returns(String::class.asTypeName().copy(nullable = true))
+            .build()
+        )
         .build()
 
 fun typedResourceDeserializer(typedResources: TypedResources, config: Configuration): TypeSpec =
@@ -172,7 +181,7 @@ private fun deserialize(typedResources: TypedResources, config: Configuration): 
         .addCode("""
             val codec = p?.codec
             val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
-            val typeKey: String? = typeResolver.resolveTypeKey(node?.path("custom")?.path("type")?.path("id")?.asText() ?: "")
+            val typeKey: String? = typeResolver.resolveTypeKeyById(node?.path("custom")?.path("type")?.path("id")?.asText() ?: "")
 
         """.trimIndent())
         .addCode(generateTypeToIdMap(typedResources, config))
