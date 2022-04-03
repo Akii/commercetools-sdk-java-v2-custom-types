@@ -37,28 +37,28 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     @Option(option = "packageName", description = "target package name to use for generated classes")
     val packageName: Property<String> = project.objects.property(String::class.java)
 
-    @Input
+    @Internal
     val productTypeToKey: Property<(ProductType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType) -> String>
 
-    @Input
+    @Internal
     val productTypeToClassName: Property<(ProductType, ProductClassType) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, ProductClassType) -> String>
 
-    @Input
+    @Internal
     val attributeToPropertyName: Property<(ProductType, AttributeDefinition) -> String> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> String>
 
-    @Input
+    @Internal
     val isAttributeRequired: Property<(ProductType, AttributeDefinition) -> Boolean> = project.objects.property(Any::class.java) as Property<(ProductType, AttributeDefinition) -> Boolean>
 
-    @Input
+    @Internal
     val typeToKey: Property<(Type) -> String> = project.objects.property(Any::class.java) as Property<(Type) -> String>
 
-    @Input
+    @Internal
     val typeToClassName: Property<(Type, String) -> String> = project.objects.property(Any::class.java) as Property<(Type, String) -> String>
 
-    @Input
+    @Internal
     val fieldToPropertyName: Property<(Type, FieldDefinition) -> String> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> String>
 
-    @Input
+    @Internal
     val isFieldRequired: Property<(Type, FieldDefinition) -> Boolean> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> Boolean>
 
     @OutputDirectory
