@@ -75,14 +75,14 @@ fun productTypeResolver(config: Configuration): TypeSpec =
                 if (runtimeTypes != null) {
                     compiledTypes.forEach { compiledType ->
                         val runtimeType = runtimeTypes.find { productTypeToKey(it) == productTypeToKey(compiledType) } ?:
-                            throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·product·type·with·name·${'$'}{compiledType.name}")
+                            throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·product·type·with·name·\"${'$'}{compiledType.name}\"")
     
                         compiledType.attributes.forEach { compiledAttribute ->
                             val runtimeAttribute = runtimeType.attributes.find { it.name == compiledAttribute.name } ?:
-                                throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·attribute·with·name·${'$'}{compiledAttribute.name}·in·product·type·${'$'}{compiledType.name}")
+                                throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·attribute·with·name·\"${'$'}{compiledAttribute.name}\"·in·product·type·\"${'$'}{compiledType.name}\"")
     
                             if (compiledAttribute.type != runtimeAttribute.type) {
-                                throw RuntimeException("Types·verification·failed:·Attribute·type·differs·for·attribute·with·name·${'$'}{compiledAttribute.name}·in·product·type·${'$'}{compiledType.name}·between·compiled·attribute·type·${'$'}{compiledAttribute.type}·and·runtime·attribute·type·${'$'}{compiledAttribute.type}")
+                                throw RuntimeException("Types·verification·failed:·Attribute·type·differs·for·attribute·with·name·\"${'$'}{compiledAttribute.name}\"·in·product·type·\"${'$'}{compiledType.name}\"·between·compiled·attribute·type·\"${'$'}{compiledAttribute.type.name}\"·and·runtime·attribute·type·\"${'$'}{compiledAttribute.type.name}\"")
                             }
                         }
                     }

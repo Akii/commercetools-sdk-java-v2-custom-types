@@ -74,14 +74,14 @@ fun typedResourceTypeResolver(config: Configuration): TypeSpec =
                 if (runtimeTypes != null) {
                     compiledTypes.forEach { compiledType ->
                         val runtimeType = runtimeTypes.find { typeToKey(it) == typeToKey(compiledType) } ?:
-                            throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·type·with·key·${'$'}{typeToKey(compiledType)}")
+                            throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·type·with·key·\"${'$'}{typeToKey(compiledType)}\"")
         
                         compiledType.fieldDefinitions.forEach { compiledField ->
                             val runtimeField = runtimeType.fieldDefinitions.find { it.name == compiledField.name } ?:
-                                throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·attribute·with·name·${'$'}{compiledField.name}·in·type·${'$'}{compiledType.name}")
+                                throw RuntimeException("Types·verification·failed:·Unable·to·find·runtime·attribute·with·name·\"${'$'}{compiledField.name}\"·in·type·\"${'$'}{compiledType.name}\"")
         
                             if (compiledField.type != runtimeField.type) {
-                                throw RuntimeException("Types·verification·failed:·Attribute·type·differs·for·attribute·with·name·${'$'}{compiledField.name}·in·type·${'$'}{compiledType.name}·between·compiled·attribute·type·${'$'}{compiledField.type}·and·runtime·attribute·type·${'$'}{compiledField.type}")
+                                throw RuntimeException("Types·verification·failed:·Attribute·type·differs·for·attribute·with·name·\"${'$'}{compiledField.name}\"·in·type·\"${'$'}{compiledType.name}\"·between·compiled·attribute·type·\"${'$'}{compiledField.type.name}\"·and·runtime·attribute·type·\"${'$'}{compiledField.type.name}\"")
                             }
                         }
                     }
