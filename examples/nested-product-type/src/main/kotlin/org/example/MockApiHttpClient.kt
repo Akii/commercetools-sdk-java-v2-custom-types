@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture
 
 class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient {
 
-    private val nutrientProduct = javaClass.getResource("/typeAProduct.json")
+    private val foodProduct = javaClass.getResource("/foodProduct.json")
 
     override fun close() {}
 
@@ -20,7 +20,7 @@ class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient 
             ApiHttpResponse(
                 200,
                 ApiHttpHeaders(emptyList()),
-                objectMapper.readValue(nutrientProduct, outputType)
+                objectMapper.readValue(foodProduct, outputType)
             )
         )
 
@@ -32,7 +32,7 @@ class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient 
             ApiHttpResponse(
                 200,
                 ApiHttpHeaders(emptyList()),
-                objectMapper.readValue(nutrientProduct, outputType)
+                objectMapper.readValue(foodProduct, outputType)
             )
         )
 
@@ -44,7 +44,7 @@ class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient 
             ApiHttpResponse(
                 200,
                 ApiHttpHeaders(emptyList()),
-                objectMapper.readValue(nutrientProduct, outputType)
+                objectMapper.readValue(foodProduct, outputType)
             )
         )
 
@@ -57,7 +57,7 @@ class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient 
             ApiHttpResponse(
                 200,
                 ApiHttpHeaders(emptyList()),
-                nutrientProduct.readBytes()
+                foodProduct.readBytes()
             )
         )
 

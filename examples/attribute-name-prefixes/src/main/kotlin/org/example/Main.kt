@@ -2,11 +2,13 @@ package org.example
 
 import com.commercetools.api.client.ProjectApiRoot
 import com.commercetools.api.defaultconfig.ApiRootBuilder
+import com.commercetools.api.models.product.Product
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.vrap.rmf.base.client.*
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.example.models.TypedProductApiModule
-import org.example.models.product.FoodTypeProduct
+import org.example.models.product.TypeAProduct
+import org.example.models.product.TypeBProduct
 
 val objectMapper: ObjectMapper =
     JsonUtils
@@ -19,20 +21,17 @@ val apiRoot: ProjectApiRoot =
         .withSerializer(ResponseSerializer.of(objectMapper))
         .build("test")
 
-val foodProduct: FoodTypeProduct = apiRoot
+val products: List<Product> = apiRoot
     .products()
-    .withKey("nutrient-information")
     .get()
-    .executeBlocking(FoodTypeProduct::class.java)
+    .executeBlocking()
     .body
+    .results
 
-val typedAttributes = foodProduct
-    .masterData
-    .current
-    .masterVariant
-    .typedAttributes
+val typeAProduct = products[0] as TypeAProduct
+val typeBProduct = products[1] as TypeBProduct
 
-println("The taste is ${typedAttributes.taste} for these nutrients:")
-typedAttributes.nutrients.forEach { nutrient ->
-    println("   Code: ${nutrient.nutrientTypeCode} and Quantity: ${nutrient.quantityContained}")
+fun main() {
+    println(typeAProduct.masterData.current.masterVariant.typedAttributes.propertyName)
+    println(typeBProduct.masterData.current.masterVariant.typedAttributes.propertyName)
 }
