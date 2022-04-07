@@ -39,10 +39,10 @@ fun main() {
     // using provided AttributesAccessor
     val taste = productVariant.withProductVariant(AttributesAccessor::of).asString("taste")
     val nutrients = productVariant.withProductVariant(AttributesAccessor::of).get("nutrients")
-    val nutrientsValues = nutrients!!.value as List<*>
+    val nutrientsValues = nutrients!!.value as List<List<AttributeImpl>>
 
     println("The taste is $taste for these nutrients:")
-    nutrientsValues.forEach { it as ArrayList<AttributeImpl>
+    nutrientsValues.forEach {
         println("   Code: ${it[1].value} and Quality: ${it[0].value}")
     }
 

@@ -3,7 +3,7 @@ import de.akii.commercetools.api.customtypes.plugin.gradle.commercetoolsCustomTy
 plugins {
     application
     id("org.jetbrains.kotlin.jvm") version "1.6.10"
-    id("de.akii.commercetools.api.customtypes") version "0.0.21"
+    id("de.akii.commercetools.api.customtypes") version "0.0.22"
 }
 
 group "org.example"
