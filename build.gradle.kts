@@ -27,7 +27,6 @@ allprojects {
 }
 
 subprojects {
-    val kotlinVersion: String by project
     val kotlinJvmVersion: String by project
 
     val currentProject = this
@@ -125,8 +124,8 @@ subprojects {
     }
 
     dependencies {
-        implementation(kotlin("stdlib", kotlinVersion))
-        testImplementation(kotlin("test", kotlinVersion))
+        implementation(kotlin("stdlib"))
+        testImplementation(kotlin("test"))
     }
 
     tasks.test {

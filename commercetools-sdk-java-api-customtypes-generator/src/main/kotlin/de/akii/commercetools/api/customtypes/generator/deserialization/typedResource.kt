@@ -20,9 +20,9 @@ val defaultTypeToKey =
         .returns(String::class)
         .build()
 
-fun typedResourceTypeResolver(config: Configuration): TypeSpec =
+fun typedCustomFieldsTypeResolver(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(TypedResourceTypeResolver(config).className)
+        .classBuilder(CustomFieldsTypeResolver(config).className)
         .addAnnotation(generated)
         .primaryConstructor(FunSpec
             .constructorBuilder()
@@ -116,7 +116,7 @@ fun typedResourceDeserializer(typedResources: TypedResources, config: Configurat
             .constructorBuilder()
             .addParameter(ParameterSpec
                 .builder("typeResolver", TypeResolver(config).className.parameterizedBy(Type::class.asTypeName()))
-                .defaultValue("%T()", TypedResourceTypeResolver(config).className)
+                .defaultValue("%T()", CustomFieldsTypeResolver(config).className)
                 .build()
             )
             .build()
@@ -130,9 +130,9 @@ fun typedResourceDeserializer(typedResources: TypedResources, config: Configurat
         .addFunction(makeParser)
         .build()
 
-fun typedResourceBeanDeserializerModifier(config: Configuration): TypeSpec =
+fun typedCustomFieldsBeanDeserializerModifier(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(TypedResourceBeanDeserializerModifier(config).className)
+        .classBuilder(TypedCustomFieldsBeanDeserializerModifier(config).className)
         .addAnnotation(generated)
         .superclass(BeanDeserializerModifier::class)
         .addFunction(FunSpec
@@ -148,16 +148,16 @@ fun typedResourceBeanDeserializerModifier(config: Configuration): TypeSpec =
                         super.modifyDeserializer(config, beanDesc, deserializer)
                 """.trimIndent(),
                 TypedResourceInterface(config).className,
-                TypedResourceDelegatingDeserializer(config).className,
+                TypedCustomFieldsDelegatingDeserializer(config).className,
             )
             .returns(jsonDeserializerType)
             .build()
         )
         .build()
 
-fun typedResourceDelegatingDeserializer(config: Configuration): TypeSpec =
+fun typedCustomFieldsDelegatingDeserializer(config: Configuration): TypeSpec =
     TypeSpec
-        .classBuilder(TypedResourceDelegatingDeserializer(config).className)
+        .classBuilder(TypedCustomFieldsDelegatingDeserializer(config).className)
         .addAnnotation(generated)
         .primaryConstructor(FunSpec
             .constructorBuilder()
@@ -216,7 +216,7 @@ private fun newDelegatingInstance(config: Configuration) =
         .addParameter("newDelegatee", jsonDeserializerType)
         .addStatement(
             "return %1T(newDelegatee)",
-            TypedResourceDelegatingDeserializer(config).className
+            TypedCustomFieldsDelegatingDeserializer(config).className
         )
         .returns(jsonDeserializerType)
         .build()

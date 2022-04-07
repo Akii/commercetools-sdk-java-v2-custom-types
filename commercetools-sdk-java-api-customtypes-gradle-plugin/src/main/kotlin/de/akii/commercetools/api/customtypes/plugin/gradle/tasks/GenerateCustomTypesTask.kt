@@ -53,7 +53,10 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     val typeToKey: Property<(Type) -> String> = project.objects.property(Any::class.java) as Property<(Type) -> String>
 
     @Internal
-    val typeToClassName: Property<(Type, String) -> String> = project.objects.property(Any::class.java) as Property<(Type, String) -> String>
+    val typeToCustomFieldsClassName: Property<(Type) -> String> = project.objects.property(Any::class.java) as Property<(Type) -> String>
+
+    @Internal
+    val typeToResourceClassName: Property<(Type, String) -> String> = project.objects.property(Any::class.java) as Property<(Type, String) -> String>
 
     @Internal
     val fieldToPropertyName: Property<(Type, FieldDefinition) -> String> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> String>
@@ -104,7 +107,8 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             attributeToPropertyName = { type, attribute -> attributeToPropertyName.get()(type, attribute) },
             isAttributeRequired = { type, attribute -> isAttributeRequired.get()(type, attribute) },
             typeToKey = { type -> typeToKey.get()(type) },
-            typeToClassName = { type, resourceName -> typeToClassName.get()(type, resourceName) },
+            typeToCustomFieldsClassName = { type -> typeToCustomFieldsClassName.get()(type) },
+            typeToResourceClassName = { type, resourceName -> typeToResourceClassName.get()(type, resourceName) },
             fieldToPropertyName = { type, field -> fieldToPropertyName.get()(type, field) },
             isFieldRequired = { type, field -> isFieldRequired.get()(type, field) }
         )

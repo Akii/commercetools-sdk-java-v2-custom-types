@@ -136,12 +136,6 @@ private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldRe
 private fun customFieldCompanionObject(type: Type, fieldDefinitions: List<FieldDefinition>, config: Configuration): TypeSpec =
     TypeSpec
         .companionObjectBuilder()
-        .addProperty(PropertySpec
-            .builder("_TYPE_KEY", String::class)
-            .addModifiers(KModifier.CONST)
-            .initializer("%S", config.typeToKey(type))
-            .build()
-        )
         .addProperties(fieldDefinitions.map {
             PropertySpec
                 .builder(fieldToConstantName(type, it, config), String::class)

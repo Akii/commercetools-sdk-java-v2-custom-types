@@ -75,7 +75,7 @@ fun productCommonFile(config: Configuration) =
 
 fun customFieldsFile(config: Configuration): FileSpec {
     val customFieldsFile = FileSpec
-        .builder("${config.packageName}.typed_resources", "typedCustomFields")
+        .builder("${config.packageName}.custom_fields", "typedCustomFields")
 
     config.customTypes.forEach {
         customFieldsFile.addType(typedCustomField(it, config))
@@ -96,6 +96,6 @@ fun typedResourceFiles(typedResource: List<TypedResources>): List<FileSpec> =
 
 fun typedResourcesCommonFile(config: Configuration) =
     FileSpec
-        .builder("${config.packageName}.typed_resources", "common")
+        .builder("${config.packageName}.custom_fields", "common")
         .addType(typedResourceInterface(config))
         .build()

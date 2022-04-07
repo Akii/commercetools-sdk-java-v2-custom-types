@@ -55,22 +55,24 @@ class TypedProductVariantAttributes(productType: ProductType, config: Configurat
     config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes))
 
 class TypedCustomFields(type: Type, config: Configuration) :
-    ClassReference("${config.packageName}.typed_resources", "${classNamePrefix(type.key)}CustomFields")
+    ClassReference("${config.packageName}.custom_fields", config.typeToCustomFieldsClassName(type))
 
-class TypedResourceBeanDeserializerModifier(config: Configuration) :
-    ClassReference("${config.packageName}.typed_resources", "TypedResourceBeanDeserializerModifier")
+class TypedCustomFieldsBeanDeserializerModifier(config: Configuration) :
+    ClassReference("${config.packageName}.custom_fields", "TypedCustomFieldsBeanDeserializerModifier")
 
-class TypedResourceDelegatingDeserializer(config: Configuration) :
-    ClassReference("${config.packageName}.typed_resources", "TypedResourceDelegatingDeserializer")
+class TypedCustomFieldsDelegatingDeserializer(config: Configuration) :
+    ClassReference("${config.packageName}.custom_fields", "TypedCustomFieldsDelegatingDeserializer")
 
 class TypedResourceInterface(config: Configuration) :
-    ClassReference("${config.packageName}.typed_resources", "TypedResource")
+    ClassReference("${config.packageName}.custom_fields", "TypedResource")
 
-class TypedResource(type: Type, resourceTypeName: String, config: Configuration) :
-    ClassReference("${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}", "${classNamePrefix(type.key)}${classNamePrefix(resourceTypeName)}")
+class TypedResource(type: Type, resourceTypeName: String, config: Configuration) : ClassReference(
+    "${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}",
+    config.typeToResourceClassName(type, resourceTypeName))
 
-class TypedResourceTypeResolver(config: Configuration) :
-    ClassReference("${config.packageName}.typed_resources", "TypedResourceTypeResolver")
+class CustomFieldsTypeResolver(config: Configuration) :
+    ClassReference("${config.packageName}.custom_fields", "CustomFieldsTypeResolver")
 
-class TypedResourceDeserializer(typedResources: TypedResources) :
-    ClassReference(typedResources.packageName, "Typed${typedResources.resourceInterface.simpleName}Deserializer")
+class TypedResourceDeserializer(typedResources: TypedResources) : ClassReference(
+    typedResources.packageName,
+    "Typed${typedResources.resourceInterface.simpleName}Deserializer")

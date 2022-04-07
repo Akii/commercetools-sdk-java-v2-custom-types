@@ -119,12 +119,20 @@ open class CustomTypesGeneratorConfiguration {
     var typeToKey: (type: Type) -> String = ::typeToKey
 
     /**
+     * This function defines how class names are computed from commercetools custom fields.
+     *
+     * The library assumes the class names are unique for every type.
+     * Anything else will likely result in a compilation error.
+     */
+    var typeToCustomFieldsClassName: (type: Type) -> String = ::typeToCustomFieldsClassName
+
+    /**
      * This function defines how class names are computed from commercetools resource types.
      *
      * The library assumes the class names are unique for every resource type.
      * Anything else will likely result in a compilation error.
      */
-    var typeToClassName: (type: Type, referenceTypeName: String) -> String = ::typeToClassName
+    var typeToResourceClassName: (type: Type, referenceTypeName: String) -> String = ::typeToResourceClassName
 
     /**
      * This function defines how property names are computed from commercetools field definitions.

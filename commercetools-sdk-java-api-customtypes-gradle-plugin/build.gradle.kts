@@ -5,15 +5,16 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
-val commercetoolsSdkApiVersion: String by project
-val kotlinPoetVersion: String by project
+var commercetoolsSdkApiVersion: String? = null
 
 dependencies {
     compileOnly(kotlin("gradle-plugin-api"))
 
     api(project(":commercetools-sdk-java-api-customtypes-generator"))
-    compileOnly("com.squareup:kotlinpoet:$kotlinPoetVersion")
-    api("com.commercetools.sdk:commercetools-sdk-java-api:$commercetoolsSdkApiVersion")
+    compileOnly("com.squareup:kotlinpoet:1.10.2")
+    api("com.commercetools.sdk:commercetools-sdk-java-api:8.3.0") {
+        commercetoolsSdkApiVersion = version
+    }
 }
 
 gradlePlugin {

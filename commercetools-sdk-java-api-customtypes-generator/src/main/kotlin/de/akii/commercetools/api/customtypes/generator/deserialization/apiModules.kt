@@ -77,7 +77,7 @@ fun typedResourcesApiModule(typedResourceFiles: List<TypedResources>, config: Co
             .constructorBuilder()
             .addParameter(ParameterSpec
                 .builder("typeResolver", TypeResolver(config).className.parameterizedBy(Type::class.asTypeName()))
-                .defaultValue("%T()", TypedResourceTypeResolver(config).className)
+                .defaultValue("%T()", CustomFieldsTypeResolver(config).className)
                 .build()
             )
             .build()
@@ -102,7 +102,7 @@ fun typedResourcesApiModule(typedResourceFiles: List<TypedResources>, config: Co
             }
             add(
                 "setDeserializerModifier(%1T())\n",
-                TypedResourceBeanDeserializerModifier(config).className,
+                TypedCustomFieldsBeanDeserializerModifier(config).className,
             )
         })
         .build()

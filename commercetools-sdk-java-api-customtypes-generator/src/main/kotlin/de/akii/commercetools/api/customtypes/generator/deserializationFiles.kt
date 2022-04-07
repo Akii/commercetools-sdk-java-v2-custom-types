@@ -67,9 +67,9 @@ fun typedResourceDeserializerFiles(typedResources: List<TypedResources>, config:
 
 fun typedResourcesDeserializerFile(config: Configuration) =
     FileSpec
-        .builder("${config.packageName}.typed_resources", "deserializer")
+        .builder("${config.packageName}.custom_fields", "deserializer")
         .addFunction(defaultTypeToKey)
-        .addType(typedResourceTypeResolver(config))
-        .addType(typedResourceBeanDeserializerModifier(config))
-        .addType(typedResourceDelegatingDeserializer(config))
+        .addType(typedCustomFieldsTypeResolver(config))
+        .addType(typedCustomFieldsBeanDeserializerModifier(config))
+        .addType(typedCustomFieldsDelegatingDeserializer(config))
         .build()

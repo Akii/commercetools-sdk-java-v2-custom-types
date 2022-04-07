@@ -160,6 +160,16 @@ private fun typedResource(
                 .addModifiers(KModifier.OVERRIDE)
                 .build()
         )
+        .addType(TypeSpec
+            .companionObjectBuilder()
+            .addProperty(PropertySpec
+                .builder("TYPE_KEY", String::class)
+                .addModifiers(KModifier.CONST)
+                .initializer("%S", config.typeToKey(type))
+                .build()
+            )
+            .build()
+        )
         .build()
 
     return TypedResource(

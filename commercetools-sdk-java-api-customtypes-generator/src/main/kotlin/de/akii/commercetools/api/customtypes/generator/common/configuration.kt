@@ -20,7 +20,8 @@ data class Configuration(
     val isAttributeRequired: (productType: ProductType, attribute: AttributeDefinition) -> Boolean = ::isAttributeRequired,
 
     val typeToKey: (type: Type) -> String = ::typeToKey,
-    val typeToClassName: (type: Type, referenceTypeName: String) -> String = ::typeToClassName,
+    val typeToCustomFieldsClassName: (type: Type) -> String = ::typeToCustomFieldsClassName,
+    val typeToResourceClassName: (type: Type, referenceTypeName: String) -> String = ::typeToResourceClassName,
     val fieldToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldToPropertyName,
     val isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired
 )
@@ -52,7 +53,10 @@ fun isAttributeRequired(
 fun typeToKey(type: Type): String =
     type.key
 
-fun typeToClassName(type: Type, referenceTypeName: String): String =
+fun typeToCustomFieldsClassName(type: Type): String =
+    "${classNamePrefix(type.key)}CustomFields"
+
+fun typeToResourceClassName(type: Type, referenceTypeName: String): String =
     "${classNamePrefix(type.key)}${classNamePrefix(referenceTypeName)}"
 
 fun fieldToPropertyName(@Suppress("UNUSED_PARAMETER") type: Type, fieldDefinition: FieldDefinition): String =

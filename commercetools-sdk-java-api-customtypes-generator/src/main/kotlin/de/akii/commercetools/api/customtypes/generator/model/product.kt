@@ -42,7 +42,7 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
         .addType(TypeSpec
             .companionObjectBuilder()
             .addProperty(PropertySpec
-                .builder("_TYPE_KEY", String::class)
+                .builder("TYPE_KEY", String::class)
                 .addModifiers(KModifier.CONST)
                 .initializer("%S", config.productTypeToKey(productType))
                 .build()
