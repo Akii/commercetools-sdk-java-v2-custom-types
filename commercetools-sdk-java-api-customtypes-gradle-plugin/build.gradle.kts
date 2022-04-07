@@ -11,7 +11,7 @@ dependencies {
     compileOnly(kotlin("gradle-plugin-api"))
 
     api(project(":commercetools-sdk-java-api-customtypes-generator"))
-    compileOnly("com.squareup:kotlinpoet:1.10.2")
+    compileOnly("com.squareup:kotlinpoet:1.11.0")
     api("com.commercetools.sdk:commercetools-sdk-java-api:8.3.0") {
         commercetoolsSdkApiVersion = version
     }
