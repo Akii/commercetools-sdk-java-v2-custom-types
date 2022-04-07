@@ -1,0 +1,126 @@
+{
+  "id": "0bdef965-9508-47ec-bf7f-3e2c41e67fb2",
+  "version": 1,
+  "lastMessageSequenceNumber": 1,
+  "createdAt": "2022-02-03T19:23:29.977Z",
+  "lastModifiedAt": "2022-02-04T10:49:56.303Z",
+  "productType": {
+    "typeId": "product-type",
+    "id": "e2dd90f7-36f8-46a3-8e54-46aefa7750d7"
+  },
+  "key": "nutrient-information",
+  "masterData": {
+    "current": {
+      "name": {
+        "en-US": "Nutrient Information Product"
+      },
+      "categories": [],
+      "categoryOrderHints": {},
+      "slug": {
+        "en-US": "nutrient-information-product"
+      },
+      "metaTitle": {
+        "en-US": ""
+      },
+      "metaDescription": {
+        "en-US": ""
+      },
+      "masterVariant": {
+        "id": 1,
+        "sku": "the_sku",
+        "prices": [],
+        "images": [],
+        "attributes": [
+          {
+            "name": "taste",
+            "value": "excellent!"
+          },
+          {
+            "name": "nutrients",
+            "value": [
+              [
+                {
+                  "name": "quantityContained",
+                  "value": 1.4
+                },
+                {
+                  "name": "nutrientTypeCode",
+                  "value": "FAT"
+                }
+              ],
+              [
+                {
+                  "name": "quantityContained",
+                  "value": 1.15
+                },
+                {
+                  "name": "nutrientTypeCode",
+                  "value": "SUGAR"
+                }
+              ]
+            ]
+          }
+        ],
+        "assets": []
+      },
+      "variants": [],
+      "searchKeywords": {}
+    },
+    "staged": {
+      "name": {
+        "en-US": "Nutrient Information Product"
+      },
+      "categories": [],
+      "categoryOrderHints": {},
+      "slug": {
+        "en-US": "nutrient-information-product"
+      },
+      "metaTitle": {
+        "en-US": ""
+      },
+      "masterVariant": {
+        "id": 1,
+        "sku": "the_sku",
+        "prices": [],
+        "images": [],
+        "attributes": [
+          {
+            "name": "taste",
+            "value": "excellent!"
+          },
+          {
+            "name": "nutrients",
+            "value": [
+              [
+                {
+                  "name": "quantityContained",
+                  "value": 1.4
+                },
+                {
+                  "name": "nutrientTypeCode",
+                  "value": "FAT"
+                }
+              ],
+              [
+                {
+                  "name": "quantityContained",
+                  "value": 1.15
+                },
+                {
+                  "name": "nutrientTypeCode",
+                  "value": "SUGAR"
+                }
+              ]
+            ]
+          }
+        ],
+        "assets": []
+      },
+      "variants": [],
+      "searchKeywords": {}
+    },
+    "published": false,
+    "hasStagedChanges": true
+  },
+  "lastVariantId": 1
+}

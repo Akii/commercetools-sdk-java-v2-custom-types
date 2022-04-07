@@ -1,0 +1,27 @@
+{
+  "id": "85c8d7a1-da11-477f-8ad7-a19c6c274f71",
+  "version": 1,
+  "lastMessageSequenceNumber": 1,
+  "createdAt": "2018-12-14T14:06:05.555Z",
+  "lastModifiedAt": "2018-12-14T14:06:05.555Z",
+  "customerNumber": "Registered-0042",
+  "email": "john.doe@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "password": "aVlInP9GSgTfLob/D619djMauHcxyXvhhYKZUtTjm3s=$3S3KeoGMjHXiHpVr90QoSydU3O1u2qcXcrvsu9dWHao=",
+  "addresses": [],
+  "shippingAddressIds": [],
+  "billingAddressIds": [],
+  "isEmailVerified": false,
+  "custom": {
+    "type": {
+      "typeId": "type",
+      "id": "b9c5e724-8d86-485b-ae1e-a1d3bcc8deae"
+    },
+    "fields": {
+      "preferredShoeSize": {
+        "en": "38"
+      }
+    }
+  }
+}

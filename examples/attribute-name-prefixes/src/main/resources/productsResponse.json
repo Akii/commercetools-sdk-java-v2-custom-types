@@ -1,0 +1,160 @@
+{
+  "limit": 0,
+  "count": 2,
+  "offset": 0,
+  "total": 2,
+  "results": [
+    {
+      "id": "0bdef965-9508-47ec-bf7f-3e2c41e67fb2",
+      "version": 1,
+      "lastMessageSequenceNumber": 1,
+      "createdAt": "2022-02-03T19:23:29.977Z",
+      "lastModifiedAt": "2022-02-04T10:49:56.303Z",
+      "productType": {
+        "typeId": "product-type",
+        "id": "e8de347b-38fa-401d-a996-aa118658a90f"
+      },
+      "key": "type-a",
+      "masterData": {
+        "current": {
+          "name": {
+            "en-US": "Type A Product"
+          },
+          "categories": [],
+          "categoryOrderHints": {},
+          "slug": {
+            "en-US": "type-a-product"
+          },
+          "metaTitle": {
+            "en-US": ""
+          },
+          "metaDescription": {
+            "en-US": ""
+          },
+          "masterVariant": {
+            "id": 1,
+            "sku": "the_sku",
+            "prices": [],
+            "images": [],
+            "attributes": [
+              {
+                "name": "type-a_property-name",
+                "value": 13.37
+              }
+            ],
+            "assets": []
+          },
+          "variants": [],
+          "searchKeywords": {}
+        },
+        "staged": {
+          "name": {
+            "en-US": "Type A Product"
+          },
+          "categories": [],
+          "categoryOrderHints": {},
+          "slug": {
+            "en-US": "type-a-product"
+          },
+          "metaTitle": {
+            "en-US": ""
+          },
+          "masterVariant": {
+            "id": 1,
+            "sku": "the_sku",
+            "prices": [],
+            "images": [],
+            "attributes": [
+              {
+                "name": "type-a_property-name",
+                "value": 13.37
+              }
+            ],
+            "assets": []
+          },
+          "variants": [],
+          "searchKeywords": {}
+        },
+        "published": false,
+        "hasStagedChanges": true
+      },
+      "lastVariantId": 1
+    },
+    {
+      "id": "e6c40850-6e4e-4cff-9214-426b757c9946",
+      "version": 1,
+      "lastMessageSequenceNumber": 1,
+      "createdAt": "2022-02-03T19:23:29.977Z",
+      "lastModifiedAt": "2022-02-04T10:49:56.303Z",
+      "productType": {
+        "typeId": "product-type",
+        "id": "e2dd90f7-36f8-46a3-8e54-46aefa7750d7"
+      },
+      "key": "type-b-product",
+      "masterData": {
+        "current": {
+          "name": {
+            "en-US": "Type B Product"
+          },
+          "categories": [],
+          "categoryOrderHints": {},
+          "slug": {
+            "en-US": "type-b-product"
+          },
+          "metaTitle": {
+            "en-US": ""
+          },
+          "metaDescription": {
+            "en-US": ""
+          },
+          "masterVariant": {
+            "id": 1,
+            "sku": "the_sku",
+            "prices": [],
+            "images": [],
+            "attributes": [
+              {
+                "name": "type-b_property-name",
+                "value": "Leet is: 13.37"
+              }
+            ],
+            "assets": []
+          },
+          "variants": [],
+          "searchKeywords": {}
+        },
+        "staged": {
+          "name": {
+            "en-US": "Type B Product"
+          },
+          "categories": [],
+          "categoryOrderHints": {},
+          "slug": {
+            "en-US": "type-b_property-name"
+          },
+          "metaTitle": {
+            "en-US": ""
+          },
+          "masterVariant": {
+            "id": 1,
+            "sku": "the_sku",
+            "prices": [],
+            "images": [],
+            "attributes": [
+              {
+                "name": "type-b_property-name",
+                "value": "Leet is: 13.37"
+              }
+            ],
+            "assets": []
+          },
+          "variants": [],
+          "searchKeywords": {}
+        },
+        "published": false,
+        "hasStagedChanges": true
+      },
+      "lastVariantId": 1
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+[
+  {
+    "id": "e8de347b-38fa-401d-a996-aa118658a90f",
+    "version": 1,
+    "createdAt": "2022-02-03T18:22:08.738Z",
+    "lastModifiedAt": "2022-03-30T12:44:22.786Z",
+    "key": "type-a",
+    "name": "type-a",
+    "description": "Type A.",
+    "attributes": [
+      {
+        "name": "type-a_property-name",
+        "type": {
+          "name": "number"
+        },
+        "isRequired": true,
+        "attributeConstraint": "None",
+        "isSearchable": false,
+        "label": {
+          "en": "Type A PropertyName"
+        }
+      }
+    ]
+  },
+  {
+    "id": "e2dd90f7-36f8-46a3-8e54-46aefa7750d7",
+    "version": 1,
+    "createdAt": "2022-02-03T18:22:08.738Z",
+    "lastModifiedAt": "2022-03-30T12:44:22.786Z",
+    "key": "type-b",
+    "name": "type-b",
+    "description": "Type B.",
+    "attributes": [
+
+      {
+        "name": "type-b_property-name",
+        "type": {
+          "name": "text"
+        },
+        "isRequired": true,
+        "attributeConstraint": "None",
+        "isSearchable": false,
+        "label": {
+          "en": "Type B PropertyName"
+        }
+      }
+    ]
+  }
+]

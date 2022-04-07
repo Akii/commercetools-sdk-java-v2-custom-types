@@ -1,0 +1,79 @@
+[
+  {
+    "id": "e8de347b-38fa-401d-a996-aa118658a90f",
+    "version": 1,
+    "createdAt": "2022-02-03T18:22:08.738Z",
+    "lastModifiedAt": "2022-03-30T12:44:22.786Z",
+    "key": "nutrient-information",
+    "name": "nutrient-information",
+    "description": "The nutrient-information product type.",
+    "attributes": [
+      {
+        "name": "quantityContained",
+        "type": {
+          "name": "number"
+        },
+        "isRequired": true,
+        "attributeConstraint": "None",
+        "isSearchable": false,
+        "label": {
+          "en": "quantity contained"
+        }
+      },
+      {
+        "name": "nutrientTypeCode",
+        "type": {
+          "name": "text"
+        },
+        "isRequired": true,
+        "attributeConstraint": "None",
+        "isSearchable": false,
+        "label": {
+          "en": "nutrient type Code"
+        }
+      }
+    ]
+  },
+  {
+    "id": "e2dd90f7-36f8-46a3-8e54-46aefa7750d7",
+    "version": 1,
+    "createdAt": "2022-02-03T18:22:08.738Z",
+    "lastModifiedAt": "2022-03-30T12:44:22.786Z",
+    "key": "food-type",
+    "name": "food-type",
+    "description": "The food product type.",
+    "attributes": [
+      {
+        "name": "taste",
+        "type": {
+          "name": "text"
+        },
+        "isRequired": true,
+        "attributeConstraint": "None",
+        "isSearchable": false,
+        "label": {
+          "en": "taste"
+        }
+      },
+      {
+        "name": "nutrients",
+        "type": {
+          "name": "set",
+          "elementType": {
+            "name": "nested",
+            "typeReference": {
+              "id": "e8de347b-38fa-401d-a996-aa118658a90f",
+              "typeId": "product-type"
+            }
+          }
+        },
+        "isRequired": false,
+        "attributeConstraint": "None",
+        "isSearchable": false,
+        "label": {
+          "en": "food nutrients"
+        }
+      }
+    ]
+  }
+]
