@@ -1,0 +1,28 @@
+[
+  {
+    "id": "52b750ed-37da-4535-8a5f-75fec9df7857",
+    "version": 1,
+    "key": "customer-preferredShoeSize",
+    "name": {
+      "en": "Additional field to store preferred shoe size"
+    },
+    "resourceTypeIds": [
+      "customer"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "preferredShoeSize",
+        "label": {
+          "en": "Preferred Shoe Size"
+        },
+        "required": false,
+        "type": {
+          "name": "LocalizedString"
+        },
+        "inputHint": "SingleLine"
+      }
+    ],
+    "createdAt": "2015-10-02T09:44:24.628Z",
+    "lastModifiedAt": "2015-10-02T09:44:24.628Z"
+  }
+]
