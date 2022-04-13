@@ -4,6 +4,7 @@ import com.commercetools.api.models.product_type.AttributeDefinition
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.type.FieldDefinition
 import com.commercetools.api.models.type.Type
+import java.io.File
 
 enum class ProductClassType {
     Product, ProductCatalogData, ProductData, ProductVariant, ProductVariantAttributes
@@ -13,6 +14,7 @@ data class Configuration(
     val packageName: String,
     val productTypes: List<ProductType>,
     val customTypes: List<Type>,
+    val customObjectTypes: Map<String, File>,
 
     val productTypeToKey: (productType: ProductType) -> String = ::productTypeToKey,
     val productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName,
