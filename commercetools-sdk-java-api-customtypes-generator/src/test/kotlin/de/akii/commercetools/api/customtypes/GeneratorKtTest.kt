@@ -35,7 +35,7 @@ internal class GeneratorKtTest {
                 javaClass.getResource("/types/types.json"),
                 object : TypeReference<List<Type>>() {})
 
-    private val config = Configuration("test.package", listOf(productType), types)
+    private val config = Configuration("test.package", listOf(productType), types, emptyMap())
 
     private val testProducts = javaClass.getResource("/products/testProducts.json")
 
@@ -47,7 +47,7 @@ internal class GeneratorKtTest {
 
     @Test
     fun `it compiles without any product-types or custom field types`() {
-        val sourceFiles = generate(Configuration("test.package", emptyList(), emptyList())).map {
+        val sourceFiles = generate(Configuration("test.package", emptyList(), emptyList(), emptyMap())).map {
             SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
         }
 

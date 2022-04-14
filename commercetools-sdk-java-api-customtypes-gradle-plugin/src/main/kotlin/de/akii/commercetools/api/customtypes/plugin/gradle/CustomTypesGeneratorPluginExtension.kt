@@ -28,6 +28,10 @@ open class CustomTypesGeneratorPluginExtension {
         CustomTypesGeneratorConfiguration()
     }
 
+    internal val customObjectGeneratorExtension: CustomObjectTypesGeneratorConfiguration by lazy {
+        CustomObjectTypesGeneratorConfiguration()
+    }
+
     /** Name of the package for all generated classes */
     var packageName: String? = null
 
@@ -41,6 +45,10 @@ open class CustomTypesGeneratorPluginExtension {
 
     fun customFields(action: Action<CustomTypesGeneratorConfiguration>) {
         action.execute(typesGeneratorExtension)
+    }
+
+    fun customObjects(action: Action<CustomObjectTypesGeneratorConfiguration>) {
+        action.execute(customObjectGeneratorExtension)
     }
 
     internal fun credentialsConfigured(): Boolean = credentialsConfigured
@@ -151,4 +159,12 @@ open class CustomTypesGeneratorConfiguration {
      * The default implementation marks all fields as not required because the commercetools platform cannot guarantee fields are set.
      */
     var isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired
+}
+
+open class CustomObjectTypesGeneratorConfiguration {
+
+    var containerTypes: Map<String, String> = emptyMap()
+
+    var containerNameToClassName: (containerName: String, className: String) -> String = ::containerNameToClassName
+
 }

@@ -21,7 +21,7 @@ internal class CustomFieldsKtTest {
 
     @Test
     fun `generates typed custom fields`() {
-        val config = Configuration("test.package", listOf(), types)
+        val config = Configuration("test.package", listOf(), types, emptyMap())
         val file = customFieldsFile(config)
         val sourceFiles = listOf(
             SourceFile.kotlin("${file.name}.kt", file.toString())
