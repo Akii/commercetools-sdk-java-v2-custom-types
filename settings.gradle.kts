@@ -1,7 +1,7 @@
 pluginManagement {
     plugins {
         kotlin("jvm") version "1.6.20"
-        id("org.jetbrains.dokka") version "1.6.10"
+        id("org.jetbrains.dokka") version "1.6.20"
         id("com.gradle.plugin-publish") version "0.21.0"
         id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     }
