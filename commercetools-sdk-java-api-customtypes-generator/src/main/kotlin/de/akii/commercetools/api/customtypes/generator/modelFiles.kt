@@ -13,8 +13,9 @@ fun modelFiles(typedResources: List<TypedResources>, config: Configuration): Lis
     listOf(
         productCommonFile(config),
         customFieldsFile(config),
-        typedResourcesCommonFile(config)
-    ) + productFiles(config) + typedResourceFiles(typedResources)
+        typedResourcesCommonFile(config),
+        typedCustomObjectsCommonFile(config)
+    ) + productFiles(config) + typedResourceFiles(typedResources) + typedCustomObjectFiles(config)
 
 fun productFiles(config: Configuration): List<FileSpec> =
     config.productTypes.map {
@@ -98,4 +99,22 @@ fun typedResourcesCommonFile(config: Configuration) =
     FileSpec
         .builder("${config.packageName}.custom_fields", "common")
         .addType(typedResourceInterface(config))
+        .build()
+
+fun typedCustomObjectFiles(config: Configuration): List<FileSpec> =
+    config.customObjectTypes
+        .map { (containerName, className) ->
+            typedCustomObject(containerName, className, config)
+        }
+        .map { (className, typeSpec) ->
+            FileSpec
+                .builder("${config.packageName}.custom_objects", className.simpleName)
+                .addType(typeSpec)
+                .build()
+        }
+
+fun typedCustomObjectsCommonFile(config: Configuration) =
+    FileSpec
+        .builder("${config.packageName}.custom_objects", "common")
+        .addType(typedCustomObjectInterface(config))
         .build()

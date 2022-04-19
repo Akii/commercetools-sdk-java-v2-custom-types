@@ -19,6 +19,10 @@ fun deserializationFiles(typedResourceFiles: List<TypedResources>, config: Confi
         files.add(typedResourcesDeserializerFile(config))
     }
 
+    if (config.customObjectTypes.isNotEmpty()) {
+        files.add(typedCustomObjectsDeserializerFile(config))
+    }
+
     return files
 }
 
@@ -40,6 +44,12 @@ fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configurati
             file.addType(fallbackResourceInterface(it, config))
         }
         file.addType(typedResourcesApiModule(typedResourceFiles, config))
+    }
+
+    if (config.customObjectTypes.isNotEmpty()) {
+        file.addType(customObjectMixInInterface(config))
+        file.addType(fallbackCustomObjectInterface(config))
+        file.addType(typedCustomObjectsApiModule(config))
     }
 
     return file.build()
@@ -72,4 +82,12 @@ fun typedResourcesDeserializerFile(config: Configuration) =
         .addType(typedCustomFieldsTypeResolver(config))
         .addType(typedCustomFieldsBeanDeserializerModifier(config))
         .addType(typedCustomFieldsDelegatingDeserializer(config))
+        .build()
+
+fun typedCustomObjectsDeserializerFile(config: Configuration) =
+    FileSpec
+        .builder("${config.packageName}.custom_objects", "deserializer")
+        .addType(typedCustomObjectDeserializer(config))
+        .addType(typedCustomObjectsBeanDeserializerModifier(config))
+        .addType(typedCustomObjectsDelegatingDeserializer(config))
         .build()

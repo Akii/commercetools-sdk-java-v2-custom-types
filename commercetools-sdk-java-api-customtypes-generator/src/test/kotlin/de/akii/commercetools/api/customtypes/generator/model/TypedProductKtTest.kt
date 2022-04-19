@@ -27,7 +27,7 @@ internal class TypedProductKtTest {
 
     @Test
     fun `generates custom product classes`() {
-        val config = Configuration("test.package", listOf(productType), emptyList())
+        val config = Configuration("test.package", listOf(productType), emptyList(), emptyMap())
         val files = listOf(
             productCommonFile(config)
         ) + productFiles(config)

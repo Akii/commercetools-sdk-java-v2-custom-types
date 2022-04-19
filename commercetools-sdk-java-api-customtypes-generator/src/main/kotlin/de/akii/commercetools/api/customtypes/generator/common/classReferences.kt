@@ -76,3 +76,23 @@ class CustomFieldsTypeResolver(config: Configuration) :
 class TypedResourceDeserializer(typedResources: TypedResources) : ClassReference(
     typedResources.packageName,
     "Typed${typedResources.resourceInterface.simpleName}Deserializer")
+
+class TypedCustomObjectInterface(config: Configuration) :
+    ClassReference("${config.packageName}.custom_objects", "TypedCustomObject")
+
+class TypedCustomObject(containerName: String, className: String, config: Configuration) : ClassReference(
+    "${config.packageName}.custom_objects",
+    config.containerNameToClassName(containerName, className))
+
+class TypedCustomObjectValue(className: String) : ClassReference(
+    className.substringBeforeLast('.'),
+    className.substringAfterLast('.'))
+
+class TypedCustomObjectsDeserializer(config: Configuration) :
+    ClassReference("${config.packageName}.custom_objects", "TypedCustomObjectsDeserializer")
+
+class TypedCustomObjectsBeanDeserializerModifier(config: Configuration) :
+    ClassReference("${config.packageName}.custom_objects", "TypedCustomObjectsBeanDeserializerModifier")
+
+class TypedCustomObjectsDelegatingDeserializer(config: Configuration) :
+    ClassReference("${config.packageName}.custom_objects", "TypedCustomObjectsDelegatingDeserializer")

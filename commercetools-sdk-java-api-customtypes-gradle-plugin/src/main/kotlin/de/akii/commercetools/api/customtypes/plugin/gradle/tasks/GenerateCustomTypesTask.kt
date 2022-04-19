@@ -64,6 +64,12 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
     @Internal
     val isFieldRequired: Property<(Type, FieldDefinition) -> Boolean> = project.objects.property(Any::class.java) as Property<(Type, FieldDefinition) -> Boolean>
 
+    @Internal
+    val containerTypes: Property<Map<String, String>> = project.objects.property(Any::class.java) as Property<Map<String, String>>
+
+    @Internal
+    val containerNameToClassName: Property<(String, String) -> String> = project.objects.property(Any::class.java) as Property<(String, String) -> String>
+
     @OutputDirectory
     val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
@@ -102,6 +108,7 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             packageName.get(),
             productTypes,
             types,
+            containerTypes.get(),
             productTypeToKey = { type -> productTypeToKey.get()(type) },
             productTypeToClassName = { type, classType -> productTypeToClassName.get()(type, classType) },
             attributeToPropertyName = { type, attribute -> attributeToPropertyName.get()(type, attribute) },
@@ -110,7 +117,8 @@ abstract class GenerateCustomTypesTask : DefaultTask() {
             typeToCustomFieldsClassName = { type -> typeToCustomFieldsClassName.get()(type) },
             typeToResourceClassName = { type, resourceName -> typeToResourceClassName.get()(type, resourceName) },
             fieldToPropertyName = { type, field -> fieldToPropertyName.get()(type, field) },
-            isFieldRequired = { type, field -> isFieldRequired.get()(type, field) }
+            isFieldRequired = { type, field -> isFieldRequired.get()(type, field) },
+            containerNameToClassName = { containerName, className -> containerNameToClassName.get()(containerName, className) }
         )
 
         val files = generate(config)

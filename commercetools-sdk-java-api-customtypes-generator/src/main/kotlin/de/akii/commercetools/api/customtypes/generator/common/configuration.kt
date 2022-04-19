@@ -13,6 +13,7 @@ data class Configuration(
     val packageName: String,
     val productTypes: List<ProductType>,
     val customTypes: List<Type>,
+    val customObjectTypes: Map<String, String>,
 
     val productTypeToKey: (productType: ProductType) -> String = ::productTypeToKey,
     val productTypeToClassName: (productType: ProductType, productClassType: ProductClassType) -> String = ::productTypeToClassName,
@@ -23,7 +24,9 @@ data class Configuration(
     val typeToCustomFieldsClassName: (type: Type) -> String = ::typeToCustomFieldsClassName,
     val typeToResourceClassName: (type: Type, referenceTypeName: String) -> String = ::typeToResourceClassName,
     val fieldToPropertyName: (type: Type, fieldDefinition: FieldDefinition) -> String = ::fieldToPropertyName,
-    val isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired
+    val isFieldRequired: (type: Type, fieldDefinition: FieldDefinition) -> Boolean = ::isFieldRequired,
+
+    val containerNameToClassName: (containerName: String, className: String) -> String = ::containerNameToClassName
 )
 
 fun productTypeToKey(productType: ProductType): String =
@@ -71,3 +74,7 @@ fun fieldToPropertyName(@Suppress("UNUSED_PARAMETER") type: Type, fieldDefinitio
 fun isFieldRequired(
     @Suppress("UNUSED_PARAMETER") type: Type,
     @Suppress("UNUSED_PARAMETER") fieldDefinition: FieldDefinition): Boolean = false
+
+fun containerNameToClassName(
+    @Suppress("UNUSED_PARAMETER") containerName: String,
+    className: String): String = "${className.substringAfterLast('.')}CustomObject"
