@@ -85,18 +85,16 @@ fun productData(
     .addFunction(
         FunSpec
             .builder("setVariants")
-            .addAnnotation(suppressUncheckedCast)
             .addParameter("variants", LIST.parameterizedBy(ProductVariant::class.asTypeName()))
-            .addStatement("this.variants = variants as %T", LIST.parameterizedBy(typedProductVariantClassName.className))
+            .addStatement("this.variants = variants.map { it as %T }", typedProductVariantClassName.className)
             .addModifiers(KModifier.OVERRIDE)
             .build()
     )
     .addFunction(
         FunSpec
             .builder("setVariants")
-            .addAnnotation(suppressUncheckedCast)
             .addParameter("variants", ProductVariant::class, KModifier.VARARG)
-            .addStatement("this.variants = variants.asList() as %T", LIST.parameterizedBy(typedProductVariantClassName.className))
+            .addStatement("this.variants = variants.asList().map { it as %T }", typedProductVariantClassName.className)
             .addModifiers(KModifier.OVERRIDE)
             .build()
     )

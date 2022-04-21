@@ -41,9 +41,3 @@ val generated =
         .builder(Generated::class)
         .addMember("comments = %S", "https://github.com/Akii/commercetools-sdk-java-v2-custom-types")
         .build()
-
-val suppressUncheckedCast =
-    AnnotationSpec
-        .builder(Suppress::class)
-        .addMember("%S", "UNCHECKED_CAST")
-        .build()
