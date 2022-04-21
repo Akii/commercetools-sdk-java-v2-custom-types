@@ -2,6 +2,7 @@ package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.custom_object.CustomObject
 import com.commercetools.api.models.custom_object.CustomObjectImpl
+import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 
@@ -19,6 +20,7 @@ fun typedCustomObject(containerName: String, className: String, config: Configur
         .classBuilder(typedCustomObjectClassName)
         .addAnnotation(generated)
         .addAnnotation(deserializeAs(typedCustomObjectClassName))
+        .addModifiers(KModifier.DATA)
         .primaryConstructor(
             FunSpec
                 .constructorBuilder()
@@ -39,6 +41,13 @@ fun typedCustomObject(containerName: String, className: String, config: Configur
         )
         .addSuperinterface(CustomObject::class, "delegate")
         .addSuperinterface(TypedCustomObjectInterface(config).className)
+        .addProperty(
+            PropertySpec
+                .builder("delegate", CustomObjectImpl::class)
+                .addModifiers(KModifier.PRIVATE)
+                .initializer("delegate")
+                .build()
+        )
         .addProperty(
             PropertySpec
                 .builder("value", valueClassName.className)

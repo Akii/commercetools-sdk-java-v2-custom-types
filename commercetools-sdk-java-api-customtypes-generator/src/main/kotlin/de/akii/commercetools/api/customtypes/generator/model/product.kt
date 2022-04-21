@@ -1,5 +1,6 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
+import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.*
@@ -22,6 +23,7 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
         .classBuilder(TypedProduct(productType, config).className)
         .addAnnotation(generated)
         .addAnnotation(deserializeAs(TypedProduct(productType, config).className))
+        .addModifiers(KModifier.DATA)
         .primaryConstructor(FunSpec
             .constructorBuilder()
             .addAnnotation(jsonCreator)
@@ -48,6 +50,13 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
                 .build()
             )
             .build()
+        )
+        .addProperty(
+            PropertySpec
+                .builder("delegate", ProductImpl::class)
+                .addModifiers(KModifier.PRIVATE)
+                .initializer("delegate")
+                .build()
         )
         .addProperty(
             PropertySpec

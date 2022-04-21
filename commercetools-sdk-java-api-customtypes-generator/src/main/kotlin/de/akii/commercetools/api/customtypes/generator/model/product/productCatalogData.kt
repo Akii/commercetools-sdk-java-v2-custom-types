@@ -11,6 +11,7 @@ fun productCatalogData(
     .classBuilder(typedProductCatalogDataClassName.className)
     .addAnnotation(generated)
     .addAnnotation(deserializeAs(typedProductCatalogDataClassName.className))
+    .addModifiers(KModifier.DATA)
     .primaryConstructor(
         FunSpec
         .constructorBuilder()
@@ -36,6 +37,13 @@ fun productCatalogData(
         .build()
     )
     .addSuperinterface(com.commercetools.api.models.product.ProductCatalogData::class, "delegate")
+    .addProperty(
+        PropertySpec
+            .builder("delegate", ProductCatalogDataImpl::class)
+            .addModifiers(KModifier.PRIVATE)
+            .initializer("delegate")
+            .build()
+    )
     .addProperty(
         PropertySpec
             .builder("current", typedProductDataClassName.className)

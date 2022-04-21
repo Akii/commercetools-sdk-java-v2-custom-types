@@ -20,6 +20,7 @@ import com.commercetools.api.models.order.*
 import com.commercetools.api.models.order_edit.OrderEdit
 import com.commercetools.api.models.order_edit.OrderEditImpl
 import com.commercetools.api.models.payment.*
+import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.commercetools.api.models.review.Review
 import com.commercetools.api.models.review.ReviewImpl
 import com.commercetools.api.models.shipping_method.ShippingMethod
@@ -125,6 +126,7 @@ private fun typedResource(
         .classBuilder(className)
         .addAnnotation(generated)
         .addAnnotation(deserializeAs(className))
+        .addModifiers(KModifier.DATA)
         .primaryConstructor(
             FunSpec
                 .constructorBuilder()
@@ -145,6 +147,13 @@ private fun typedResource(
         )
         .addSuperinterface(resourceInterface, "delegate")
         .addSuperinterface(TypedResourceInterface(config).className)
+        .addProperty(
+            PropertySpec
+                .builder("delegate", resourceTypeDefaultImplementation)
+                .addModifiers(KModifier.PRIVATE)
+                .initializer("delegate")
+                .build()
+        )
         .addProperty(
             PropertySpec
                 .builder("custom", customFieldType)

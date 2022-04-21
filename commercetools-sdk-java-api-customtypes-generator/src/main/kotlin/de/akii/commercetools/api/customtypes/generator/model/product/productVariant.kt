@@ -12,6 +12,7 @@ fun productVariant(
     .classBuilder(typedProductVariantClassName.className)
     .addAnnotation(generated)
     .addAnnotation(deserializeAs(typedProductVariantClassName.className))
+    .addModifiers(KModifier.DATA)
     .primaryConstructor(FunSpec
         .constructorBuilder()
         .addAnnotation(jsonCreator)
@@ -28,6 +29,13 @@ fun productVariant(
         .build()
     )
     .addSuperinterface(com.commercetools.api.models.product.ProductVariant::class, "delegate")
+    .addProperty(
+        PropertySpec
+            .builder("delegate", ProductVariantImpl::class)
+            .addModifiers(KModifier.PRIVATE)
+            .initializer("delegate")
+            .build()
+    )
     .addProperty(
         PropertySpec
             .builder("typedAttributes", typedProductVariantAttributesClassName.className)
