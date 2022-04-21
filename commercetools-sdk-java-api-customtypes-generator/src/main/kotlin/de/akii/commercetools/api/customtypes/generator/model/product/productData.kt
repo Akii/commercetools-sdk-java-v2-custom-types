@@ -1,6 +1,7 @@
 package de.akii.commercetools.api.customtypes.generator.model.product
 
 import com.commercetools.api.models.product.ProductDataImpl
+import com.commercetools.api.models.product.ProductVariant
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
@@ -44,6 +45,7 @@ fun productData(
     .addProperty(
         PropertySpec
             .builder("masterVariant", typedProductVariantClassName.className)
+            .mutable()
             .initializer("masterVariant")
             .addModifiers(KModifier.PRIVATE)
             .build()
@@ -51,6 +53,7 @@ fun productData(
     .addProperty(
         PropertySpec
             .builder("variants", LIST.parameterizedBy(typedProductVariantClassName.className))
+            .mutable()
             .initializer("variants")
             .addModifiers(KModifier.PRIVATE)
             .build()
@@ -65,9 +68,35 @@ fun productData(
     )
     .addFunction(
         FunSpec
+            .builder("setMasterVariant")
+            .addParameter("masterVariant", ProductVariant::class)
+            .addStatement("this.masterVariant = masterVariant as %T", typedProductVariantClassName.className)
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+    )
+    .addFunction(
+        FunSpec
             .builder("getVariants")
             .returns(LIST.parameterizedBy(typedProductVariantClassName.className))
             .addStatement("return this.variants")
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+    )
+    .addFunction(
+        FunSpec
+            .builder("setVariants")
+            .addAnnotation(suppressUncheckedCast)
+            .addParameter("variants", LIST.parameterizedBy(ProductVariant::class.asTypeName()))
+            .addStatement("this.variants = variants as %T", LIST.parameterizedBy(typedProductVariantClassName.className))
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+    )
+    .addFunction(
+        FunSpec
+            .builder("setVariants")
+            .addAnnotation(suppressUncheckedCast)
+            .addParameter("variants", ProductVariant::class, KModifier.VARARG)
+            .addStatement("this.variants = variants.asList() as %T", LIST.parameterizedBy(typedProductVariantClassName.className))
             .addModifiers(KModifier.OVERRIDE)
             .build()
     )

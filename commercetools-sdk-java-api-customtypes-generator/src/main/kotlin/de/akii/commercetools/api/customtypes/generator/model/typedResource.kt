@@ -20,7 +20,6 @@ import com.commercetools.api.models.order.*
 import com.commercetools.api.models.order_edit.OrderEdit
 import com.commercetools.api.models.order_edit.OrderEditImpl
 import com.commercetools.api.models.payment.*
-import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.commercetools.api.models.review.Review
 import com.commercetools.api.models.review.ReviewImpl
 import com.commercetools.api.models.shipping_method.ShippingMethod
@@ -31,6 +30,7 @@ import com.commercetools.api.models.shopping_list.TextLineItem
 import com.commercetools.api.models.shopping_list.TextLineItemImpl
 import com.commercetools.api.models.store.Store
 import com.commercetools.api.models.store.StoreImpl
+import com.commercetools.api.models.type.CustomFields
 import com.commercetools.api.models.type.ResourceTypeId
 import com.commercetools.api.models.type.Type
 import com.squareup.kotlinpoet.*
@@ -157,6 +157,7 @@ private fun typedResource(
         .addProperty(
             PropertySpec
                 .builder("custom", customFieldType)
+                .mutable()
                 .initializer("custom")
                 .addModifiers(KModifier.PRIVATE)
                 .build()
@@ -166,6 +167,14 @@ private fun typedResource(
                 .builder("getCustom")
                 .returns(customFieldType)
                 .addStatement("return this.custom")
+                .addModifiers(KModifier.OVERRIDE)
+                .build()
+        )
+        .addFunction(
+            FunSpec
+                .builder("setCustom")
+                .addParameter("custom", CustomFields::class)
+                .addStatement("this.custom = custom as %T", customFieldType)
                 .addModifiers(KModifier.OVERRIDE)
                 .build()
         )

@@ -1,6 +1,6 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
-import com.commercetools.api.models.product.ProductCatalogDataImpl
+import com.commercetools.api.models.product.ProductCatalogData
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.*
@@ -61,6 +61,7 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
         .addProperty(
             PropertySpec
                 .builder("masterData", TypedProductCatalogData(productType, config).className)
+                .mutable()
                 .initializer("masterData")
                 .addModifiers(KModifier.PRIVATE)
                 .build()
@@ -70,6 +71,14 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
                 .builder("getMasterData")
                 .returns(TypedProductCatalogData(productType, config).className)
                 .addStatement("return this.masterData")
+                .addModifiers(KModifier.OVERRIDE)
+                .build()
+        )
+        .addFunction(
+            FunSpec
+                .builder("setMasterData")
+                .addParameter("masterData", ProductCatalogData::class)
+                .addStatement("this.masterData = masterData as %T", TypedProductCatalogData(productType, config).className)
                 .addModifiers(KModifier.OVERRIDE)
                 .build()
         )

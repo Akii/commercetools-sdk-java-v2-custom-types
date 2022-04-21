@@ -2,7 +2,6 @@ package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.custom_object.CustomObject
 import com.commercetools.api.models.custom_object.CustomObjectImpl
-import com.commercetools.api.models.product.ProductCatalogDataImpl
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 
@@ -51,6 +50,7 @@ fun typedCustomObject(containerName: String, className: String, config: Configur
         .addProperty(
             PropertySpec
                 .builder("value", valueClassName.className)
+                .mutable()
                 .initializer("value")
                 .addModifiers(KModifier.PRIVATE)
                 .build()
@@ -60,6 +60,14 @@ fun typedCustomObject(containerName: String, className: String, config: Configur
                 .builder("getValue")
                 .returns(valueClassName.className)
                 .addStatement("return this.value")
+                .addModifiers(KModifier.OVERRIDE)
+                .build()
+        )
+        .addFunction(
+            FunSpec
+                .builder("setValue")
+                .addParameter("value", Any::class.asTypeName().copy(nullable = true))
+                .addStatement("this.value = value as %T", valueClassName.className)
                 .addModifiers(KModifier.OVERRIDE)
                 .build()
         )

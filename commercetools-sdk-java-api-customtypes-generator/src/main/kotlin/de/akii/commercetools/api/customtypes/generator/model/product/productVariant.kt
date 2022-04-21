@@ -39,6 +39,7 @@ fun productVariant(
     .addProperty(
         PropertySpec
             .builder("typedAttributes", typedProductVariantAttributesClassName.className)
+            .mutable()
             .initializer("typedAttributes")
             .build()
     )

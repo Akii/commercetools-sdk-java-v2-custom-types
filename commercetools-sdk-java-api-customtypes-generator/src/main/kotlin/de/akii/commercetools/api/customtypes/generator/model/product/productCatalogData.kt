@@ -1,6 +1,7 @@
 package de.akii.commercetools.api.customtypes.generator.model.product
 
 import com.commercetools.api.models.product.ProductCatalogDataImpl
+import com.commercetools.api.models.product.ProductData
 import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 
@@ -47,6 +48,7 @@ fun productCatalogData(
     .addProperty(
         PropertySpec
             .builder("current", typedProductDataClassName.className)
+            .mutable()
             .initializer("current")
             .addModifiers(KModifier.PRIVATE)
             .build()
@@ -54,6 +56,7 @@ fun productCatalogData(
     .addProperty(
         PropertySpec
             .builder("staged", typedProductDataClassName.className)
+            .mutable()
             .initializer("staged")
             .addModifiers(KModifier.PRIVATE)
             .build()
@@ -68,9 +71,25 @@ fun productCatalogData(
     )
     .addFunction(
         FunSpec
+            .builder("setCurrent")
+            .addParameter("current", ProductData::class)
+            .addStatement("this.current = current as %T", typedProductDataClassName.className)
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+    )
+    .addFunction(
+        FunSpec
             .builder("getStaged")
             .returns(typedProductDataClassName.className)
             .addStatement("return this.staged")
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
+    )
+    .addFunction(
+        FunSpec
+            .builder("setStaged")
+            .addParameter("staged", ProductData::class)
+            .addStatement("this.staged = staged as %T", typedProductDataClassName.className)
             .addModifiers(KModifier.OVERRIDE)
             .build()
     )

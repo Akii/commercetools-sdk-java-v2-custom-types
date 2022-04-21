@@ -55,6 +55,7 @@ fun typedCustomField(type: Type, config: Configuration): TypeSpec {
         .addProperty(
             PropertySpec
                 .builder("typedFields", ClassName("", "Fields"))
+                .mutable()
                 .initializer("typedFields")
                 .build()
         )
