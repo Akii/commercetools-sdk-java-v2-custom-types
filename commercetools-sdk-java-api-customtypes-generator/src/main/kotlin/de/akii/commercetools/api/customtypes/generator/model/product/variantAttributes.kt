@@ -8,6 +8,7 @@ import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.Reference
 import com.commercetools.api.models.common.ReferenceTypeId
 import com.commercetools.api.models.common.TypedMoney
+import com.commercetools.api.models.custom_object.CustomObjectReference
 import com.commercetools.api.models.customer.CustomerReference
 import com.commercetools.api.models.customer_group.CustomerGroupReference
 import com.commercetools.api.models.discount_code.DiscountCodeReference
@@ -110,6 +111,7 @@ private fun referenceTypeIdToClassName(referenceTypeId: ReferenceTypeId): ClassN
         ReferenceTypeId.CUSTOMER_GROUP -> CustomerGroupReference::class.asClassName()
         ReferenceTypeId.DISCOUNT_CODE -> DiscountCodeReference::class.asClassName()
         ReferenceTypeId.INVENTORY_ENTRY -> InventoryEntryReference::class.asClassName()
+        ReferenceTypeId.KEY_VALUE_DOCUMENT -> CustomObjectReference::class.asClassName()
         ReferenceTypeId.ORDER -> OrderReference::class.asClassName()
         ReferenceTypeId.ORDER_EDIT -> OrderEditReference::class.asClassName()
         ReferenceTypeId.PAYMENT -> PaymentReference::class.asClassName()
