@@ -6,6 +6,7 @@ import com.commercetools.api.models.channel.ChannelReference
 import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.Reference
 import com.commercetools.api.models.common.TypedMoney
+import com.commercetools.api.models.custom_object.CustomObjectBuilder
 import com.commercetools.api.models.custom_object.CustomObjectReference
 import com.commercetools.api.models.customer.CustomerReference
 import com.commercetools.api.models.order.OrderReference
@@ -23,7 +24,37 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-fun typedCustomField(type: Type, config: Configuration): TypeSpec {
+fun typedCustomFieldsBuilderExtensionFunctions(type: Type, config: Configuration): Pair<FunSpec, FunSpec> {
+    val className = TypedCustomFields(type, config).className
+
+    val build = FunSpec
+        .builder("build${className.simpleName}")
+        .receiver(CustomObjectBuilder::class)
+        .addParameter("typedFields", ClassName(className.packageName, "${className.simpleName}.Fields"))
+        .addCode(
+            "return %1T(this.build() as %2T, typedFields)",
+            className,
+            CustomFieldsImpl::class
+        )
+        .returns(className)
+        .build()
+
+    val buildUnchecked = FunSpec
+        .builder("build${className.simpleName}Unchecked")
+        .receiver(CustomObjectBuilder::class)
+        .addParameter("typedFields", ClassName(className.packageName, "${className.simpleName}.Fields"))
+        .addCode(
+            "return %1T(this.buildUnchecked() as %2T, typedFields)",
+            className,
+            CustomFieldsImpl::class
+        )
+        .returns(className)
+        .build()
+
+    return build to buildUnchecked
+}
+
+fun typedCustomFields(type: Type, config: Configuration): TypeSpec {
     val className = TypedCustomFields(type, config).className
     val fields = typedFields(type, config)
 

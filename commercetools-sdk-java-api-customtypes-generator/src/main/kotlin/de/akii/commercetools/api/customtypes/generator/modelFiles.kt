@@ -15,7 +15,7 @@ fun modelFiles(typedResources: List<TypedResources>, config: Configuration): Lis
         customFieldsFile(config),
         typedResourcesCommonFile(config),
         typedCustomObjectsCommonFile(config)
-    ) + productFiles(config) + typedResourceFiles(typedResources) + typedCustomObjectFiles(config)
+    ) + productFiles(config) + typedResourceFiles(typedResources, config) + typedCustomObjectFiles(config)
 
 fun productFiles(config: Configuration): List<FileSpec> =
     config.productTypes.map {
@@ -79,17 +79,30 @@ fun customFieldsFile(config: Configuration): FileSpec {
         .builder("${config.packageName}.custom_fields", "typedCustomFields")
 
     config.customTypes.forEach {
-        customFieldsFile.addType(typedCustomField(it, config))
+        val (build, buildUnchecked) = typedCustomFieldsBuilderExtensionFunctions(it, config)
+        customFieldsFile.addFunction(build)
+        customFieldsFile.addFunction(buildUnchecked)
+    }
+
+    config.customTypes.forEach {
+        customFieldsFile.addType(typedCustomFields(it, config))
     }
 
     return customFieldsFile.build()
 }
 
-fun typedResourceFiles(typedResource: List<TypedResources>): List<FileSpec> =
+fun typedResourceFiles(typedResource: List<TypedResources>, config: Configuration): List<FileSpec> =
     typedResource.flatMap { typedResources ->
         typedResources.resources.map {
-            FileSpec
+            val file = FileSpec
                 .builder(typedResources.packageName, it.typedResourceClassName.simpleName)
+
+            typedResourceBuilderExtensionFunctions(typedResources, it, config)?.let { (build, buildUnchecked) ->
+                file.addFunction(build)
+                file.addFunction(buildUnchecked)
+            }
+
+            file
                 .addType(it.typedResourceSpec)
                 .build()
         }
@@ -103,13 +116,15 @@ fun typedResourcesCommonFile(config: Configuration) =
 
 fun typedCustomObjectFiles(config: Configuration): List<FileSpec> =
     config.customObjectTypes
-        .map { (containerName, className) ->
-            typedCustomObject(containerName, className, config)
-        }
-        .map { (className, typeSpec) ->
+        .map { (containerName, valueClassName) ->
+            val (build, buildUnchecked) = typedCustomObjectBuilderExtensionFunctions(containerName, valueClassName, config)
+            val (customObjectClassName, customObject) = typedCustomObject(containerName, valueClassName, config)
+
             FileSpec
-                .builder("${config.packageName}.custom_objects", className.simpleName)
-                .addType(typeSpec)
+                .builder("${config.packageName}.custom_objects", customObjectClassName.simpleName)
+                .addFunction(build)
+                .addFunction(buildUnchecked)
+                .addType(customObject)
                 .build()
         }
 
