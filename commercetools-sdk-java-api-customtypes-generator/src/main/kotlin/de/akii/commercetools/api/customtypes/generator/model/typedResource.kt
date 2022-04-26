@@ -2,33 +2,46 @@ package de.akii.commercetools.api.customtypes.generator.model
 
 import com.commercetools.api.models.cart.*
 import com.commercetools.api.models.cart_discount.CartDiscount
+import com.commercetools.api.models.cart_discount.CartDiscountBuilder
 import com.commercetools.api.models.cart_discount.CartDiscountImpl
 import com.commercetools.api.models.category.Category
+import com.commercetools.api.models.category.CategoryBuilder
 import com.commercetools.api.models.category.CategoryImpl
 import com.commercetools.api.models.channel.Channel
+import com.commercetools.api.models.channel.ChannelBuilder
 import com.commercetools.api.models.channel.ChannelImpl
 import com.commercetools.api.models.common.*
 import com.commercetools.api.models.customer.Customer
+import com.commercetools.api.models.customer.CustomerBuilder
 import com.commercetools.api.models.customer.CustomerImpl
 import com.commercetools.api.models.customer_group.CustomerGroup
+import com.commercetools.api.models.customer_group.CustomerGroupBuilder
 import com.commercetools.api.models.customer_group.CustomerGroupImpl
 import com.commercetools.api.models.discount_code.DiscountCode
+import com.commercetools.api.models.discount_code.DiscountCodeBuilder
 import com.commercetools.api.models.discount_code.DiscountCodeImpl
 import com.commercetools.api.models.inventory.InventoryEntry
+import com.commercetools.api.models.inventory.InventoryEntryBuilder
 import com.commercetools.api.models.inventory.InventoryEntryImpl
 import com.commercetools.api.models.order.*
 import com.commercetools.api.models.order_edit.OrderEdit
+import com.commercetools.api.models.order_edit.OrderEditBuilder
 import com.commercetools.api.models.order_edit.OrderEditImpl
 import com.commercetools.api.models.payment.*
 import com.commercetools.api.models.review.Review
+import com.commercetools.api.models.review.ReviewBuilder
 import com.commercetools.api.models.review.ReviewImpl
 import com.commercetools.api.models.shipping_method.ShippingMethod
+import com.commercetools.api.models.shipping_method.ShippingMethodBuilder
 import com.commercetools.api.models.shipping_method.ShippingMethodImpl
 import com.commercetools.api.models.shopping_list.ShoppingList
+import com.commercetools.api.models.shopping_list.ShoppingListBuilder
 import com.commercetools.api.models.shopping_list.ShoppingListImpl
 import com.commercetools.api.models.shopping_list.TextLineItem
+import com.commercetools.api.models.shopping_list.TextLineItemBuilder
 import com.commercetools.api.models.shopping_list.TextLineItemImpl
 import com.commercetools.api.models.store.Store
+import com.commercetools.api.models.store.StoreBuilder
 import com.commercetools.api.models.store.StoreImpl
 import com.commercetools.api.models.type.CustomFields
 import com.commercetools.api.models.type.ResourceTypeId
@@ -40,6 +53,7 @@ import kotlin.reflect.KClass
 data class TypedResources(
     val resourceInterface: KClass<*>,
     val resourceDefaultImplementation: KClass<*>,
+    val builder: KClass<*>,
     val packageName: String,
     val resources: List<TypedResource>
 )
@@ -49,6 +63,36 @@ data class TypedResource(
     val typedResourceClassName: ClassName,
     val typedResourceSpec: TypeSpec
 )
+
+fun typedResourceBuilderExtensionFunctions(typedResources: TypedResources, typedResource: TypedResource, config: Configuration): Pair<FunSpec, FunSpec> {
+    val customFieldType = TypedCustomFields(typedResource.type, config).className
+
+    val build = FunSpec
+        .builder("build${typedResource.typedResourceClassName.simpleName}")
+        .receiver(typedResources.builder)
+        .addCode(
+            "return %1T(this.build() as %2T, this.custom as %3T)",
+            typedResource.typedResourceClassName,
+            typedResources.resourceDefaultImplementation,
+            customFieldType
+        )
+        .returns(typedResource.typedResourceClassName)
+        .build()
+
+    val buildUnchecked = FunSpec
+        .builder("build${typedResource.typedResourceClassName.simpleName}Unchecked")
+        .receiver(typedResources.builder)
+        .addCode(
+            "return %1T(this.buildUnchecked() as %2T, this.custom as %3T)",
+            typedResource.typedResourceClassName,
+            typedResources.resourceDefaultImplementation,
+            customFieldType
+        )
+        .returns(typedResource.typedResourceClassName)
+        .build()
+
+    return build to buildUnchecked
+}
 
 fun typedResourceInterface(config: Configuration): TypeSpec =
     TypeSpec
@@ -75,18 +119,22 @@ private fun typedResources(
 ): List<TypedResources> =
     when (resourceTypeId) {
         ResourceTypeId.ORDER -> listOf(
-            typedResources("order", types, OrderImpl::class, Order::class, config),
-            typedResources("cart", types, CartImpl::class, Cart::class, config),
-            typedResources("return-item", types, ReturnItemImpl::class, ReturnItem::class, config),
+            typedResources("order", types, OrderImpl::class, Order::class, OrderBuilder::class, config),
+            typedResources("cart", types, CartImpl::class, Cart::class, CartBuilder::class, config),
+            typedResources("custom-line-return-item", types, CustomLineItemReturnItemImpl::class, CustomLineItemReturnItem::class, CustomLineItemReturnItemBuilder::class, config),
+            typedResources("line-item-return-item", types, LineItemReturnItemImpl::class, LineItemReturnItem::class, LineItemReturnItemBuilder::class, config),
         )
         else -> listOf(
-            typedResources(
-                resourceTypeId.jsonName,
-                types,
-                resourceTypeIdToClasses(resourceTypeId).first,
-                resourceTypeIdToClasses(resourceTypeId).second,
-                config
-            )
+            resourceTypeIdToClasses(resourceTypeId).let { (resourceTypeDefaultImplementation, resourceInterface, builder) ->
+                typedResources(
+                    resourceTypeId.jsonName,
+                    types,
+                    resourceTypeDefaultImplementation,
+                    resourceInterface,
+                    builder,
+                    config
+                )
+            }
         )
     }
 
@@ -95,11 +143,13 @@ private fun typedResources(
     types: List<Type>,
     resourceTypeDefaultImplementation: KClass<*>,
     resourceInterface: KClass<*>,
+    builder: KClass<*>,
     config: Configuration
 ): TypedResources =
     TypedResources(
         resourceInterface,
         resourceTypeDefaultImplementation,
+        builder,
         "${config.packageName}.${resourceTypeNameToSubPackage(resourceTypeName)}",
         types.map {
             typedResource(
@@ -178,15 +228,17 @@ private fun typedResource(
                 .addModifiers(KModifier.OVERRIDE)
                 .build()
         )
-        .addType(TypeSpec
-            .companionObjectBuilder()
-            .addProperty(PropertySpec
-                .builder("TYPE_KEY", String::class)
-                .addModifiers(KModifier.CONST)
-                .initializer("%S", config.typeToKey(type))
+        .addType(
+            TypeSpec
+                .companionObjectBuilder()
+                .addProperty(
+                    PropertySpec
+                        .builder("TYPE_KEY", String::class)
+                        .addModifiers(KModifier.CONST)
+                        .initializer("%S", config.typeToKey(type))
+                        .build()
+                )
                 .build()
-            )
-            .build()
         )
         .build()
 
@@ -199,28 +251,52 @@ private fun typedResource(
 
 private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
     when (resourceTypeId) {
-        ResourceTypeId.ADDRESS -> (AddressImpl::class to Address::class)
-        ResourceTypeId.ASSET -> (AssetImpl::class to Asset::class)
-        ResourceTypeId.CART_DISCOUNT -> (CartDiscountImpl::class to CartDiscount::class)
-        ResourceTypeId.CATEGORY -> (CategoryImpl::class to Category::class)
-        ResourceTypeId.CHANNEL -> (ChannelImpl::class to Channel::class)
-        ResourceTypeId.CUSTOMER -> (CustomerImpl::class to Customer::class)
-        ResourceTypeId.CUSTOMER_GROUP -> (CustomerGroupImpl::class to CustomerGroup::class)
-        ResourceTypeId.CUSTOM_LINE_ITEM -> (CustomLineItemImpl::class to CustomLineItem::class)
-        ResourceTypeId.DISCOUNT_CODE -> (DiscountCodeImpl::class to DiscountCode::class)
-        ResourceTypeId.INVENTORY_ENTRY -> (InventoryEntryImpl::class to InventoryEntry::class)
-        ResourceTypeId.LINE_ITEM -> (LineItemImpl::class to LineItem::class)
-        ResourceTypeId.ORDER -> (OrderImpl::class to Order::class)
-        ResourceTypeId.ORDER_EDIT -> (OrderEditImpl::class to OrderEdit::class)
-        ResourceTypeId.ORDER_DELIVERY -> (DeliveryImpl::class to Delivery::class)
-        ResourceTypeId.PAYMENT -> (PaymentImpl::class to Payment::class)
-        ResourceTypeId.PRODUCT_PRICE -> (PriceImpl::class to Price::class)
-        ResourceTypeId.REVIEW -> (ReviewImpl::class to Review::class)
-        ResourceTypeId.SHIPPING_METHOD -> (ShippingMethodImpl::class to ShippingMethod::class)
-        ResourceTypeId.SHOPPING_LIST -> (ShoppingListImpl::class to ShoppingList::class)
-        ResourceTypeId.STORE -> (StoreImpl::class to Store::class)
-        ResourceTypeId.PAYMENT_INTERFACE_INTERACTION -> (PaymentAddInterfaceInteractionActionImpl::class to PaymentAddInterfaceInteractionAction::class)
-        ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM -> (TextLineItemImpl::class to TextLineItem::class)
-        ResourceTypeId.TRANSACTION -> (TransactionImpl::class to Transaction::class)
+        ResourceTypeId.ADDRESS -> Triple(AddressImpl::class, Address::class, AddressBuilder::class)
+        ResourceTypeId.ASSET -> Triple(AssetImpl::class, Asset::class, AssetBuilder::class)
+        ResourceTypeId.CART_DISCOUNT -> Triple(CartDiscountImpl::class, CartDiscount::class, CartDiscountBuilder::class)
+        ResourceTypeId.CATEGORY -> Triple(CategoryImpl::class, Category::class, CategoryBuilder::class)
+        ResourceTypeId.CHANNEL -> Triple(ChannelImpl::class, Channel::class, ChannelBuilder::class)
+        ResourceTypeId.CUSTOMER -> Triple(CustomerImpl::class, Customer::class, CustomerBuilder::class)
+        ResourceTypeId.CUSTOMER_GROUP -> Triple(
+            CustomerGroupImpl::class,
+            CustomerGroup::class,
+            CustomerGroupBuilder::class
+        )
+        ResourceTypeId.CUSTOM_LINE_ITEM -> Triple(
+            CustomLineItemImpl::class,
+            CustomLineItem::class,
+            CustomLineItemBuilder::class
+        )
+        ResourceTypeId.DISCOUNT_CODE -> Triple(DiscountCodeImpl::class, DiscountCode::class, DiscountCodeBuilder::class)
+        ResourceTypeId.INVENTORY_ENTRY -> Triple(
+            InventoryEntryImpl::class,
+            InventoryEntry::class,
+            InventoryEntryBuilder::class
+        )
+        ResourceTypeId.LINE_ITEM -> Triple(LineItemImpl::class, LineItem::class, LineItemBuilder::class)
+        ResourceTypeId.ORDER -> Triple(OrderImpl::class, Order::class, OrderBuilder::class)
+        ResourceTypeId.ORDER_EDIT -> Triple(OrderEditImpl::class, OrderEdit::class, OrderEditBuilder::class)
+        ResourceTypeId.ORDER_DELIVERY -> Triple(DeliveryImpl::class, Delivery::class, DeliveryBuilder::class)
+        ResourceTypeId.PAYMENT -> Triple(PaymentImpl::class, Payment::class, PaymentBuilder::class)
+        ResourceTypeId.PRODUCT_PRICE -> Triple(PriceImpl::class, Price::class, PriceBuilder::class)
+        ResourceTypeId.REVIEW -> Triple(ReviewImpl::class, Review::class, ReviewBuilder::class)
+        ResourceTypeId.SHIPPING_METHOD -> Triple(
+            ShippingMethodImpl::class,
+            ShippingMethod::class,
+            ShippingMethodBuilder::class
+        )
+        ResourceTypeId.SHOPPING_LIST -> Triple(ShoppingListImpl::class, ShoppingList::class, ShoppingListBuilder::class)
+        ResourceTypeId.STORE -> Triple(StoreImpl::class, Store::class, StoreBuilder::class)
+        ResourceTypeId.PAYMENT_INTERFACE_INTERACTION -> Triple(
+            PaymentAddInterfaceInteractionActionImpl::class,
+            PaymentAddInterfaceInteractionAction::class,
+            PaymentAddInterfaceInteractionActionBuilder::class
+        )
+        ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM -> Triple(
+            TextLineItemImpl::class,
+            TextLineItem::class,
+            TextLineItemBuilder::class
+        )
+        ResourceTypeId.TRANSACTION -> Triple(TransactionImpl::class, Transaction::class, TransactionBuilder::class)
         else -> error("Unknown resource type id ${resourceTypeId.jsonName}")
     }

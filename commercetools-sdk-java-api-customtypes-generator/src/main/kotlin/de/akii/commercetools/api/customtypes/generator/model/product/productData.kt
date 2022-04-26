@@ -1,10 +1,42 @@
 package de.akii.commercetools.api.customtypes.generator.model.product
 
+import com.commercetools.api.models.product.ProductDataBuilder
 import com.commercetools.api.models.product.ProductDataImpl
 import com.commercetools.api.models.product.ProductVariant
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
+
+fun typedProductDataBuilderExtensionFunctions(
+    typedProductDataClassName: TypedProductData,
+    typedProductVariantClassName: TypedProductVariant,
+): Pair<FunSpec, FunSpec> {
+    val build = FunSpec
+        .builder("build${typedProductDataClassName.className.simpleName}")
+        .receiver(ProductDataBuilder::class)
+        .addCode(
+            "return %1T(this.build() as %2T, this.masterVariant as %3T, this.variants.map { it as %3T })",
+            typedProductDataClassName.className,
+            ProductDataImpl::class,
+            typedProductVariantClassName.className
+        )
+        .returns(typedProductDataClassName.className)
+        .build()
+
+    val buildUnchecked = FunSpec
+        .builder("build${typedProductDataClassName.className.simpleName}Unchecked")
+        .receiver(ProductDataBuilder::class)
+        .addCode(
+            "return %1T(this.buildUnchecked() as %2T, this.masterVariant as %3T, this.variants.map { it as %3T })",
+            typedProductDataClassName.className,
+            ProductDataImpl::class,
+            typedProductVariantClassName.className
+        )
+        .returns(typedProductDataClassName.className)
+        .build()
+
+    return build to buildUnchecked
+}
 
 fun productData(
     typedProductDataClassName: TypedProductData,

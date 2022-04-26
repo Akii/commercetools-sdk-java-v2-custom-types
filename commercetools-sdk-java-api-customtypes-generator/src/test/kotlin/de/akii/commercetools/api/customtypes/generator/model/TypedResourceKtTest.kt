@@ -5,10 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
-import de.akii.commercetools.api.customtypes.generator.customFieldsFile
+import de.akii.commercetools.api.customtypes.generator.customFieldsFiles
 import de.akii.commercetools.api.customtypes.generator.typedResourceFiles
 import de.akii.commercetools.api.customtypes.generator.typedResourcesCommonFile
-import de.akii.commercetools.api.customtypes.generator.typedResourcesDeserializerFile
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -25,7 +24,7 @@ internal class TypedResourceKtTest {
     @Test
     fun `generates typed resources`() {
         val config = Configuration("test.package", listOf(), types, emptyMap())
-        val files = typedResourceFiles(typedResources(config)) + customFieldsFile(config) + typedResourcesCommonFile(config)
+        val files = typedResourceFiles(typedResources(config), config) + customFieldsFiles(config) + typedResourcesCommonFile(config)
 
         val sourceFiles = files.map {
             SourceFile.kotlin("${it.name}.kt", it.toString())

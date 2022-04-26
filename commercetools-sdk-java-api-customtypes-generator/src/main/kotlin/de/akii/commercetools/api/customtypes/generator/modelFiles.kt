@@ -4,18 +4,14 @@ import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.FileSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.*
-import de.akii.commercetools.api.customtypes.generator.model.product.productCatalogData
-import de.akii.commercetools.api.customtypes.generator.model.product.productData
-import de.akii.commercetools.api.customtypes.generator.model.product.productVariant
-import de.akii.commercetools.api.customtypes.generator.model.product.productVariantAttributes
+import de.akii.commercetools.api.customtypes.generator.model.product.*
 
 fun modelFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
     listOf(
         productCommonFile(config),
-        customFieldsFile(config),
         typedResourcesCommonFile(config),
         typedCustomObjectsCommonFile(config)
-    ) + productFiles(config) + typedResourceFiles(typedResources) + typedCustomObjectFiles(config)
+    ) + customFieldsFiles(config) + productFiles(config) + typedResourceFiles(typedResources, config) + typedCustomObjectFiles(config)
 
 fun productFiles(config: Configuration): List<FileSpec> =
     config.productTypes.map {
@@ -32,6 +28,26 @@ fun productFile(
     val typedProductVariantClassName = TypedProductVariant(productType, config)
     val typedProductVariantAttributesClassName = TypedProductVariantAttributes(productType, config)
     val typedProductVariantAttributesInterfaceClassName = TypedProductVariantAttributesInterface(config)
+
+    val (buildVariant, buildVariantUnchecked) = typedProductVariantBuilderExtensionFunctions(
+        typedProductVariantClassName,
+        typedProductVariantAttributesClassName
+    )
+
+    val (buildData, buildDataUnchecked) = typedProductDataBuilderExtensionFunctions(
+        typedProductDataClassName,
+        typedProductVariantClassName
+    )
+
+    val (buildCatalogData, buildCatalogDataUnchecked) = typedProductCatalogDataBuilderExtensionFunctions(
+        typedProductCatalogDataClassName,
+        typedProductDataClassName
+    )
+
+    val (buildProduct, buildProductUnchecked) = typedProductBuilderExtensionFunctions(
+        typedProductClassName,
+        typedProductCatalogDataClassName
+    )
 
     val attributeTypeSpec = productVariantAttributes(
         typedProductVariantAttributesClassName,
@@ -59,6 +75,14 @@ fun productFile(
 
     return FileSpec
         .builder(typedProductClassName.className.packageName, typedProductClassName.className.simpleName)
+        .addFunction(buildProduct)
+        .addFunction(buildProductUnchecked)
+        .addFunction(buildCatalogData)
+        .addFunction(buildCatalogDataUnchecked)
+        .addFunction(buildData)
+        .addFunction(buildDataUnchecked)
+        .addFunction(buildVariant)
+        .addFunction(buildVariantUnchecked)
         .addType(product)
         .addType(masterDataTypeSpec)
         .addType(productDataTypeSpec)
@@ -74,22 +98,26 @@ fun productCommonFile(config: Configuration) =
         .addType(typedProductVariantAttributesInterface(config))
         .build()
 
-fun customFieldsFile(config: Configuration): FileSpec {
-    val customFieldsFile = FileSpec
-        .builder("${config.packageName}.custom_fields", "typedCustomFields")
+fun customFieldsFiles(config: Configuration): List<FileSpec> =
+    config.customTypes.map {
+        val (build, buildUnchecked) = typedCustomFieldsBuilderExtensionFunctions(it, config)
 
-    config.customTypes.forEach {
-        customFieldsFile.addType(typedCustomField(it, config))
+        FileSpec
+            .builder("${config.packageName}.custom_fields", TypedCustomFields(it, config).className.simpleName)
+            .addFunction(build)
+            .addFunction(buildUnchecked)
+            .addType(typedCustomFields(it, config))
+            .build()
     }
 
-    return customFieldsFile.build()
-}
-
-fun typedResourceFiles(typedResource: List<TypedResources>): List<FileSpec> =
+fun typedResourceFiles(typedResource: List<TypedResources>, config: Configuration): List<FileSpec> =
     typedResource.flatMap { typedResources ->
         typedResources.resources.map {
+            val (build, buildUnchecked) = typedResourceBuilderExtensionFunctions(typedResources, it, config)
             FileSpec
                 .builder(typedResources.packageName, it.typedResourceClassName.simpleName)
+                .addFunction(build)
+                .addFunction(buildUnchecked)
                 .addType(it.typedResourceSpec)
                 .build()
         }
@@ -103,13 +131,15 @@ fun typedResourcesCommonFile(config: Configuration) =
 
 fun typedCustomObjectFiles(config: Configuration): List<FileSpec> =
     config.customObjectTypes
-        .map { (containerName, className) ->
-            typedCustomObject(containerName, className, config)
-        }
-        .map { (className, typeSpec) ->
+        .map { (containerName, valueClassName) ->
+            val (build, buildUnchecked) = typedCustomObjectBuilderExtensionFunctions(containerName, valueClassName, config)
+            val (customObjectClassName, customObject) = typedCustomObject(containerName, valueClassName, config)
+
             FileSpec
-                .builder("${config.packageName}.custom_objects", className.simpleName)
-                .addType(typeSpec)
+                .builder("${config.packageName}.custom_objects", customObjectClassName.simpleName)
+                .addFunction(build)
+                .addFunction(buildUnchecked)
+                .addType(customObject)
                 .build()
         }
 
