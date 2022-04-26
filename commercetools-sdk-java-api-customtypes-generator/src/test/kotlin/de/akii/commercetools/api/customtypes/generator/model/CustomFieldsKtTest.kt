@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
-import de.akii.commercetools.api.customtypes.generator.customFieldsFile
+import de.akii.commercetools.api.customtypes.generator.customFieldsFiles
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -22,10 +22,10 @@ internal class CustomFieldsKtTest {
     @Test
     fun `generates typed custom fields`() {
         val config = Configuration("test.package", listOf(), types, emptyMap())
-        val file = customFieldsFile(config)
-        val sourceFiles = listOf(
-            SourceFile.kotlin("${file.name}.kt", file.toString())
-        )
+        val files = customFieldsFiles(config)
+        val sourceFiles = files.map {
+            SourceFile.kotlin("${it.name}.kt", it.toString())
+        }
 
         val result = KotlinCompilation().apply {
             sources = sourceFiles

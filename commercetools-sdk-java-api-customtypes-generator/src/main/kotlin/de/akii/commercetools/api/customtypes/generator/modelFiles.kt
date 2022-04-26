@@ -9,10 +9,9 @@ import de.akii.commercetools.api.customtypes.generator.model.product.*
 fun modelFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
     listOf(
         productCommonFile(config),
-        customFieldsFile(config),
         typedResourcesCommonFile(config),
         typedCustomObjectsCommonFile(config)
-    ) + productFiles(config) + typedResourceFiles(typedResources, config) + typedCustomObjectFiles(config)
+    ) + customFieldsFiles(config) + productFiles(config) + typedResourceFiles(typedResources, config) + typedCustomObjectFiles(config)
 
 fun productFiles(config: Configuration): List<FileSpec> =
     config.productTypes.map {
@@ -99,22 +98,17 @@ fun productCommonFile(config: Configuration) =
         .addType(typedProductVariantAttributesInterface(config))
         .build()
 
-fun customFieldsFile(config: Configuration): FileSpec {
-    val customFieldsFile = FileSpec
-        .builder("${config.packageName}.custom_fields", "typedCustomFields")
-
-    config.customTypes.forEach {
+fun customFieldsFiles(config: Configuration): List<FileSpec> =
+    config.customTypes.map {
         val (build, buildUnchecked) = typedCustomFieldsBuilderExtensionFunctions(it, config)
-        customFieldsFile.addFunction(build)
-        customFieldsFile.addFunction(buildUnchecked)
-    }
 
-    config.customTypes.forEach {
-        customFieldsFile.addType(typedCustomFields(it, config))
+        FileSpec
+            .builder("${config.packageName}.custom_fields", TypedCustomFields(it, config).className.simpleName)
+            .addFunction(build)
+            .addFunction(buildUnchecked)
+            .addType(typedCustomFields(it, config))
+            .build()
     }
-
-    return customFieldsFile.build()
-}
 
 fun typedResourceFiles(typedResource: List<TypedResources>, config: Configuration): List<FileSpec> =
     typedResource.flatMap { typedResources ->
