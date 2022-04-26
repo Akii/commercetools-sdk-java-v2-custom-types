@@ -8,7 +8,6 @@ import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import de.akii.commercetools.api.customtypes.generator.customFieldsFile
 import de.akii.commercetools.api.customtypes.generator.typedResourceFiles
 import de.akii.commercetools.api.customtypes.generator.typedResourcesCommonFile
-import de.akii.commercetools.api.customtypes.generator.typedResourcesDeserializerFile
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test

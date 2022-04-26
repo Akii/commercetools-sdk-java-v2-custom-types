@@ -53,7 +53,7 @@ import kotlin.reflect.KClass
 data class TypedResources(
     val resourceInterface: KClass<*>,
     val resourceDefaultImplementation: KClass<*>,
-    val builder: KClass<*>?,
+    val builder: KClass<*>,
     val packageName: String,
     val resources: List<TypedResource>
 )
@@ -64,11 +64,7 @@ data class TypedResource(
     val typedResourceSpec: TypeSpec
 )
 
-fun typedResourceBuilderExtensionFunctions(typedResources: TypedResources, typedResource: TypedResource, config: Configuration): Pair<FunSpec, FunSpec>? {
-    if (typedResources.builder == null) {
-        return null
-    }
-
+fun typedResourceBuilderExtensionFunctions(typedResources: TypedResources, typedResource: TypedResource, config: Configuration): Pair<FunSpec, FunSpec> {
     val customFieldType = TypedCustomFields(typedResource.type, config).className
 
     val build = FunSpec
@@ -125,7 +121,6 @@ private fun typedResources(
         ResourceTypeId.ORDER -> listOf(
             typedResources("order", types, OrderImpl::class, Order::class, OrderBuilder::class, config),
             typedResources("cart", types, CartImpl::class, Cart::class, CartBuilder::class, config),
-            typedResources("return-item", types, ReturnItemImpl::class, ReturnItem::class, null, config),
             typedResources("custom-line-return-item", types, CustomLineItemReturnItemImpl::class, CustomLineItemReturnItem::class, CustomLineItemReturnItemBuilder::class, config),
             typedResources("line-item-return-item", types, LineItemReturnItemImpl::class, LineItemReturnItem::class, LineItemReturnItemBuilder::class, config),
         )
@@ -148,7 +143,7 @@ private fun typedResources(
     types: List<Type>,
     resourceTypeDefaultImplementation: KClass<*>,
     resourceInterface: KClass<*>,
-    builder: KClass<*>?,
+    builder: KClass<*>,
     config: Configuration
 ): TypedResources =
     TypedResources(

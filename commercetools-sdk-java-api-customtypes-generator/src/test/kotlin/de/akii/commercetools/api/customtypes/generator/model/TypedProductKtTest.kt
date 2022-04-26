@@ -11,7 +11,6 @@ import com.tschuchort.compiletesting.SourceFile
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import de.akii.commercetools.api.customtypes.generator.productCommonFile
 import de.akii.commercetools.api.customtypes.generator.productFiles
-import de.akii.commercetools.api.customtypes.generator.typedProductDeserializerFile
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test

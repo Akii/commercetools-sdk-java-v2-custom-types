@@ -4,10 +4,7 @@ import com.commercetools.api.models.product_type.ProductType
 import com.squareup.kotlinpoet.FileSpec
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.model.*
-import de.akii.commercetools.api.customtypes.generator.model.product.productCatalogData
-import de.akii.commercetools.api.customtypes.generator.model.product.productData
-import de.akii.commercetools.api.customtypes.generator.model.product.productVariant
-import de.akii.commercetools.api.customtypes.generator.model.product.productVariantAttributes
+import de.akii.commercetools.api.customtypes.generator.model.product.*
 
 fun modelFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
     listOf(
@@ -32,6 +29,26 @@ fun productFile(
     val typedProductVariantClassName = TypedProductVariant(productType, config)
     val typedProductVariantAttributesClassName = TypedProductVariantAttributes(productType, config)
     val typedProductVariantAttributesInterfaceClassName = TypedProductVariantAttributesInterface(config)
+
+    val (buildVariant, buildVariantUnchecked) = typedProductVariantBuilderExtensionFunctions(
+        typedProductVariantClassName,
+        typedProductVariantAttributesClassName
+    )
+
+    val (buildData, buildDataUnchecked) = typedProductDataBuilderExtensionFunctions(
+        typedProductDataClassName,
+        typedProductVariantClassName
+    )
+
+    val (buildCatalogData, buildCatalogDataUnchecked) = typedProductCatalogDataBuilderExtensionFunctions(
+        typedProductCatalogDataClassName,
+        typedProductDataClassName
+    )
+
+    val (buildProduct, buildProductUnchecked) = typedProductBuilderExtensionFunctions(
+        typedProductClassName,
+        typedProductCatalogDataClassName
+    )
 
     val attributeTypeSpec = productVariantAttributes(
         typedProductVariantAttributesClassName,
@@ -59,6 +76,14 @@ fun productFile(
 
     return FileSpec
         .builder(typedProductClassName.className.packageName, typedProductClassName.className.simpleName)
+        .addFunction(buildProduct)
+        .addFunction(buildProductUnchecked)
+        .addFunction(buildCatalogData)
+        .addFunction(buildCatalogDataUnchecked)
+        .addFunction(buildData)
+        .addFunction(buildDataUnchecked)
+        .addFunction(buildVariant)
+        .addFunction(buildVariantUnchecked)
         .addType(product)
         .addType(masterDataTypeSpec)
         .addType(productDataTypeSpec)
@@ -94,15 +119,11 @@ fun customFieldsFile(config: Configuration): FileSpec {
 fun typedResourceFiles(typedResource: List<TypedResources>, config: Configuration): List<FileSpec> =
     typedResource.flatMap { typedResources ->
         typedResources.resources.map {
-            val file = FileSpec
+            val (build, buildUnchecked) = typedResourceBuilderExtensionFunctions(typedResources, it, config)
+            FileSpec
                 .builder(typedResources.packageName, it.typedResourceClassName.simpleName)
-
-            typedResourceBuilderExtensionFunctions(typedResources, it, config)?.let { (build, buildUnchecked) ->
-                file.addFunction(build)
-                file.addFunction(buildUnchecked)
-            }
-
-            file
+                .addFunction(build)
+                .addFunction(buildUnchecked)
                 .addType(it.typedResourceSpec)
                 .build()
         }

@@ -1,5 +1,6 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
+import com.commercetools.api.models.product.ProductBuilder
 import com.commercetools.api.models.product.ProductCatalogData
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
@@ -17,6 +18,37 @@ fun typedProductVariantAttributesInterface(config: Configuration) =
         .interfaceBuilder(TypedProductVariantAttributesInterface(config).className)
         .addAnnotation(generated)
         .build()
+
+fun typedProductBuilderExtensionFunctions(
+    typedProductClassName: TypedProduct,
+    typedProductCatalogDataClassName: TypedProductCatalogData
+): Pair<FunSpec, FunSpec> {
+    val build = FunSpec
+        .builder("build${typedProductClassName.className.simpleName}")
+        .receiver(ProductBuilder::class)
+        .addCode(
+            "return %1T(this.build() as %2T, this.masterData as %3T)",
+            typedProductClassName.className,
+            ProductImpl::class,
+            typedProductCatalogDataClassName.className
+        )
+        .returns(typedProductClassName.className)
+        .build()
+
+    val buildUnchecked = FunSpec
+        .builder("build${typedProductClassName.className.simpleName}Unchecked")
+        .receiver(ProductBuilder::class)
+        .addCode(
+            "return %1T(this.build() as %2T, this.masterData as %3T)",
+            typedProductClassName.className,
+            ProductImpl::class,
+            typedProductCatalogDataClassName.className
+        )
+        .returns(typedProductClassName.className)
+        .build()
+
+    return build to buildUnchecked
+}
 
 fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
     TypeSpec

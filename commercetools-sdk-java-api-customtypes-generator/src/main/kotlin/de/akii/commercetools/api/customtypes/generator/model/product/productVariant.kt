@@ -5,6 +5,37 @@ import com.squareup.kotlinpoet.*
 import de.akii.commercetools.api.customtypes.generator.common.*
 import de.akii.commercetools.api.customtypes.generator.common.TypedProductVariant
 
+fun typedProductVariantBuilderExtensionFunctions(
+    typedProductVariantClassName: TypedProductVariant,
+    typedProductVariantAttributesClassName: TypedProductVariantAttributes
+): Pair<FunSpec, FunSpec> {
+    val build = FunSpec
+        .builder("build${typedProductVariantClassName.className.simpleName}")
+        .receiver(ProductVariantBuilder::class)
+        .addParameter("typedAttributes", typedProductVariantAttributesClassName.className)
+        .addCode(
+            "return %1T(this.build() as %2T, typedAttributes)",
+            typedProductVariantClassName.className,
+            ProductVariantImpl::class
+        )
+        .returns(typedProductVariantClassName.className)
+        .build()
+
+    val buildUnchecked = FunSpec
+        .builder("build${typedProductVariantClassName.className.simpleName}Unchecked")
+        .receiver(ProductVariantBuilder::class)
+        .addParameter("typedAttributes", typedProductVariantAttributesClassName.className)
+        .addCode(
+            "return %1T(this.buildUnchecked() as %2T, typedAttributes)",
+            typedProductVariantClassName.className,
+            ProductVariantImpl::class
+        )
+        .returns(typedProductVariantClassName.className)
+        .build()
+
+    return build to buildUnchecked
+}
+
 fun productVariant(
     typedProductVariantClassName: TypedProductVariant,
     typedProductVariantAttributesClassName: TypedProductVariantAttributes
