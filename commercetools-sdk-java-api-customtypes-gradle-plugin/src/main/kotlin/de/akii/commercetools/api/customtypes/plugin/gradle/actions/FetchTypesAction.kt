@@ -20,7 +20,7 @@ abstract class FetchTypesAction : WorkAction<FetchTypesParameters> {
                     .build(),
                 ServiceRegion.valueOf(parameters.serviceRegion.get())
             )
-            .build(parameters.projectName.get())
+            .build(parameters.projectKey.get())
 
         val types: List<Type> = QueryUtils
             .queryAll(

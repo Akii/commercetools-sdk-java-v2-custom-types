@@ -8,6 +8,6 @@ interface FetchTypesParameters : WorkParameters {
     val clientId: Property<String>
     val clientSecret: Property<String>
     val serviceRegion: Property<String>
-    val projectName: Property<String>
+    val projectKey: Property<String>
     val typesFile: Property<File>
 }

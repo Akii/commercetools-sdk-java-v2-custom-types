@@ -33,7 +33,7 @@ abstract class FetchProductTypesTask : DefaultTask() {
 
     @Input
     @Option(option = "projectName", description = "Project Name")
-    val projectName: Property<String> = project.objects.property(String::class.java)
+    val projectKey: Property<String> = project.objects.property(String::class.java)
 
     @OutputFile
     val outputFile: RegularFileProperty = project.objects.fileProperty()
@@ -65,7 +65,7 @@ abstract class FetchProductTypesTask : DefaultTask() {
             parameters.clientId.set(clientId)
             parameters.clientSecret.set(clientSecret)
             parameters.serviceRegion.set(serviceRegion)
-            parameters.projectName.set(projectName)
+            parameters.projectName.set(projectKey)
             parameters.productTypesFile.set(productTypesFile)
         }
         workQueue.await()

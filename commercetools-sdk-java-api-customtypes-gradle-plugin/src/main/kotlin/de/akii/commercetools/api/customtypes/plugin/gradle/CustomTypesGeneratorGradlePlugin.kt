@@ -99,14 +99,14 @@ class CustomTypesGeneratorGradlePlugin : Plugin<Project> {
             fetchProductTypesTask.clientId.convention(project.provider { credentials.clientId })
             fetchProductTypesTask.clientSecret.convention(project.provider { credentials.clientSecret })
             fetchProductTypesTask.serviceRegion.convention(project.provider { credentials.serviceRegion.toString() })
-            fetchProductTypesTask.projectName.convention(project.provider { credentials.projectName })
+            fetchProductTypesTask.projectKey.convention(project.provider { credentials.projectKey })
 
             val fetchTypesTask =
                 project.tasks.named(FETCH_TYPES_TASK_NAME, FetchTypesTask::class.java).get()
             fetchTypesTask.clientId.convention(project.provider { credentials.clientId })
             fetchTypesTask.clientSecret.convention(project.provider { credentials.clientSecret })
             fetchTypesTask.serviceRegion.convention(project.provider { credentials.serviceRegion.toString() })
-            fetchTypesTask.projectName.convention(project.provider { credentials.projectName })
+            fetchTypesTask.projectKey.convention(project.provider { credentials.projectKey })
 
             if (productTypesGeneratorExtension.productTypesFile == null) {
                 generateCustomTypesTask.dependsOn(fetchProductTypesTask)

@@ -64,7 +64,7 @@ open class Credentials {
     var clientId: String? = null
     var clientSecret: String? = null
     var serviceRegion: ServiceRegion? = null
-    var projectName: String? = null
+    var projectKey: String? = null
 }
 
 open class CustomProductTypesGeneratorConfiguration {
