@@ -6,7 +6,12 @@ import com.commercetools.api.models.type.FieldDefinition
 import com.commercetools.api.models.type.Type
 
 enum class ProductClassType {
-    Product, ProductCatalogData, ProductData, ProductVariant, ProductVariantAttributes
+    Product,
+    ProductCatalogData,
+    ProductData,
+    ProductVariant,
+    ProductVariantAttributes,
+    ProductProjection
 }
 
 data class Configuration(

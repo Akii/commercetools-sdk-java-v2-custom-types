@@ -35,6 +35,8 @@ fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configurati
         file
             .addType(productMixInInterface(config))
             .addType(fallbackProductInterface(config))
+            .addType(productProjectionMixInInterface(config))
+            .addType(fallbackProjectionProductInterface(config))
             .addType(typedProductApiModule(config))
     }
 
@@ -64,6 +66,7 @@ fun typedProductDeserializerFile(config: Configuration): FileSpec =
         .addType(typedProductBeanDeserializerModifier(config))
         .addType(typedProductDelegatingDeserializer(config))
         .addType(typedProductVariantAttributesDelegatingDeserializer(config))
+        .addType(typedProductProjectionDeserializer(config))
         .build()
 
 fun typedResourceDeserializerFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
