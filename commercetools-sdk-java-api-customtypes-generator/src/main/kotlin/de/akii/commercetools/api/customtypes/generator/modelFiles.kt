@@ -28,6 +28,7 @@ fun productFile(
     val typedProductVariantClassName = TypedProductVariant(productType, config)
     val typedProductVariantAttributesClassName = TypedProductVariantAttributes(productType, config)
     val typedProductVariantAttributesInterfaceClassName = TypedProductVariantAttributesInterface(config)
+    val typedProductProjectionClassName = TypedProductProjection(productType, config)
 
     val (buildVariant, buildVariantUnchecked) = typedProductVariantBuilderExtensionFunctions(
         typedProductVariantClassName,
@@ -47,6 +48,11 @@ fun productFile(
     val (buildProduct, buildProductUnchecked) = typedProductBuilderExtensionFunctions(
         typedProductClassName,
         typedProductCatalogDataClassName
+    )
+
+    val (buildProductProjection, buildProductProjectionUnchecked) = typedProductProjectionBuilderExtensionFunctions(
+        typedProductProjectionClassName,
+        typedProductVariantClassName
     )
 
     val attributeTypeSpec = productVariantAttributes(
@@ -73,6 +79,11 @@ fun productFile(
 
     val product = typedProduct(productType, config)
 
+    val productProjection = productProjection(
+        typedProductProjectionClassName,
+        typedProductVariantClassName
+    )
+
     return FileSpec
         .builder(typedProductClassName.className.packageName, typedProductClassName.className.simpleName)
         .addFunction(buildProduct)
@@ -83,11 +94,14 @@ fun productFile(
         .addFunction(buildDataUnchecked)
         .addFunction(buildVariant)
         .addFunction(buildVariantUnchecked)
+        .addFunction(buildProductProjection)
+        .addFunction(buildProductProjectionUnchecked)
         .addType(product)
         .addType(masterDataTypeSpec)
         .addType(productDataTypeSpec)
         .addType(variantTypeSpec)
         .addType(attributeTypeSpec)
+        .addType(productProjection)
         .build()
 }
 

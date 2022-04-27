@@ -4,6 +4,8 @@ import com.commercetools.api.models.custom_object.CustomObject
 import com.commercetools.api.models.custom_object.CustomObjectImpl
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
+import com.commercetools.api.models.product.ProductProjection
+import com.commercetools.api.models.product.ProductProjectionImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -66,6 +68,21 @@ fun typedProductApiModule(config: Configuration): TypeSpec =
             add(
                 "setDeserializerModifier(%1T())\n",
                 TypedProductBeanDeserializerModifier(config).className,
+            )
+            add(
+                "addDeserializer(%1T::class.java, %2T(typeResolver))\n",
+                ProductProjection::class,
+                TypedProductProjectionDeserializer(config).className
+            )
+            add(
+                "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
+                ProductProjection::class,
+                "ProductProjectionMixIn"
+            )
+            add(
+                "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
+                ProductProjectionImpl::class,
+                "FallbackProductProjectionMixIn"
             )
         })
         .build()
@@ -149,6 +166,20 @@ fun fallbackProductInterface(config: Configuration) =
         .interfaceBuilder(ClassName(config.packageName, "FallbackProductMixIn"))
         .addAnnotation(generated)
         .addAnnotation(deserializeAs(ProductImpl::class.asClassName()))
+        .build()
+
+fun productProjectionMixInInterface(config: Configuration): TypeSpec =
+    TypeSpec
+        .interfaceBuilder(ClassName(config.packageName, "ProductProjectionMixIn"))
+        .addAnnotation(generated)
+        .addAnnotation(deserializeAs(ProductProjection::class.asClassName()))
+        .build()
+
+fun fallbackProjectionProductInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(ClassName(config.packageName, "FallbackProductProjectionMixIn"))
+        .addAnnotation(generated)
+        .addAnnotation(deserializeAs(ProductProjectionImpl::class.asClassName()))
         .build()
 
 fun resourceMixInInterface(typedResourceFile: TypedResources, config: Configuration) =

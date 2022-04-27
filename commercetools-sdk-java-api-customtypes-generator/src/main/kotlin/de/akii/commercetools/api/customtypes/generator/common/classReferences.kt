@@ -25,6 +25,9 @@ class TypedProductBeanDeserializerModifier(config: Configuration) :
 class TypedProductDelegatingDeserializer(config: Configuration) :
     ClassReference("${config.packageName}.product", "TypedProductDelegatingDeserializer")
 
+class TypedProductProjectionDeserializer(config: Configuration) :
+    ClassReference("${config.packageName}.product", "TypedProductProjectionDeserializer")
+
 class TypedProductVariantAttributesDelegatingDeserializer(config: Configuration) :
     ClassReference("${config.packageName}.product", "TypedProductVariantAttributesDelegatingDeserializer")
 
@@ -53,6 +56,10 @@ class TypedProductVariant(productType: ProductType, config: Configuration) : Cla
 class TypedProductVariantAttributes(productType: ProductType, config: Configuration) : ClassReference(
     "${config.packageName}.product",
     config.productTypeToClassName(productType, ProductClassType.ProductVariantAttributes))
+
+class TypedProductProjection(productType: ProductType, config: Configuration) : ClassReference(
+    "${config.packageName}.product",
+    config.productTypeToClassName(productType, ProductClassType.ProductProjection))
 
 class TypedCustomFields(type: Type, config: Configuration) :
     ClassReference("${config.packageName}.custom_fields", config.typeToCustomFieldsClassName(type))
