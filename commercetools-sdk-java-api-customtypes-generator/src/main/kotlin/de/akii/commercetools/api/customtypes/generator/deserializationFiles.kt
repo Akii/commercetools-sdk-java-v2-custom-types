@@ -35,9 +35,10 @@ fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configurati
         file
             .addType(productMixInInterface(config))
             .addType(fallbackProductInterface(config))
+            .addType(typedProductApiModule(config))
             .addType(productProjectionMixInInterface(config))
             .addType(fallbackProjectionProductInterface(config))
-            .addType(typedProductApiModule(config))
+            .addType(typedProductProjectionApiModule(config))
     }
 
     if (config.customTypes.isNotEmpty()) {
@@ -67,6 +68,8 @@ fun typedProductDeserializerFile(config: Configuration): FileSpec =
         .addType(typedProductDelegatingDeserializer(config))
         .addType(typedProductVariantAttributesDelegatingDeserializer(config))
         .addType(typedProductProjectionDeserializer(config))
+        .addType(typedProductProjectionBeanDeserializerModifier(config))
+        .addType(typedProductProjectionDelegatingDeserializer(config))
         .build()
 
 fun typedResourceDeserializerFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =

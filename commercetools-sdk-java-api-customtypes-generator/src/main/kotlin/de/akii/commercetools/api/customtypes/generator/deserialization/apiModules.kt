@@ -69,6 +69,24 @@ fun typedProductApiModule(config: Configuration): TypeSpec =
                 "setDeserializerModifier(%1T())\n",
                 TypedProductBeanDeserializerModifier(config).className,
             )
+        })
+        .build()
+
+fun typedProductProjectionApiModule(config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(ClassName(config.packageName, "TypedProductProjectionApiModule"))
+        .addAnnotation(generated)
+        .superclass(SimpleModule::class)
+        .primaryConstructor(FunSpec
+            .constructorBuilder()
+            .addParameter(ParameterSpec
+                .builder("typeResolver", TypeResolver(config).className.parameterizedBy(ProductType::class.asTypeName()))
+                .defaultValue("%T()", ProductTypeResolver(config).className)
+                .build()
+            )
+            .build()
+        )
+        .addInitializerBlock(buildCodeBlock {
             add(
                 "addDeserializer(%1T::class.java, %2T(typeResolver))\n",
                 ProductProjection::class,
@@ -83,6 +101,10 @@ fun typedProductApiModule(config: Configuration): TypeSpec =
                 "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
                 ProductProjectionImpl::class,
                 "FallbackProductProjectionMixIn"
+            )
+            add(
+                "setDeserializerModifier(%1T())\n",
+                TypedProductProjectionBeanDeserializerModifier(config).className,
             )
         })
         .build()

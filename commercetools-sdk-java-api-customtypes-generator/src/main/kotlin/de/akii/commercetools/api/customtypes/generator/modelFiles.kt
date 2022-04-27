@@ -81,7 +81,8 @@ fun productFile(
 
     val productProjection = productProjection(
         typedProductProjectionClassName,
-        typedProductVariantClassName
+        typedProductVariantClassName,
+        config
     )
 
     return FileSpec
@@ -110,6 +111,7 @@ fun productCommonFile(config: Configuration) =
         .builder("${config.packageName}.product", "common")
         .addType(typedProductInterface(config))
         .addType(typedProductVariantAttributesInterface(config))
+        .addType(typedProductProjectionInterface(config))
         .build()
 
 fun customFieldsFiles(config: Configuration): List<FileSpec> =

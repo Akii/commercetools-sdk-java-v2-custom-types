@@ -1,13 +1,17 @@
 package de.akii.commercetools.api.customtypes.generator.model.product
 
-import com.commercetools.api.models.product.ProductDataBuilder
-import com.commercetools.api.models.product.ProductDataImpl
 import com.commercetools.api.models.product.ProductProjectionBuilder
 import com.commercetools.api.models.product.ProductProjectionImpl
 import com.commercetools.api.models.product.ProductVariant
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import de.akii.commercetools.api.customtypes.generator.common.*
+
+fun typedProductProjectionInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(TypedProductProjectionInterface(config).className)
+        .addAnnotation(generated)
+        .build()
 
 fun typedProductProjectionBuilderExtensionFunctions(
     typedProductProjectionClassName: TypedProductProjection,
@@ -43,6 +47,7 @@ fun typedProductProjectionBuilderExtensionFunctions(
 fun productProjection(
     typedProductProjectionClassName: TypedProductProjection,
     typedProductVariantClassName: TypedProductVariant,
+    config: Configuration
 ): TypeSpec = TypeSpec
     .classBuilder(typedProductProjectionClassName.className)
     .addAnnotation(generated)
@@ -69,6 +74,7 @@ fun productProjection(
         .build()
     )
     .addSuperinterface(com.commercetools.api.models.product.ProductProjection::class, "delegate")
+    .addSuperinterface(TypedProductProjectionInterface(config).className)
     .addProperty(
         PropertySpec
             .builder("delegate", ProductProjectionImpl::class)
