@@ -1,0 +1,20 @@
+{
+  "id": "da0bef2e-0b2e-438d-b50e-b9bec966dcb5",
+  "version": 2,
+  "createdAt": "2022-04-13T15:11:25.732Z",
+  "lastModifiedAt": "2022-04-14T14:35:25.020Z",
+  "lastModifiedBy": {
+    "clientId": "srtB5ZtiwoeJBhYIZa8SpY7B",
+    "isPlatformClient": false
+  },
+  "createdBy": {
+    "clientId": "srtB5ZtiwoeJBhYIZa8SpY7B",
+    "isPlatformClient": false
+  },
+  "container": "some.container",
+  "key": "some-key",
+  "value": {
+    "someValue": "Bar!",
+    "someOtherValue": 123.0
+  }
+}

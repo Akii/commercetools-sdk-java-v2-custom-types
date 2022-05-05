@@ -2,14 +2,18 @@ package de.akii.commercetools.api.customtypes
 
 import com.commercetools.api.models.category.Category
 import com.commercetools.api.models.category.CategoryImpl
+import com.commercetools.api.models.custom_object.CustomObject
+import com.commercetools.api.models.custom_object.CustomObjectImpl
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import de.akii.commercetools.api.customtypes.fixtures.SomeValue
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
 import io.vrap.rmf.base.client.utils.json.JsonUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -35,7 +39,14 @@ internal class GeneratorKtTest {
                 javaClass.getResource("/types/types.json"),
                 object : TypeReference<List<Type>>() {})
 
-    private val config = Configuration("test.package", listOf(productType), types, emptyMap())
+    private val config = Configuration(
+        "test.package",
+        listOf(productType),
+        types,
+        mapOf(
+            "some.container" to "de.akii.commercetools.api.customtypes.fixtures.SomeValue"
+        )
+    )
 
     private val testProducts = javaClass.getResource("/products/testProducts.json")
 
@@ -44,6 +55,10 @@ internal class GeneratorKtTest {
     private val testCategories = javaClass.getResource("/categories/testCategories.json")
 
     private val testCategory = javaClass.getResource("/categories/testCategory.json")
+
+    private val testCustomObjects = javaClass.getResource("/custom-objects/testCustomObjects.json")
+
+    private val testCustomObject = javaClass.getResource("/custom-objects/testCustomObject.json")
 
     @Test
     fun `it compiles without any product-types or custom field types`() {
@@ -206,6 +221,75 @@ internal class GeneratorKtTest {
             .readValue(testCategory, typeACategoryClass)
 
         assertThat(typeACategoryClass.isInstance(category))
+    }
+
+    @Test
+    fun `api module can deserialize typed custom objects`() {
+        val sourceFiles = generate(config).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
+        }
+
+        val result = KotlinCompilation().apply {
+            sources = sourceFiles
+            inheritClassPath = true
+            messageOutputStream = System.out
+        }.compile()
+
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+
+        val apiModule = result.classLoader
+            .loadClass("test.package.TypedCustomObjectsApiModule")
+            .getDeclaredConstructor()
+            .newInstance() as SimpleModule
+
+        val customObjects = JsonUtils
+            .createObjectMapper()
+            .registerKotlinModule()
+            .registerModule(apiModule)
+            .readValue(testCustomObjects, object : TypeReference<List<CustomObject>>() {})
+
+        val customObject1 = customObjects[0]
+        val customObject2 = customObjects[1]
+
+        val someValueCustomObjectClass = result.classLoader.loadClass("test.package.custom_objects.SomeValueCustomObject")
+
+        assertThat(customObject1.javaClass).isEqualTo(someValueCustomObjectClass)
+        assertThat(customObject2.javaClass).isEqualTo(CustomObjectImpl::class.java)
+
+        val someValue = customObject1.value as SomeValue
+
+        assertThat(someValue.someValue).isEqualTo("Bar!")
+        assertThat(someValue.someOtherValue).isEqualTo(123.0)
+    }
+
+    @Test
+    fun `api module can deserialize specific typed custom object classes`() {
+        val sourceFiles = generate(config).map {
+            SourceFile.kotlin("${it.packageName}.${it.name}.kt", it.toString())
+        }
+
+        val result = KotlinCompilation().apply {
+            sources = sourceFiles
+            inheritClassPath = true
+            messageOutputStream = System.out
+        }.compile()
+
+        assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+
+        val apiModule = result.classLoader
+            .loadClass("test.package.TypedCustomObjectsApiModule")
+            .getDeclaredConstructor()
+            .newInstance() as SimpleModule
+
+        val someValueCustomObject = result.classLoader.loadClass("test.package.custom_objects.SomeValueCustomObject")
+
+        val customObject = JsonUtils
+            .createObjectMapper()
+            .registerKotlinModule()
+            .registerModule(apiModule)
+            .readValue(testCustomObject, someValueCustomObject)
+
+        assertThat(someValueCustomObject.isInstance(customObject))
     }
 
     private fun invokeMethod(name: String, obj: Any): Any? =
