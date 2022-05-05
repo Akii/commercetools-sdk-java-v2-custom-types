@@ -10,6 +10,7 @@ plugins {
     signing
     `maven-publish`
     id("io.github.gradle-nexus.publish-plugin")
+    jacoco
 }
 
 allprojects {
@@ -35,6 +36,7 @@ subprojects {
     apply(plugin = "org.jetbrains.dokka")
     apply(plugin = "signing")
     apply(plugin = "maven-publish")
+    apply(plugin = "jacoco")
 
     tasks {
         withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -130,6 +132,16 @@ subprojects {
 
     tasks.test {
         useJUnitPlatform()
+
+        finalizedBy(tasks.jacocoTestReport)
+    }
+
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
+        }
+
+        dependsOn(tasks.test)
     }
 }
 
