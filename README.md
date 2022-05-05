@@ -1,6 +1,7 @@
 # commercetools Java SDK custom types
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.akii.commercetools/commercetools-sdk-java-api-customtypes-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.akii.commercetools/commercetools-sdk-java-api-customtypes-generator)
+[![codecov](https://codecov.io/gh/Akii/commercetools-sdk-java-v2-custom-types/branch/main/graph/badge.svg?token=H75JN4AJE2)](https://codecov.io/gh/Akii/commercetools-sdk-java-v2-custom-types)
 
 This library extends the official commercetools Java SDK by generating custom types defined in commercetools projects.
 Currently, type-safe product types, reference expansion and custom fields are supported.
