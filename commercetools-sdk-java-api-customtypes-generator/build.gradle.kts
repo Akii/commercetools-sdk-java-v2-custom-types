@@ -6,5 +6,5 @@ dependencies {
 
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.8")
     testImplementation("org.assertj:assertj-core:3.22.0")
-    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 }
