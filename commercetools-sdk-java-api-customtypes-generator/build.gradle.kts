@@ -2,7 +2,7 @@ description = "Code generator for custom types defined in commercetools projects
 
 dependencies {
     implementation("com.squareup:kotlinpoet:1.12.0")
-    api("com.commercetools.sdk:commercetools-sdk-java-api:8.10.0")
+    api("com.commercetools.sdk:commercetools-sdk-java-api:9.0.0")
 
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.9")
     testImplementation("org.assertj:assertj-core:3.23.1")

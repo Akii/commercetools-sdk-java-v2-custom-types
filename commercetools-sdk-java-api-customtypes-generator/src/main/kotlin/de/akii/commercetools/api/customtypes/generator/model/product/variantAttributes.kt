@@ -1,33 +1,20 @@
 package de.akii.commercetools.api.customtypes.generator.model.product
 
 import com.commercetools.api.models.cart.CartReference
-import com.commercetools.api.models.cart_discount.CartDiscountReference
 import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.channel.ChannelReference
 import com.commercetools.api.models.common.LocalizedString
 import com.commercetools.api.models.common.Reference
-import com.commercetools.api.models.common.ReferenceTypeId
 import com.commercetools.api.models.common.TypedMoney
 import com.commercetools.api.models.custom_object.CustomObjectReference
 import com.commercetools.api.models.customer.CustomerReference
-import com.commercetools.api.models.customer_group.CustomerGroupReference
-import com.commercetools.api.models.discount_code.DiscountCodeReference
-import com.commercetools.api.models.inventory.InventoryEntryReference
 import com.commercetools.api.models.order.OrderReference
-import com.commercetools.api.models.order_edit.OrderEditReference
-import com.commercetools.api.models.payment.PaymentReference
 import com.commercetools.api.models.product.Attribute
 import com.commercetools.api.models.product.ProductReference
-import com.commercetools.api.models.product_discount.ProductDiscountReference
-import com.commercetools.api.models.product_selection.ProductSelectionReference
 import com.commercetools.api.models.product_type.*
 import com.commercetools.api.models.review.ReviewReference
 import com.commercetools.api.models.shipping_method.ShippingMethodReference
-import com.commercetools.api.models.shopping_list.ShoppingListReference
 import com.commercetools.api.models.state.StateReference
-import com.commercetools.api.models.store.StoreReference
-import com.commercetools.api.models.tax_category.TaxCategoryReference
-import com.commercetools.api.models.type.TypeReference
 import com.commercetools.api.models.zone.ZoneReference
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -101,32 +88,20 @@ private fun typeNameForAttributeType(attributeType: AttributeType, isRequired: B
         else -> Any::class.asTypeName()
     }.copy(nullable = !isRequired)
 
-private fun referenceTypeIdToClassName(referenceTypeId: ReferenceTypeId): ClassName =
+private fun referenceTypeIdToClassName(referenceTypeId: AttributeReferenceTypeId): ClassName =
     when (referenceTypeId) {
-        ReferenceTypeId.CART -> CartReference::class.asClassName()
-        ReferenceTypeId.CART_DISCOUNT -> CartDiscountReference::class.asClassName()
-        ReferenceTypeId.CATEGORY -> CategoryReference::class.asClassName()
-        ReferenceTypeId.CHANNEL -> ChannelReference::class.asClassName()
-        ReferenceTypeId.CUSTOMER -> CustomerReference::class.asClassName()
-        ReferenceTypeId.CUSTOMER_GROUP -> CustomerGroupReference::class.asClassName()
-        ReferenceTypeId.DISCOUNT_CODE -> DiscountCodeReference::class.asClassName()
-        ReferenceTypeId.INVENTORY_ENTRY -> InventoryEntryReference::class.asClassName()
-        ReferenceTypeId.KEY_VALUE_DOCUMENT -> CustomObjectReference::class.asClassName()
-        ReferenceTypeId.ORDER -> OrderReference::class.asClassName()
-        ReferenceTypeId.ORDER_EDIT -> OrderEditReference::class.asClassName()
-        ReferenceTypeId.PAYMENT -> PaymentReference::class.asClassName()
-        ReferenceTypeId.PRODUCT -> ProductReference::class.asClassName()
-        ReferenceTypeId.PRODUCT_DISCOUNT -> ProductDiscountReference::class.asClassName()
-        ReferenceTypeId.PRODUCT_SELECTION -> ProductSelectionReference::class.asClassName()
-        ReferenceTypeId.PRODUCT_TYPE -> ProductTypeReference::class.asClassName()
-        ReferenceTypeId.REVIEW -> ReviewReference::class.asClassName()
-        ReferenceTypeId.SHIPPING_METHOD -> ShippingMethodReference::class.asClassName()
-        ReferenceTypeId.SHOPPING_LIST -> ShoppingListReference::class.asClassName()
-        ReferenceTypeId.STATE -> StateReference::class.asClassName()
-        ReferenceTypeId.STORE -> StoreReference::class.asClassName()
-        ReferenceTypeId.TAX_CATEGORY -> TaxCategoryReference::class.asClassName()
-        ReferenceTypeId.TYPE -> TypeReference::class.asClassName()
-        ReferenceTypeId.ZONE -> ZoneReference::class.asClassName()
+        AttributeReferenceTypeId.CART -> CartReference::class.asClassName()
+        AttributeReferenceTypeId.CATEGORY -> CategoryReference::class.asClassName()
+        AttributeReferenceTypeId.CHANNEL -> ChannelReference::class.asClassName()
+        AttributeReferenceTypeId.CUSTOMER -> CustomerReference::class.asClassName()
+        AttributeReferenceTypeId.KEY_VALUE_DOCUMENT -> CustomObjectReference::class.asClassName()
+        AttributeReferenceTypeId.ORDER -> OrderReference::class.asClassName()
+        AttributeReferenceTypeId.PRODUCT -> ProductReference::class.asClassName()
+        AttributeReferenceTypeId.PRODUCT_TYPE -> ProductTypeReference::class.asClassName()
+        AttributeReferenceTypeId.REVIEW -> ReviewReference::class.asClassName()
+        AttributeReferenceTypeId.SHIPPING_METHOD -> ShippingMethodReference::class.asClassName()
+        AttributeReferenceTypeId.STATE -> StateReference::class.asClassName()
+        AttributeReferenceTypeId.ZONE -> ZoneReference::class.asClassName()
         else -> Reference::class.asClassName()
     }
 
