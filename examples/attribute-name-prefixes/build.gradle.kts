@@ -3,7 +3,7 @@ import de.akii.commercetools.api.customtypes.plugin.gradle.commercetoolsCustomTy
 plugins {
     application
     id("org.jetbrains.kotlin.jvm") version "1.6.10"
-    id("de.akii.commercetools.api.customtypes") version "0.0.22"
+    id("de.akii.commercetools.api.customtypes") version "0.0.44"
 }
 
 group "org.example"
@@ -18,8 +18,8 @@ dependencies {
     implementation(kotlin("script-runtime"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
-    implementation("com.commercetools.sdk:commercetools-sdk-java-api:8.2.0")
-    implementation("com.commercetools.sdk:commercetools-http-client:8.2.0")
+    implementation("com.commercetools.sdk:commercetools-sdk-java-api:9.3.0")
+    implementation("com.commercetools.sdk:commercetools-http-client:9.3.0")
 }
 
 application {

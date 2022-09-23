@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.vrap.rmf.base.client.*
+import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient {
@@ -63,4 +64,8 @@ class MockApiHttpClient(private val objectMapper: ObjectMapper) : ApiHttpClient 
 
     override fun getSerializerService(): ResponseSerializer =
         ResponseSerializer.of(objectMapper)
+
+    override fun getBaseUri(): URI {
+        TODO("Not yet implemented")
+    }
 }
