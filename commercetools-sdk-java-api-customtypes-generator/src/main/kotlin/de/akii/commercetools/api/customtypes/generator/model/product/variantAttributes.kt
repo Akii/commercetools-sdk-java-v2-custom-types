@@ -76,7 +76,7 @@ private fun typeNameForAttributeType(attributeType: AttributeType, isRequired: B
         is AttributeTextType -> String::class.asTypeName()
         is AttributeLocalizableTextType -> LocalizedString::class.asTypeName()
         is AttributeEnumType -> AttributePlainEnumValue::class.asTypeName()
-        is AttributeLocalizedEnumValue -> AttributeLocalizedEnumValue::class.asTypeName()
+        is AttributeLocalizedEnumType -> AttributeLocalizedEnumValue::class.asTypeName()
         is AttributeNumberType -> Double::class.asTypeName()
         is AttributeMoneyType -> TypedMoney::class.asTypeName()
         is AttributeDateType -> LocalDate::class.asTypeName()

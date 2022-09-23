@@ -28,6 +28,12 @@ import com.commercetools.api.models.order_edit.OrderEdit
 import com.commercetools.api.models.order_edit.OrderEditBuilder
 import com.commercetools.api.models.order_edit.OrderEditImpl
 import com.commercetools.api.models.payment.*
+import com.commercetools.api.models.product_selection.ProductSelection
+import com.commercetools.api.models.product_selection.ProductSelectionBuilder
+import com.commercetools.api.models.product_selection.ProductSelectionImpl
+import com.commercetools.api.models.quote.Quote
+import com.commercetools.api.models.quote.QuoteBuilder
+import com.commercetools.api.models.quote.QuoteImpl
 import com.commercetools.api.models.review.Review
 import com.commercetools.api.models.review.ReviewBuilder
 import com.commercetools.api.models.review.ReviewImpl
@@ -277,8 +283,11 @@ private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
         ResourceTypeId.ORDER -> Triple(OrderImpl::class, Order::class, OrderBuilder::class)
         ResourceTypeId.ORDER_EDIT -> Triple(OrderEditImpl::class, OrderEdit::class, OrderEditBuilder::class)
         ResourceTypeId.ORDER_DELIVERY -> Triple(DeliveryImpl::class, Delivery::class, DeliveryBuilder::class)
+        ResourceTypeId.ORDER_PARCEL -> Triple(ParcelImpl::class, Parcel::class, ParcelBuilder::class)
+        ResourceTypeId.ORDER_RETURN_ITEM -> Triple(ReturnItemImpl::class, ReturnItem::class, ReturnItemBuilder::class)
         ResourceTypeId.PAYMENT -> Triple(PaymentImpl::class, Payment::class, PaymentBuilder::class)
         ResourceTypeId.PRODUCT_PRICE -> Triple(PriceImpl::class, Price::class, PriceBuilder::class)
+        ResourceTypeId.PRODUCT_SELECTION -> Triple(ProductSelectionImpl::class, ProductSelection::class, ProductSelectionBuilder::class)
         ResourceTypeId.REVIEW -> Triple(ReviewImpl::class, Review::class, ReviewBuilder::class)
         ResourceTypeId.SHIPPING_METHOD -> Triple(
             ShippingMethodImpl::class,
@@ -298,5 +307,6 @@ private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
             TextLineItemBuilder::class
         )
         ResourceTypeId.TRANSACTION -> Triple(TransactionImpl::class, Transaction::class, TransactionBuilder::class)
+        ResourceTypeId.QUOTE -> Triple(QuoteImpl::class, Quote::class, QuoteBuilder::class)
         else -> error("Unknown resource type id ${resourceTypeId.jsonName}")
     }

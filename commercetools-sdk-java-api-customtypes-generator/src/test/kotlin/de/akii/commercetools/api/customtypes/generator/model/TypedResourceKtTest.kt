@@ -1,5 +1,6 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
+import com.commercetools.api.models.type.ResourceTypeId
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.type.TypeReference
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -21,6 +22,36 @@ internal class TypedResourceKtTest {
                 javaClass.getResource("/types/types.json"),
                 object : TypeReference<List<Type>>() {})
 
+    private val resourceTypeIdsHandled = listOf(
+        ResourceTypeId.ADDRESS,
+        ResourceTypeId.ASSET,
+        ResourceTypeId.CART_DISCOUNT,
+        ResourceTypeId.CATEGORY,
+        ResourceTypeId.CHANNEL,
+        ResourceTypeId.CUSTOMER,
+        ResourceTypeId.CUSTOMER_GROUP,
+        ResourceTypeId.CUSTOM_LINE_ITEM,
+        ResourceTypeId.DISCOUNT_CODE,
+        ResourceTypeId.INVENTORY_ENTRY,
+        ResourceTypeId.LINE_ITEM,
+        ResourceTypeId.ORDER,
+        ResourceTypeId.ORDER_EDIT,
+        ResourceTypeId.ORDER_DELIVERY,
+        ResourceTypeId.ORDER_PARCEL,
+        ResourceTypeId.ORDER_RETURN_ITEM,
+        ResourceTypeId.PAYMENT,
+        ResourceTypeId.PRODUCT_PRICE,
+        ResourceTypeId.PRODUCT_SELECTION,
+        ResourceTypeId.REVIEW,
+        ResourceTypeId.SHIPPING_METHOD,
+        ResourceTypeId.SHOPPING_LIST,
+        ResourceTypeId.STORE,
+        ResourceTypeId.PAYMENT_INTERFACE_INTERACTION,
+        ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM,
+        ResourceTypeId.TRANSACTION,
+        ResourceTypeId.QUOTE
+    )
+
     @Test
     fun `generates typed resources`() {
         val config = Configuration("test.package", listOf(), types, emptyMap())
@@ -37,6 +68,15 @@ internal class TypedResourceKtTest {
         }.compile()
 
         Assertions.assertThat(result.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+    }
+
+    @Test
+    fun `resource type ids case analysis is exhaustive`() {
+        ResourceTypeId
+            .values()
+            .forEach {
+                Assertions.assertThat(resourceTypeIdsHandled).contains(it)
+            }
     }
 
 }
