@@ -12,7 +12,7 @@ dependencies {
 
     api(project(":commercetools-sdk-java-api-customtypes-generator"))
     compileOnly("com.squareup:kotlinpoet:1.12.0")
-    api("com.commercetools.sdk:commercetools-sdk-java-api:9.2.2") {
+    api("com.commercetools.sdk:commercetools-sdk-java-api:9.3.0") {
         commercetoolsSdkApiVersion = version
     }
 }
