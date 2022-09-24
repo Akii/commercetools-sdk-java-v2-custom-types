@@ -1,0 +1,62 @@
+[
+  {
+    "id": "some-id",
+    "quantity": 42,
+    "comment": "comment",
+    "shipmentState": "Advised",
+    "paymentState": "Initial",
+    "createdAt": "2022-02-12T15:37:29.547Z",
+    "lastModifiedAt": "2022-02-12T15:37:29.547Z",
+    "lineItemId": "42",
+    "type": "LineItemReturnItem",
+    "custom": {
+      "type": {
+        "typeId": "type",
+        "id": "bf88871c-94d6-41cf-8f5d-e0289fb0bcd0"
+      },
+      "fields": {
+        "a-boolean": false
+      }
+    }
+  },
+  {
+    "id": "some-id",
+    "quantity": 42,
+    "comment": "comment",
+    "shipmentState": "Advised",
+    "paymentState": "Initial",
+    "createdAt": "2022-02-12T15:37:29.547Z",
+    "lastModifiedAt": "2022-02-12T15:37:29.547Z",
+    "lineItemId": "42",
+    "type": "CustomLineItemReturnItem",
+    "custom": {
+      "type": {
+        "typeId": "type",
+        "id": "bf88871c-94d6-41cf-8f5d-e0289fb0bcd0"
+      },
+      "fields": {
+        "a-boolean": false
+      }
+    }
+  },
+  {
+    "id": "some-id",
+    "quantity": 42,
+    "comment": "comment",
+    "shipmentState": "Advised",
+    "paymentState": "Initial",
+    "createdAt": "2022-02-12T15:37:29.547Z",
+    "lastModifiedAt": "2022-02-12T15:37:29.547Z",
+    "lineItemId": "42",
+    "type": "LineItemReturnItem",
+    "custom": {
+      "type": {
+        "typeId": "type",
+        "id": "none"
+      },
+      "fields": {
+        "a-boolean": false
+      }
+    }
+  }
+]

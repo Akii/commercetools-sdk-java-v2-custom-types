@@ -2,8 +2,9 @@ package de.akii.commercetools.api.customtypes.generator
 
 import com.squareup.kotlinpoet.FileSpec
 import de.akii.commercetools.api.customtypes.generator.common.Configuration
+import de.akii.commercetools.api.customtypes.generator.common.hasReturnItemResources
 import de.akii.commercetools.api.customtypes.generator.deserialization.*
-import de.akii.commercetools.api.customtypes.generator.model.*
+import de.akii.commercetools.api.customtypes.generator.model.TypedResources
 
 fun deserializationFiles(typedResourceFiles: List<TypedResources>, config: Configuration): List<FileSpec> {
     val files = mutableListOf<FileSpec>()
@@ -42,6 +43,10 @@ fun apiModulesFile(typedResourceFiles: List<TypedResources>, config: Configurati
     }
 
     if (config.customTypes.isNotEmpty()) {
+        if (hasReturnItemResources(typedResourceFiles)) {
+            file.addType(returnItemMixInInterface(config))
+            file.addType(fallbackReturnItemInterface(config))
+        }
         typedResourceFiles.forEach {
             file.addType(resourceMixInInterface(it, config))
             file.addType(fallbackResourceInterface(it, config))
@@ -72,14 +77,29 @@ fun typedProductDeserializerFile(config: Configuration): FileSpec =
         .addType(typedProductProjectionDelegatingDeserializer(config))
         .build()
 
-fun typedResourceDeserializerFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
-    typedResources
+fun typedResourceDeserializerFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> {
+    val needsReturnItemDeserializer = hasReturnItemResources(typedResources)
+
+    val returnItemDeserializer =
+        FileSpec
+            .builder("${config.packageName}.order", "ReturnItemDeserializer")
+            .addType(returnItemDeserializer(config))
+            .build()
+
+    val typedResourceDeserializers = typedResources
         .map {
             FileSpec
-                .builder(it.packageName, "deserializer")
+                .builder(it.packageName, "Typed${it.resourceInterface.simpleName}Deserializer")
                 .addType(typedResourceDeserializer(it, config))
                 .build()
         }
+
+    return if (needsReturnItemDeserializer) {
+        typedResourceDeserializers + returnItemDeserializer
+    } else {
+        typedResourceDeserializers
+    }
+}
 
 fun typedResourcesDeserializerFile(config: Configuration) =
     FileSpec

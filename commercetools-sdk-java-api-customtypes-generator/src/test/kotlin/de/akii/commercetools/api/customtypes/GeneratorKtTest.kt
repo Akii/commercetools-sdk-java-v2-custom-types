@@ -4,6 +4,8 @@ import com.commercetools.api.models.category.Category
 import com.commercetools.api.models.category.CategoryImpl
 import com.commercetools.api.models.custom_object.CustomObject
 import com.commercetools.api.models.custom_object.CustomObjectImpl
+import com.commercetools.api.models.order.LineItemReturnItemImpl
+import com.commercetools.api.models.order.ReturnItem
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product_type.ProductType
@@ -55,6 +57,8 @@ internal class GeneratorKtTest {
     private val testCategories = javaClass.getResource("/categories/testCategories.json")
 
     private val testCategory = javaClass.getResource("/categories/testCategory.json")
+
+    private val testReturnItem = javaClass.getResource("/return-items/return-items.json")
 
     private val testCustomObjects = javaClass.getResource("/custom-objects/testCustomObjects.json")
 
@@ -192,6 +196,22 @@ internal class GeneratorKtTest {
         val custom2 = invokeMethod("getTypedFields", category2.custom)!!
 
         assertThat(invokeMethod("getABoolean", custom2) as Boolean).isFalse
+
+        val lineItemReturnItems = JsonUtils
+            .createObjectMapper()
+            .registerModule(apiModule)
+            .readValue(testReturnItem, object : TypeReference<List<ReturnItem>>() {})
+
+        val typeAReturnItemClass = result.classLoader.loadClass("test.package.order.TypeALineItemReturnItem")
+        val typeACustomReturnItemClass = result.classLoader.loadClass("test.package.order.TypeACustomLineItemReturnItem")
+
+        val returnItem1 = lineItemReturnItems[0]
+        val returnItem2 = lineItemReturnItems[1]
+        val returnItem3 = lineItemReturnItems[2]
+
+        assertThat(returnItem1.javaClass).isEqualTo(typeAReturnItemClass)
+        assertThat(returnItem2.javaClass).isEqualTo(typeACustomReturnItemClass)
+        assertThat(returnItem3.javaClass).isEqualTo(LineItemReturnItemImpl::class.java)
     }
 
     @Test

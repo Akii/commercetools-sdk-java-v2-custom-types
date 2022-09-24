@@ -2,12 +2,17 @@ package de.akii.commercetools.api.customtypes.generator.deserialization
 
 import com.commercetools.api.models.custom_object.CustomObject
 import com.commercetools.api.models.custom_object.CustomObjectImpl
+import com.commercetools.api.models.order.ReturnItem
+import com.commercetools.api.models.order.ReturnItemImpl
 import com.commercetools.api.models.product.Product
 import com.commercetools.api.models.product.ProductImpl
 import com.commercetools.api.models.product.ProductProjection
 import com.commercetools.api.models.product.ProductProjectionImpl
 import com.commercetools.api.models.product_type.ProductType
 import com.commercetools.api.models.type.Type
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -124,6 +129,23 @@ fun typedResourcesApiModule(typedResourceFiles: List<TypedResources>, config: Co
             .build()
         )
         .addInitializerBlock(buildCodeBlock {
+            if (hasReturnItemResources(typedResourceFiles)) {
+                add(
+                    "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
+                    ReturnItem::class,
+                    "ReturnItemMixIn"
+                )
+                add(
+                    "setMixInAnnotation(%1T::class.java, %2L::class.java)\n",
+                    ReturnItemImpl::class,
+                    "FallbackReturnItemMixIn"
+                )
+                add(
+                    "addDeserializer(%1T::class.java, %2T())\n",
+                    ReturnItem::class,
+                    ReturnItemDeserializer(config).className
+                )
+            }
             typedResourceFiles.forEach {
                 add(
                     "addDeserializer(%1T::class.java, %2T(typeResolver))\n",
@@ -202,6 +224,22 @@ fun fallbackProjectionProductInterface(config: Configuration) =
         .interfaceBuilder(ClassName(config.packageName, "FallbackProductProjectionMixIn"))
         .addAnnotation(generated)
         .addAnnotation(deserializeAs(ProductProjectionImpl::class.asClassName()))
+        .build()
+
+fun returnItemMixInInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(ClassName("${config.packageName}.return_item", "ReturnItemMixIn"))
+        .addAnnotation(generated)
+        .addAnnotation(AnnotationSpec.builder(JsonSubTypes::class).build())
+        .addAnnotation(AnnotationSpec.builder(JsonTypeInfo::class).addMember("use = %T.NONE", Id::class).build())
+        .addAnnotation(deserializeAs(ReturnItem::class.asClassName()))
+        .build()
+
+fun fallbackReturnItemInterface(config: Configuration) =
+    TypeSpec
+        .interfaceBuilder(ClassName("${config.packageName}.return_item", "FallbackReturnItemMixIn"))
+        .addAnnotation(generated)
+        .addAnnotation(deserializeAs(ReturnItemImpl::class.asClassName()))
         .build()
 
 fun resourceMixInInterface(typedResourceFile: TypedResources, config: Configuration) =

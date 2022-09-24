@@ -57,7 +57,7 @@ internal class TypedResourceKtTest {
         val config = Configuration("test.package", listOf(), types, emptyMap())
         val files = typedResourceFiles(typedResources(config), config) + customFieldsFiles(config) + typedResourcesCommonFile(config)
 
-        val sourceFiles = files.map {
+        val sourceFiles = files.filterNotNull().map {
             SourceFile.kotlin("${it.name}.kt", it.toString())
         }
 

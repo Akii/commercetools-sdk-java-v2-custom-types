@@ -93,6 +93,11 @@ class TypedResourceDeserializer(typedResources: TypedResources) : ClassReference
     typedResources.packageName,
     "Typed${typedResources.resourceInterface.simpleName}Deserializer")
 
+class ReturnItemDeserializer(config: Configuration) : ClassReference(
+    "${config.packageName}.order",
+    "ReturnItemDeserializer"
+)
+
 class TypedCustomObjectInterface(config: Configuration) :
     ClassReference("${config.packageName}.custom_objects", "TypedCustomObject")
 

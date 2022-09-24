@@ -127,8 +127,10 @@ private fun typedResources(
         ResourceTypeId.ORDER -> listOf(
             typedResources("order", types, OrderImpl::class, Order::class, OrderBuilder::class, config),
             typedResources("cart", types, CartImpl::class, Cart::class, CartBuilder::class, config),
-            typedResources("custom-line-return-item", types, CustomLineItemReturnItemImpl::class, CustomLineItemReturnItem::class, CustomLineItemReturnItemBuilder::class, config),
+        )
+        ResourceTypeId.ORDER_RETURN_ITEM -> listOf(
             typedResources("line-item-return-item", types, LineItemReturnItemImpl::class, LineItemReturnItem::class, LineItemReturnItemBuilder::class, config),
+            typedResources("custom-line-item-return-item", types, CustomLineItemReturnItemImpl::class, CustomLineItemReturnItem::class, CustomLineItemReturnItemBuilder::class, config),
         )
         else -> listOf(
             resourceTypeIdToClasses(resourceTypeId).let { (resourceTypeDefaultImplementation, resourceInterface, builder) ->

@@ -7,11 +7,14 @@ import de.akii.commercetools.api.customtypes.generator.model.*
 import de.akii.commercetools.api.customtypes.generator.model.product.*
 
 fun modelFiles(typedResources: List<TypedResources>, config: Configuration): List<FileSpec> =
-    listOf(
+    listOfNotNull(
         productCommonFile(config),
         typedResourcesCommonFile(config),
         typedCustomObjectsCommonFile(config)
-    ) + customFieldsFiles(config) + productFiles(config) + typedResourceFiles(typedResources, config) + typedCustomObjectFiles(config)
+    ) + customFieldsFiles(config) + productFiles(config) + typedResourceFiles(
+        typedResources,
+        config
+    ) + typedCustomObjectFiles(config)
 
 fun productFiles(config: Configuration): List<FileSpec> =
     config.productTypes.map {
@@ -107,12 +110,14 @@ fun productFile(
 }
 
 fun productCommonFile(config: Configuration) =
-    FileSpec
-        .builder("${config.packageName}.product", "common")
-        .addType(typedProductInterface(config))
-        .addType(typedProductVariantAttributesInterface(config))
-        .addType(typedProductProjectionInterface(config))
-        .build()
+    config.takeIf { it.productTypes.isNotEmpty() }?.let {
+        FileSpec
+            .builder("${config.packageName}.product", "common")
+            .addType(typedProductInterface(config))
+            .addType(typedProductVariantAttributesInterface(config))
+            .addType(typedProductProjectionInterface(config))
+            .build()
+    }
 
 fun customFieldsFiles(config: Configuration): List<FileSpec> =
     config.customTypes.map {
@@ -140,15 +145,21 @@ fun typedResourceFiles(typedResource: List<TypedResources>, config: Configuratio
     }
 
 fun typedResourcesCommonFile(config: Configuration) =
-    FileSpec
-        .builder("${config.packageName}.custom_fields", "common")
-        .addType(typedResourceInterface(config))
-        .build()
+    config.takeIf { it.customTypes.isNotEmpty() }?.let {
+        FileSpec
+            .builder("${config.packageName}.custom_fields", "common")
+            .addType(typedResourceInterface(config))
+            .build()
+    }
 
 fun typedCustomObjectFiles(config: Configuration): List<FileSpec> =
     config.customObjectTypes
         .map { (containerName, valueClassName) ->
-            val (build, buildUnchecked) = typedCustomObjectBuilderExtensionFunctions(containerName, valueClassName, config)
+            val (build, buildUnchecked) = typedCustomObjectBuilderExtensionFunctions(
+                containerName,
+                valueClassName,
+                config
+            )
             val (customObjectClassName, customObject) = typedCustomObject(containerName, valueClassName, config)
 
             FileSpec
@@ -160,7 +171,9 @@ fun typedCustomObjectFiles(config: Configuration): List<FileSpec> =
         }
 
 fun typedCustomObjectsCommonFile(config: Configuration) =
-    FileSpec
-        .builder("${config.packageName}.custom_objects", "common")
-        .addType(typedCustomObjectInterface(config))
-        .build()
+    config.takeIf { it.customObjectTypes.isNotEmpty() }?.let {
+        FileSpec
+            .builder("${config.packageName}.custom_objects", "common")
+            .addType(typedCustomObjectInterface(config))
+            .build()
+    }

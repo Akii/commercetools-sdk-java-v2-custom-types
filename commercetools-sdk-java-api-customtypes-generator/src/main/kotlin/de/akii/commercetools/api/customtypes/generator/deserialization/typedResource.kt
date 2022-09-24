@@ -1,5 +1,9 @@
 package de.akii.commercetools.api.customtypes.generator.deserialization
 
+import com.commercetools.api.models.order.CustomLineItemReturnItem
+import com.commercetools.api.models.order.LineItemReturnItem
+import com.commercetools.api.models.order.ReturnItem
+import com.commercetools.api.models.order.ReturnItemImpl
 import com.commercetools.api.models.type.Type
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.type.TypeReference
@@ -130,6 +134,15 @@ fun typedResourceDeserializer(typedResources: TypedResources, config: Configurat
         .addFunction(makeParser)
         .build()
 
+fun returnItemDeserializer(config: Configuration): TypeSpec =
+    TypeSpec
+        .classBuilder(ReturnItemDeserializer(config).className)
+        .addAnnotation(generated)
+        .superclass(JsonDeserializer::class.asTypeName().parameterizedBy(ReturnItem::class.asClassName()))
+        .addFunction(deserializeReturnItem)
+        .addFunction(makeParser)
+        .build()
+
 fun typedCustomFieldsBeanDeserializerModifier(config: Configuration): TypeSpec =
     TypeSpec
         .classBuilder(TypedCustomFieldsBeanDeserializerModifier(config).className)
@@ -239,6 +252,26 @@ private val transformJson =
             return super.deserialize(makeParser(wrapperObject, codec), ctxt)
         """.trimIndent())
         .returns(Any::class)
+        .build()
+
+private val deserializeReturnItem =
+    FunSpec
+        .builder("deserialize")
+        .addModifiers(KModifier.OVERRIDE)
+        .addParameter("p", JsonParser::class.asTypeName().copy(true))
+        .addParameter("ctxt", DeserializationContext::class.asTypeName().copy(true))
+        .addCode("""
+            val codec = p?.codec
+            val node: com.fasterxml.jackson.databind.JsonNode? = codec?.readTree(p)
+            val objectNode = node as com.fasterxml.jackson.databind.node.ObjectNode
+            
+            return when (objectNode["type"].asText()) {
+                %1T.CUSTOM_LINE_ITEM_RETURN_ITEM -> ctxt?.readValue(makeParser(node, codec), %1T::class.java)
+                %2T.LINE_ITEM_RETURN_ITEM -> ctxt?.readValue(makeParser(node, codec), %2T::class.java)
+                else -> ctxt?.readValue(makeParser(node, codec), %3T::class.java)
+            }
+        """.trimIndent(), CustomLineItemReturnItem::class, LineItemReturnItem::class, ReturnItemImpl::class)
+        .returns(ReturnItem::class.asTypeName().copy(nullable = true))
         .build()
 
 private val transformFieldsJson =

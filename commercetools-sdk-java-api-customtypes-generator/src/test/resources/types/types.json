@@ -18,7 +18,8 @@
     },
     "resourceTypeIds": [
       "order",
-      "category"
+      "category",
+      "order-return-item"
     ],
     "fieldDefinitions": [
       {
