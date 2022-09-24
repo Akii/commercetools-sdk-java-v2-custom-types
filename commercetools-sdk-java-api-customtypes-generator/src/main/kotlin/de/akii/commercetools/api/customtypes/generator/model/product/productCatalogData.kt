@@ -12,6 +12,7 @@ fun typedProductCatalogDataBuilderExtensionFunctions(
 ): Pair<FunSpec, FunSpec> {
     val build = FunSpec
         .builder("build${typedProductCatalogDataClassName.className.simpleName}")
+        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductCatalogDataBuilder::class)
         .addCode(
             "return %1T(this.build() as %2T, this.current as %3T, this.staged as %3T)",
@@ -24,6 +25,7 @@ fun typedProductCatalogDataBuilderExtensionFunctions(
 
     val buildUnchecked = FunSpec
         .builder("build${typedProductCatalogDataClassName.className.simpleName}Unchecked")
+        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductCatalogDataBuilder::class)
         .addCode(
             "return %1T(this.buildUnchecked() as %2T, this.current as %3T, this.staged as %3T)",
@@ -104,6 +106,7 @@ fun productCatalogData(
     .addFunction(
         FunSpec
             .builder("setCurrent")
+            .addAnnotation(throwsClassCastExceptions)
             .addParameter("current", ProductData::class)
             .addStatement("this.current = current as %T", typedProductDataClassName.className)
             .addModifiers(KModifier.OVERRIDE)
@@ -120,6 +123,7 @@ fun productCatalogData(
     .addFunction(
         FunSpec
             .builder("setStaged")
+            .addAnnotation(throwsClassCastExceptions)
             .addParameter("staged", ProductData::class)
             .addStatement("this.staged = staged as %T", typedProductDataClassName.className)
             .addModifiers(KModifier.OVERRIDE)

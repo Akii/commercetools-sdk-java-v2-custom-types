@@ -75,6 +75,7 @@ fun typedResourceBuilderExtensionFunctions(typedResources: TypedResources, typed
 
     val build = FunSpec
         .builder("build${typedResource.typedResourceClassName.simpleName}")
+        .addAnnotation(throwsClassCastExceptions)
         .receiver(typedResources.builder)
         .addCode(
             "return %1T(this.build() as %2T, this.custom as %3T)",
@@ -87,6 +88,7 @@ fun typedResourceBuilderExtensionFunctions(typedResources: TypedResources, typed
 
     val buildUnchecked = FunSpec
         .builder("build${typedResource.typedResourceClassName.simpleName}Unchecked")
+        .addAnnotation(throwsClassCastExceptions)
         .receiver(typedResources.builder)
         .addCode(
             "return %1T(this.buildUnchecked() as %2T, this.custom as %3T)",
@@ -231,6 +233,7 @@ private fun typedResource(
         .addFunction(
             FunSpec
                 .builder("setCustom")
+                .addAnnotation(throwsClassCastExceptions)
                 .addParameter("custom", CustomFields::class)
                 .addStatement("this.custom = custom as %T", customFieldType)
                 .addModifiers(KModifier.OVERRIDE)

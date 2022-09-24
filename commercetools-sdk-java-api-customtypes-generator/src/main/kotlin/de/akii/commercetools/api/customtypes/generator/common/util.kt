@@ -16,6 +16,12 @@ val jsonCreator =
         .builder(JsonCreator::class)
         .build()
 
+val throwsClassCastExceptions =
+    AnnotationSpec
+        .builder(Throws::class)
+        .addMember("%T::class", ClassCastException::class)
+        .build()
+
 fun deserializeAs(asClassName: ClassName): AnnotationSpec =
     AnnotationSpec
         .builder(JsonDeserialize::class)

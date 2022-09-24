@@ -29,6 +29,7 @@ fun typedCustomFieldsBuilderExtensionFunctions(type: Type, config: Configuration
 
     val build = FunSpec
         .builder("build${className.simpleName}")
+        .addAnnotation(throwsClassCastExceptions)
         .receiver(CustomObjectBuilder::class)
         .addParameter("typedFields", ClassName(className.packageName, "${className.simpleName}.Fields"))
         .addCode(
@@ -41,6 +42,7 @@ fun typedCustomFieldsBuilderExtensionFunctions(type: Type, config: Configuration
 
     val buildUnchecked = FunSpec
         .builder("build${className.simpleName}Unchecked")
+        .addAnnotation(throwsClassCastExceptions)
         .receiver(CustomObjectBuilder::class)
         .addParameter("typedFields", ClassName(className.packageName, "${className.simpleName}.Fields"))
         .addCode(
