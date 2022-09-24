@@ -18,7 +18,6 @@ fun typedCustomObjectBuilderExtensionFunctions(containerName: String, className:
 
     val build = FunSpec
         .builder("build${typedCustomObjectClassName.simpleName}")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(CustomObjectBuilder::class)
         .addCode(
             "return %1T(this.build() as %2T, this.value as %3T)",
@@ -31,7 +30,6 @@ fun typedCustomObjectBuilderExtensionFunctions(containerName: String, className:
 
     val buildUnchecked = FunSpec
         .builder("build${typedCustomObjectClassName.simpleName}Unchecked")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(CustomObjectBuilder::class)
         .addCode(
             "return %1T(this.buildUnchecked() as %2T, this.value as %3T)",
@@ -100,7 +98,6 @@ fun typedCustomObject(containerName: String, className: String, config: Configur
         .addFunction(
             FunSpec
                 .builder("setValue")
-                .addAnnotation(throwsClassCastExceptions)
                 .addParameter("value", Any::class.asTypeName().copy(nullable = true))
                 .addStatement("this.value = value as %T", valueClassName.className)
                 .addModifiers(KModifier.OVERRIDE)

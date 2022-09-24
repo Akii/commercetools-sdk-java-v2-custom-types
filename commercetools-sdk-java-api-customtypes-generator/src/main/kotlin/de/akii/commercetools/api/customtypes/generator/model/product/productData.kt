@@ -13,7 +13,6 @@ fun typedProductDataBuilderExtensionFunctions(
 ): Pair<FunSpec, FunSpec> {
     val build = FunSpec
         .builder("build${typedProductDataClassName.className.simpleName}")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductDataBuilder::class)
         .addCode(
             "return %1T(this.build() as %2T, this.masterVariant as %3T, this.variants.map { it as %3T })",
@@ -26,7 +25,6 @@ fun typedProductDataBuilderExtensionFunctions(
 
     val buildUnchecked = FunSpec
         .builder("build${typedProductDataClassName.className.simpleName}Unchecked")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductDataBuilder::class)
         .addCode(
             "return %1T(this.buildUnchecked() as %2T, this.masterVariant as %3T, this.variants.map { it as %3T })",
@@ -103,7 +101,6 @@ fun productData(
     .addFunction(
         FunSpec
             .builder("setMasterVariant")
-            .addAnnotation(throwsClassCastExceptions)
             .addParameter("masterVariant", ProductVariant::class)
             .addStatement("this.masterVariant = masterVariant as %T", typedProductVariantClassName.className)
             .addModifiers(KModifier.OVERRIDE)
@@ -120,7 +117,6 @@ fun productData(
     .addFunction(
         FunSpec
             .builder("setVariants")
-            .addAnnotation(throwsClassCastExceptions)
             .addParameter("variants", LIST.parameterizedBy(ProductVariant::class.asTypeName()))
             .addStatement("this.variants = variants.map { it as %T }", typedProductVariantClassName.className)
             .addModifiers(KModifier.OVERRIDE)
@@ -129,7 +125,6 @@ fun productData(
     .addFunction(
         FunSpec
             .builder("setVariants")
-            .addAnnotation(throwsClassCastExceptions)
             .addParameter("variants", ProductVariant::class, KModifier.VARARG)
             .addStatement("this.variants = variants.asList().map { it as %T }", typedProductVariantClassName.className)
             .addModifiers(KModifier.OVERRIDE)

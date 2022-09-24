@@ -25,7 +25,6 @@ fun typedProductBuilderExtensionFunctions(
 ): Pair<FunSpec, FunSpec> {
     val build = FunSpec
         .builder("build${typedProductClassName.className.simpleName}")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductBuilder::class)
         .addCode(
             "return %1T(this.build() as %2T, this.masterData as %3T)",
@@ -38,7 +37,6 @@ fun typedProductBuilderExtensionFunctions(
 
     val buildUnchecked = FunSpec
         .builder("build${typedProductClassName.className.simpleName}Unchecked")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductBuilder::class)
         .addCode(
             "return %1T(this.build() as %2T, this.masterData as %3T)",
@@ -111,7 +109,6 @@ fun typedProduct(productType: ProductType, config: Configuration): TypeSpec =
         .addFunction(
             FunSpec
                 .builder("setMasterData")
-                .addAnnotation(throwsClassCastExceptions)
                 .addParameter("masterData", ProductCatalogData::class)
                 .addStatement("this.masterData = masterData as %T", TypedProductCatalogData(productType, config).className)
                 .addModifiers(KModifier.OVERRIDE)

@@ -11,7 +11,6 @@ fun typedProductVariantBuilderExtensionFunctions(
 ): Pair<FunSpec, FunSpec> {
     val build = FunSpec
         .builder("build${typedProductVariantClassName.className.simpleName}")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductVariantBuilder::class)
         .addParameter("typedAttributes", typedProductVariantAttributesClassName.className)
         .addCode(
@@ -24,7 +23,6 @@ fun typedProductVariantBuilderExtensionFunctions(
 
     val buildUnchecked = FunSpec
         .builder("build${typedProductVariantClassName.className.simpleName}Unchecked")
-        .addAnnotation(throwsClassCastExceptions)
         .receiver(ProductVariantBuilder::class)
         .addParameter("typedAttributes", typedProductVariantAttributesClassName.className)
         .addCode(
