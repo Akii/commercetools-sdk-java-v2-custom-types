@@ -42,7 +42,6 @@ fun hasReturnItemResources(typedResources: List<TypedResources>) =
 
 val resourceTypeNameToSubPackage: (String) -> String = {
     when (it) {
-        "cart" -> "order"
         "line-item-return-item" -> "order"
         "custom-line-item-return-item" -> "order"
         else -> it.split('-').joinToString("_")
