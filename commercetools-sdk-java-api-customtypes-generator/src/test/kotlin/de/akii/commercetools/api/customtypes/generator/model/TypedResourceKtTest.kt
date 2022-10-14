@@ -25,6 +25,7 @@ internal class TypedResourceKtTest {
     private val resourceTypeIdsHandled = listOf(
         ResourceTypeId.ADDRESS,
         ResourceTypeId.ASSET,
+        ResourceTypeId.BUSINESS_UNIT,
         ResourceTypeId.CART_DISCOUNT,
         ResourceTypeId.CATEGORY,
         ResourceTypeId.CHANNEL,
@@ -45,6 +46,7 @@ internal class TypedResourceKtTest {
         ResourceTypeId.REVIEW,
         ResourceTypeId.SHIPPING_METHOD,
         ResourceTypeId.SHOPPING_LIST,
+        ResourceTypeId.STANDALONE_PRICE,
         ResourceTypeId.STORE,
         ResourceTypeId.PAYMENT_INTERFACE_INTERACTION,
         ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM,

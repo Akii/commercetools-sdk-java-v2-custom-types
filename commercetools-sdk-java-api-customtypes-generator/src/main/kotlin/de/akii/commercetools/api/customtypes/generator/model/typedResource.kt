@@ -1,5 +1,8 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
+import com.commercetools.api.models.business_unit.BusinessUnit
+import com.commercetools.api.models.business_unit.BusinessUnitBuilder
+import com.commercetools.api.models.business_unit.BusinessUnitImpl
 import com.commercetools.api.models.cart.*
 import com.commercetools.api.models.cart_discount.CartDiscount
 import com.commercetools.api.models.cart_discount.CartDiscountBuilder
@@ -46,6 +49,9 @@ import com.commercetools.api.models.shopping_list.ShoppingListImpl
 import com.commercetools.api.models.shopping_list.TextLineItem
 import com.commercetools.api.models.shopping_list.TextLineItemBuilder
 import com.commercetools.api.models.shopping_list.TextLineItemImpl
+import com.commercetools.api.models.standalone_price.StandalonePrice
+import com.commercetools.api.models.standalone_price.StandalonePriceBuilder
+import com.commercetools.api.models.standalone_price.StandalonePriceImpl
 import com.commercetools.api.models.store.Store
 import com.commercetools.api.models.store.StoreBuilder
 import com.commercetools.api.models.store.StoreImpl
@@ -261,6 +267,7 @@ private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
     when (resourceTypeId) {
         ResourceTypeId.ADDRESS -> Triple(AddressImpl::class, Address::class, AddressBuilder::class)
         ResourceTypeId.ASSET -> Triple(AssetImpl::class, Asset::class, AssetBuilder::class)
+        ResourceTypeId.BUSINESS_UNIT -> Triple(BusinessUnitImpl::class, BusinessUnit::class, BusinessUnitBuilder::class)
         ResourceTypeId.CART_DISCOUNT -> Triple(CartDiscountImpl::class, CartDiscount::class, CartDiscountBuilder::class)
         ResourceTypeId.CATEGORY -> Triple(CategoryImpl::class, Category::class, CategoryBuilder::class)
         ResourceTypeId.CHANNEL -> Triple(ChannelImpl::class, Channel::class, ChannelBuilder::class)
@@ -297,6 +304,7 @@ private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
             ShippingMethodBuilder::class
         )
         ResourceTypeId.SHOPPING_LIST -> Triple(ShoppingListImpl::class, ShoppingList::class, ShoppingListBuilder::class)
+        ResourceTypeId.STANDALONE_PRICE -> Triple(StandalonePriceImpl::class, StandalonePrice::class, StandalonePriceBuilder::class)
         ResourceTypeId.STORE -> Triple(StoreImpl::class, Store::class, StoreBuilder::class)
         ResourceTypeId.PAYMENT_INTERFACE_INTERACTION -> Triple(
             PaymentAddInterfaceInteractionActionImpl::class,
