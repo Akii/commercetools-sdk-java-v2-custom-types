@@ -76,7 +76,90 @@ data class TypedResource(
     val typedResourceSpec: TypeSpec
 )
 
-fun typedResourceBuilderExtensionFunctions(typedResources: TypedResources, typedResource: TypedResource, config: Configuration): Pair<FunSpec, FunSpec> {
+val resourceTypeIdClasses =
+    mapOf(
+        ResourceTypeId.ADDRESS to Triple(AddressImpl::class, Address::class, AddressBuilder::class),
+        ResourceTypeId.ASSET to Triple(AssetImpl::class, Asset::class, AssetBuilder::class),
+        ResourceTypeId.BUSINESS_UNIT to Triple(
+            BusinessUnitImpl::class,
+            BusinessUnit::class,
+            BusinessUnitBuilder::class
+        ),
+        ResourceTypeId.CART_DISCOUNT to Triple(
+            CartDiscountImpl::class,
+            CartDiscount::class,
+            CartDiscountBuilder::class
+        ),
+        ResourceTypeId.CATEGORY to Triple(CategoryImpl::class, Category::class, CategoryBuilder::class),
+        ResourceTypeId.CHANNEL to Triple(ChannelImpl::class, Channel::class, ChannelBuilder::class),
+        ResourceTypeId.CUSTOMER to Triple(CustomerImpl::class, Customer::class, CustomerBuilder::class),
+        ResourceTypeId.CUSTOMER_GROUP to Triple(
+            CustomerGroupImpl::class,
+            CustomerGroup::class,
+            CustomerGroupBuilder::class
+        ),
+        ResourceTypeId.CUSTOM_LINE_ITEM to Triple(
+            CustomLineItemImpl::class,
+            CustomLineItem::class,
+            CustomLineItemBuilder::class
+        ),
+        ResourceTypeId.DISCOUNT_CODE to Triple(
+            DiscountCodeImpl::class,
+            DiscountCode::class,
+            DiscountCodeBuilder::class
+        ),
+        ResourceTypeId.INVENTORY_ENTRY to Triple(
+            InventoryEntryImpl::class,
+            InventoryEntry::class,
+            InventoryEntryBuilder::class
+        ),
+        ResourceTypeId.LINE_ITEM to Triple(LineItemImpl::class, LineItem::class, LineItemBuilder::class),
+        ResourceTypeId.ORDER_EDIT to Triple(OrderEditImpl::class, OrderEdit::class, OrderEditBuilder::class),
+        ResourceTypeId.ORDER_DELIVERY to Triple(DeliveryImpl::class, Delivery::class, DeliveryBuilder::class),
+        ResourceTypeId.ORDER_PARCEL to Triple(ParcelImpl::class, Parcel::class, ParcelBuilder::class),
+        ResourceTypeId.PAYMENT to Triple(PaymentImpl::class, Payment::class, PaymentBuilder::class),
+        ResourceTypeId.PRODUCT_PRICE to Triple(PriceImpl::class, Price::class, PriceBuilder::class),
+        ResourceTypeId.PRODUCT_SELECTION to Triple(
+            ProductSelectionImpl::class,
+            ProductSelection::class,
+            ProductSelectionBuilder::class
+        ),
+        ResourceTypeId.REVIEW to Triple(ReviewImpl::class, Review::class, ReviewBuilder::class),
+        ResourceTypeId.SHIPPING_METHOD to Triple(
+            ShippingMethodImpl::class,
+            ShippingMethod::class,
+            ShippingMethodBuilder::class
+        ),
+        ResourceTypeId.SHOPPING_LIST to Triple(
+            ShoppingListImpl::class,
+            ShoppingList::class,
+            ShoppingListBuilder::class
+        ),
+        ResourceTypeId.STANDALONE_PRICE to Triple(
+            StandalonePriceImpl::class,
+            StandalonePrice::class,
+            StandalonePriceBuilder::class
+        ),
+        ResourceTypeId.STORE to Triple(StoreImpl::class, Store::class, StoreBuilder::class),
+        ResourceTypeId.PAYMENT_INTERFACE_INTERACTION to Triple(
+            PaymentAddInterfaceInteractionActionImpl::class,
+            PaymentAddInterfaceInteractionAction::class,
+            PaymentAddInterfaceInteractionActionBuilder::class
+        ),
+        ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM to Triple(
+            TextLineItemImpl::class,
+            TextLineItem::class,
+            TextLineItemBuilder::class
+        ),
+        ResourceTypeId.TRANSACTION to Triple(TransactionImpl::class, Transaction::class, TransactionBuilder::class),
+        ResourceTypeId.QUOTE to Triple(QuoteImpl::class, Quote::class, QuoteBuilder::class)
+    )
+
+fun typedResourceBuilderExtensionFunctions(
+    typedResources: TypedResources,
+    typedResource: TypedResource,
+    config: Configuration
+): Pair<FunSpec, FunSpec> {
     val customFieldType = TypedCustomFields(typedResource.type, config).className
 
     val build = FunSpec
@@ -135,11 +218,25 @@ private fun typedResources(
             typedResources("cart", types, CartImpl::class, Cart::class, CartBuilder::class, config),
         )
         ResourceTypeId.ORDER_RETURN_ITEM -> listOf(
-            typedResources("line-item-return-item", types, LineItemReturnItemImpl::class, LineItemReturnItem::class, LineItemReturnItemBuilder::class, config),
-            typedResources("custom-line-item-return-item", types, CustomLineItemReturnItemImpl::class, CustomLineItemReturnItem::class, CustomLineItemReturnItemBuilder::class, config),
+            typedResources(
+                "line-item-return-item",
+                types,
+                LineItemReturnItemImpl::class,
+                LineItemReturnItem::class,
+                LineItemReturnItemBuilder::class,
+                config
+            ),
+            typedResources(
+                "custom-line-item-return-item",
+                types,
+                CustomLineItemReturnItemImpl::class,
+                CustomLineItemReturnItem::class,
+                CustomLineItemReturnItemBuilder::class,
+                config
+            ),
         )
-        else -> listOf(
-            resourceTypeIdToClasses(resourceTypeId).let { (resourceTypeDefaultImplementation, resourceInterface, builder) ->
+        else -> listOfNotNull(
+            resourceTypeIdClasses[resourceTypeId]?.let { (resourceTypeDefaultImplementation, resourceInterface, builder) ->
                 typedResources(
                     resourceTypeId.jsonName,
                     types,
@@ -262,61 +359,3 @@ private fun typedResource(
         resourceType
     )
 }
-
-private fun resourceTypeIdToClasses(resourceTypeId: ResourceTypeId) =
-    when (resourceTypeId) {
-        ResourceTypeId.ADDRESS -> Triple(AddressImpl::class, Address::class, AddressBuilder::class)
-        ResourceTypeId.ASSET -> Triple(AssetImpl::class, Asset::class, AssetBuilder::class)
-        ResourceTypeId.BUSINESS_UNIT -> Triple(BusinessUnitImpl::class, BusinessUnit::class, BusinessUnitBuilder::class)
-        ResourceTypeId.CART_DISCOUNT -> Triple(CartDiscountImpl::class, CartDiscount::class, CartDiscountBuilder::class)
-        ResourceTypeId.CATEGORY -> Triple(CategoryImpl::class, Category::class, CategoryBuilder::class)
-        ResourceTypeId.CHANNEL -> Triple(ChannelImpl::class, Channel::class, ChannelBuilder::class)
-        ResourceTypeId.CUSTOMER -> Triple(CustomerImpl::class, Customer::class, CustomerBuilder::class)
-        ResourceTypeId.CUSTOMER_GROUP -> Triple(
-            CustomerGroupImpl::class,
-            CustomerGroup::class,
-            CustomerGroupBuilder::class
-        )
-        ResourceTypeId.CUSTOM_LINE_ITEM -> Triple(
-            CustomLineItemImpl::class,
-            CustomLineItem::class,
-            CustomLineItemBuilder::class
-        )
-        ResourceTypeId.DISCOUNT_CODE -> Triple(DiscountCodeImpl::class, DiscountCode::class, DiscountCodeBuilder::class)
-        ResourceTypeId.INVENTORY_ENTRY -> Triple(
-            InventoryEntryImpl::class,
-            InventoryEntry::class,
-            InventoryEntryBuilder::class
-        )
-        ResourceTypeId.LINE_ITEM -> Triple(LineItemImpl::class, LineItem::class, LineItemBuilder::class)
-        ResourceTypeId.ORDER -> Triple(OrderImpl::class, Order::class, OrderBuilder::class)
-        ResourceTypeId.ORDER_EDIT -> Triple(OrderEditImpl::class, OrderEdit::class, OrderEditBuilder::class)
-        ResourceTypeId.ORDER_DELIVERY -> Triple(DeliveryImpl::class, Delivery::class, DeliveryBuilder::class)
-        ResourceTypeId.ORDER_PARCEL -> Triple(ParcelImpl::class, Parcel::class, ParcelBuilder::class)
-        ResourceTypeId.ORDER_RETURN_ITEM -> Triple(ReturnItemImpl::class, ReturnItem::class, ReturnItemBuilder::class)
-        ResourceTypeId.PAYMENT -> Triple(PaymentImpl::class, Payment::class, PaymentBuilder::class)
-        ResourceTypeId.PRODUCT_PRICE -> Triple(PriceImpl::class, Price::class, PriceBuilder::class)
-        ResourceTypeId.PRODUCT_SELECTION -> Triple(ProductSelectionImpl::class, ProductSelection::class, ProductSelectionBuilder::class)
-        ResourceTypeId.REVIEW -> Triple(ReviewImpl::class, Review::class, ReviewBuilder::class)
-        ResourceTypeId.SHIPPING_METHOD -> Triple(
-            ShippingMethodImpl::class,
-            ShippingMethod::class,
-            ShippingMethodBuilder::class
-        )
-        ResourceTypeId.SHOPPING_LIST -> Triple(ShoppingListImpl::class, ShoppingList::class, ShoppingListBuilder::class)
-        ResourceTypeId.STANDALONE_PRICE -> Triple(StandalonePriceImpl::class, StandalonePrice::class, StandalonePriceBuilder::class)
-        ResourceTypeId.STORE -> Triple(StoreImpl::class, Store::class, StoreBuilder::class)
-        ResourceTypeId.PAYMENT_INTERFACE_INTERACTION -> Triple(
-            PaymentAddInterfaceInteractionActionImpl::class,
-            PaymentAddInterfaceInteractionAction::class,
-            PaymentAddInterfaceInteractionActionBuilder::class
-        )
-        ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM -> Triple(
-            TextLineItemImpl::class,
-            TextLineItem::class,
-            TextLineItemBuilder::class
-        )
-        ResourceTypeId.TRANSACTION -> Triple(TransactionImpl::class, Transaction::class, TransactionBuilder::class)
-        ResourceTypeId.QUOTE -> Triple(QuoteImpl::class, Quote::class, QuoteBuilder::class)
-        else -> error("Unknown resource type id ${resourceTypeId.jsonName}")
-    }

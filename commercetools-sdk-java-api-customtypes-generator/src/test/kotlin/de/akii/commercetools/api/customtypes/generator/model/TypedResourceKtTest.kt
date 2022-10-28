@@ -22,37 +22,8 @@ internal class TypedResourceKtTest {
                 javaClass.getResource("/types/types.json"),
                 object : TypeReference<List<Type>>() {})
 
-    private val resourceTypeIdsHandled = listOf(
-        ResourceTypeId.ADDRESS,
-        ResourceTypeId.ASSET,
-        ResourceTypeId.BUSINESS_UNIT,
-        ResourceTypeId.CART_DISCOUNT,
-        ResourceTypeId.CATEGORY,
-        ResourceTypeId.CHANNEL,
-        ResourceTypeId.CUSTOMER,
-        ResourceTypeId.CUSTOMER_GROUP,
-        ResourceTypeId.CUSTOM_LINE_ITEM,
-        ResourceTypeId.DISCOUNT_CODE,
-        ResourceTypeId.INVENTORY_ENTRY,
-        ResourceTypeId.LINE_ITEM,
-        ResourceTypeId.ORDER,
-        ResourceTypeId.ORDER_EDIT,
-        ResourceTypeId.ORDER_DELIVERY,
-        ResourceTypeId.ORDER_PARCEL,
-        ResourceTypeId.ORDER_RETURN_ITEM,
-        ResourceTypeId.PAYMENT,
-        ResourceTypeId.PRODUCT_PRICE,
-        ResourceTypeId.PRODUCT_SELECTION,
-        ResourceTypeId.REVIEW,
-        ResourceTypeId.SHIPPING_METHOD,
-        ResourceTypeId.SHOPPING_LIST,
-        ResourceTypeId.STANDALONE_PRICE,
-        ResourceTypeId.STORE,
-        ResourceTypeId.PAYMENT_INTERFACE_INTERACTION,
-        ResourceTypeId.SHOPPING_LIST_TEXT_LINE_ITEM,
-        ResourceTypeId.TRANSACTION,
-        ResourceTypeId.QUOTE
-    )
+    private val resourceTypeIdsHandled =
+        listOf(ResourceTypeId.ORDER, ResourceTypeId.ORDER_RETURN_ITEM) + resourceTypeIdClasses.keys
 
     @Test
     fun `generates typed resources`() {
