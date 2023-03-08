@@ -125,6 +125,7 @@ val resourceTypeIdClasses =
             ProductSelectionBuilder::class
         ),
         ResourceTypeId.REVIEW to Triple(ReviewImpl::class, Review::class, ReviewBuilder::class),
+        ResourceTypeId.SHIPPING to Triple(ShippingImpl::class, Shipping::class, ShippingBuilder::class),
         ResourceTypeId.SHIPPING_METHOD to Triple(
             ShippingMethodImpl::class,
             ShippingMethod::class,
