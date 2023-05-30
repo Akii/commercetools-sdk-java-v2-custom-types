@@ -1,7 +1,7 @@
 description = "Code generator for custom types defined in commercetools projects"
 
 dependencies {
-    implementation("com.squareup:kotlinpoet:1.13.1")
+    implementation("com.squareup:kotlinpoet:1.14.1")
     api("com.commercetools.sdk:commercetools-sdk-java-api:14.1.0")
 
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.5.0")
