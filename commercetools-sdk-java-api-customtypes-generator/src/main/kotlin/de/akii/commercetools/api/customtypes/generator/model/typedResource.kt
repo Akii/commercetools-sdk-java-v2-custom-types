@@ -1,5 +1,8 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
+import com.commercetools.api.models.associate_role.AssociateRole
+import com.commercetools.api.models.associate_role.AssociateRoleBuilder
+import com.commercetools.api.models.associate_role.AssociateRoleImpl
 import com.commercetools.api.models.business_unit.BusinessUnit
 import com.commercetools.api.models.business_unit.BusinessUnitBuilder
 import com.commercetools.api.models.business_unit.BusinessUnitImpl
@@ -80,6 +83,7 @@ val resourceTypeIdClasses =
     mapOf(
         ResourceTypeId.ADDRESS to Triple(AddressImpl::class, Address::class, AddressBuilder::class),
         ResourceTypeId.ASSET to Triple(AssetImpl::class, Asset::class, AssetBuilder::class),
+        ResourceTypeId.ASSOCIATE_ROLE to Triple(AssociateRoleImpl::class, AssociateRole::class, AssociateRoleBuilder::class),
         ResourceTypeId.BUSINESS_UNIT to Triple(
             BusinessUnitImpl::class,
             BusinessUnit::class,
