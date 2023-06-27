@@ -1,5 +1,7 @@
 package de.akii.commercetools.api.customtypes.generator.model
 
+import com.commercetools.api.models.associate_role.AssociateRoleReference
+import com.commercetools.api.models.business_unit.BusinessUnitReference
 import com.commercetools.api.models.cart.CartReference
 import com.commercetools.api.models.category.CategoryReference
 import com.commercetools.api.models.channel.ChannelReference
@@ -150,6 +152,8 @@ private fun typeNameForFieldType(fieldType: FieldType, isRequired: Boolean, conf
 
 private fun customFieldReferenceTypeIdToClassName(referenceTypeId: CustomFieldReferenceValue): ClassName =
     when (referenceTypeId) {
+        CustomFieldReferenceValue.ASSOCIATE_ROLE -> AssociateRoleReference::class.asClassName()
+        CustomFieldReferenceValue.BUSINESS_UNIT -> BusinessUnitReference::class.asClassName()
         CustomFieldReferenceValue.CART -> CartReference::class.asClassName()
         CustomFieldReferenceValue.CATEGORY -> CategoryReference::class.asClassName()
         CustomFieldReferenceValue.CHANNEL -> ChannelReference::class.asClassName()
