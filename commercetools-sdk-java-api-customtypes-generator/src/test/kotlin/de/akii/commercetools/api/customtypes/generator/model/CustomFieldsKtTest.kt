@@ -38,6 +38,8 @@ internal class CustomFieldsKtTest {
     )
 
     private val customFieldReferenceValuesHandled = listOf(
+        CustomFieldReferenceValue.ASSOCIATE_ROLE,
+        CustomFieldReferenceValue.BUSINESS_UNIT,
         CustomFieldReferenceValue.CART,
         CustomFieldReferenceValue.CATEGORY,
         CustomFieldReferenceValue.CHANNEL,
